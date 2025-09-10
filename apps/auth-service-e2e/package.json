@@ -4,7 +4,7 @@
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@eshop/auth-service"
+      "auth-service"
     ],
     "targets": {
       "e2e": {
