@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { checkOtpRestrictions, sendOtp, trackOtpRequests, validateRegistrationData, verifyOtp } from "../utils/auth.helper";
+import { checkOtpRestrictions, handleForgotPassword, sendOtp, trackOtpRequests, validateRegistrationData, verifyForgotPasswordOtp, verifyOtp } from "../utils/auth.helper";
 import prisma from "@packages/libs/prisma";
 import { AuthError, ValidationError } from "@packages/error-handler";
 import bcrypt from "bcryptjs";
@@ -108,5 +108,50 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         });
     } catch (error) {
         return next(error);
+    }
+}
+
+// user forgot password
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    await handleForgotPassword(req, res, next, "user");
+}
+
+// Verify forgot password otp
+export const verifyUserForgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    await verifyForgotPasswordOtp(req, res, next);
+} 
+
+// Reset user password
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, newPassword } = req.body;
+
+        if (!email || !newPassword) {
+            return next(new ValidationError("Email and new password are required!"));
+        }
+
+        const user = await prisma.users.findUnique({ where: { email } });
+
+        if (!user) {
+            return next(new ValidationError("User not found!"));
+        }
+
+        // compare new password with old password
+        const isSamePassword = await bcrypt.compare(newPassword, user.password!);
+        if (isSamePassword) {
+            return next(new ValidationError("New password must be different from the old password!"));
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.users.update({
+            where: { email },
+            data: { password: hashedPassword }
+        });
+
+        res.status(200).json({ message: "Password reset successful!" });
+    } catch (error) {
+        next(error);
     }
 }
