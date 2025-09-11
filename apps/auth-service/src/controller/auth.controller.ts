@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { checkOtpRestrictions, sendOtp, trackOtpRequests, validateRegistrationData, verifyOtp } from "../utils/auth.helper";
 import prisma from "@packages/libs/prisma";
-import { ValidationError } from "@packages/error-handler";
+import { AuthError, ValidationError } from "@packages/error-handler";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { setCookie } from "../utils/cookies/setCookie";
 
 // Register a new user
 export const userRegisteration = async (req: Request, res: Response, next: NextFunction) => {
@@ -58,6 +60,52 @@ export const verifyUser = async (req: Request, res: Response, next: NextFunction
             success: true,
             message: "User registered successfully!",
         })
+    } catch (error) {
+        return next(error);
+    }
+}
+
+// Login a user
+export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {email, password} = req.body;
+
+        if (!email || !password) {
+            return next(new ValidationError("Emai and Password are required!"));
+        }
+
+        const user = await prisma.users.findUnique({where: { email }});
+
+        if (!user) {
+            return next(new AuthError("User doesn't exist!"));
+        }
+
+        // Verify Password
+        const isMatch = await bcrypt.compare(password, user.password!);
+
+        if (!isMatch) {
+            return next(new AuthError("Invalid email or password!"));
+        }
+
+        // Generate access and refresh tokens
+        const accessToken = jwt.sign({id: user.id, role: "user"},
+            process.env.ACCESS_TOKEN_SECRET as string,
+            { expiresIn: '15m' }
+        )
+        
+        const refreshToken = jwt.sign({id: user.id, role: "user"},
+            process.env.REFRESH_TOKEN_SECRET as string,
+            { expiresIn: '7d' }
+        )
+
+        //store the refresh and access token in an httpOnly secure cookie
+        setCookie(res, "refresh_token", refreshToken);
+        setCookie(res, "access_token", accessToken);
+
+        res.status(200).json({
+            message: "Login successful!",
+            user: {id: user.id, email: user.email, name: user.name},
+        });
     } catch (error) {
         return next(error);
     }
