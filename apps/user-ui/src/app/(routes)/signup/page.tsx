@@ -73,7 +73,7 @@ const Signup = () => {
                         <span className="px-3">Or Sign in with Email</span>
                         <div className="flex-1 border-t border-gray-300" />
                     </div>
-                    {showOtp ? (
+                    {!showOtp ? (
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <label className="block text-gray-700 mb-1">Name</label>
                             <input 
