@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { forgotPassword, getUser, loginUser, refreshToken, resetPassword, userRegisteration, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { createShop, forgotPassword, getUser, loginUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
@@ -27,5 +27,12 @@ router.post("/reset-password-user", resetPassword)
 
 // Verify forgot password otp
 router.post("/verify-forgot-password-user", verifyUserForgotPassword)
+
+// Seller API routes
+router.post("/seller-registration", registerSeller);
+
+router.post("/verify-seller", verifySeller);
+
+router.post("/create-shop", createShop);
 
 export default router;
