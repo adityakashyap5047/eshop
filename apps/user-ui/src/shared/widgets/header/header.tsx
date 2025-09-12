@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import React from 'react'
-import { Search } from 'lucide-react'
+import { HeartIcon, Search, ShoppingCartIcon, UserIcon } from 'lucide-react'
 
 const Header = () => {
   return (
@@ -22,11 +22,33 @@ const Header = () => {
                 </div>
             </div>
             <div className='flex items-center gap-8'>
-                <Link href={"/login"}>
-                    ProfileIcon
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Link href={"/login"} className='border-2 w-[50px] h-[50px] flex items-center justify-center rounded-full border-[#010f1c1a]'>
+                        <UserIcon />
+                    </Link>
+                    <Link href={"/login"}>
+                        <span className='block font-medium'>Hello, </span>
+                        <span className='font-semibold'>Sign In</span>
+                    </Link>
+                </div>
+                <div className="flex items-center gap-5">
+                    <Link href={"/wishlist"} className="relative">
+                        <HeartIcon />
+                        <div className='w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]'>
+                            <span className='text-white font-medium text-sm'>0</span>
+                        </div>
+                    </Link>
+                    <Link href={"/cart"} className="relative">
+                        <ShoppingCartIcon />
+                        <div className='w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]'>
+                            <span className='text-white font-medium text-sm'>0</span>
+                        </div>
+                    </Link>
+                </div>
             </div>
         </div>
+
+        
     </div>
   )
 }
