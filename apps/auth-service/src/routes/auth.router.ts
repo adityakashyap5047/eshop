@@ -1,5 +1,6 @@
 import express, { Router } from "express";
-import { forgotPassword, loginUser, refreshToken, resetPassword, userRegisteration, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { forgotPassword, getUser, loginUser, refreshToken, resetPassword, userRegisteration, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import isAuthenticated from "@packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
 
@@ -14,6 +15,9 @@ router.post("/login-user", loginUser);
 
 //refresh token user
 router.post("/refresh-token-user", refreshToken);
+
+// Get logged in user details
+router.get("/logged-in-user", isAuthenticated, getUser);
 
 // Forgot password
 router.post("/forgot-password-user", forgotPassword)
