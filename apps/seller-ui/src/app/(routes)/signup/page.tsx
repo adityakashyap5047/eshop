@@ -7,10 +7,13 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios, { AxiosError } from "axios";
+import { countries } from "apps/seller-ui/src/utils/countries";
 
 type FormData = {
     name: string;
     email: string;
+    phone_number: string;
+    country: string;
     password: string;
 }
 
@@ -117,30 +120,14 @@ const Signup = () => {
                     </div>
                 ))}
             </div>
-            <div className="w-full py-10 min-h-screen bg-[#f1f1f1]">
-                <h1 className="text-4xl font-Poppins font-semibold text-black text-center">
-                    Signup
-                </h1>
-                <p className="text-center text-lg font-medium py-3 text-[#00000099]">
-                    Home . Signup
-                </p>
 
-                <div className="w-full flex justify-center">
-                    <div className="md:w-[480px] p-8 bg-white shadow rounded-lg">
-                        <h3 className="text-3xl font-semibold text-center mb-2">
-                            Signup to Eshop
-                        </h3>
-                        <p className="text-center text-gray-500 mb-4">
-                            Already have an account?{" "}
-                            <Link href={"/login"} className="text-blue-500">Login</Link>
-                        </p>
-                        <div className="flex items-center my-5 text-gray-400 text-sm">
-                            <div className="flex-1 border-t border-gray-300" />
-                            <span className="px-3">Or Sign in with Email</span>
-                            <div className="flex-1 border-t border-gray-300" />
-                        </div>
+            {/* Steps content  */}
+            <div className="md:w-[480px] p-8 bg-white shadow rounded-lg">
+                {activeStep === 1 && (
+                    <>
                         {!showOtp ? (
                             <form onSubmit={handleSubmit(onSubmit)}>
+                                <h3 className="text-2xl font-semibold text-center mb-4">Create Account</h3>
                                 <label className="block text-gray-700 mb-1">Name</label>
                                 <input 
                                     type="text" 
@@ -160,6 +147,37 @@ const Signup = () => {
                                     } })}
                                 />
                                 {errors.email && <p className="text-red-500 text-sm">{String(errors.email.message)}</p>}
+                                <label className="block text-gray-700 mb-1">Phone Number</label>
+                                <input type="tel" placeholder="9878****93" 
+                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                    {...register("phone_number", { 
+                                        required: "Phone number is required",
+                                        pattern: {
+                                            value: /^\+?[1-9]\d{1,14}$/,
+                                            message: "Invalid phone number Format"
+                                        },
+                                        minLength: {
+                                            value: 10,
+                                            message: "Phone number must be at least 10 digits"
+                                        },
+                                        maxLength: {
+                                            value: 15,
+                                            message: "Phone number must be at most 15 digits"
+                                        }
+                                    })}
+                                />
+                                {errors.phone_number && <p className="text-red-500 text-sm">{String(errors.phone_number.message)}</p>}
+                                <label className="block text-gray-700 mb-1">Country</label>
+                                <select
+                                    className="w-full p-2 border border-gray-300 outline-0 !rounded mb-1"
+                                    {...register("country", { required: "Country is required" })}
+                                >
+                                    <option value="">Select your country</option>
+                                    {countries.map((country) => (
+                                        <option value={country.code} key={country.code}>{country.name}</option>
+                                    ))}
+                                </select>
+                                {errors.country && <p className="text-red-500 text-sm">{String(errors.country.message)}</p>}
                                 <label className="block text-gray-700 mb-1">Password</label>
                                 <div className="relative">
                                     <input 
@@ -189,6 +207,16 @@ const Signup = () => {
                                 >
                                     {signupMutation.isPending ? "Signing up..." : "Signup"}
                                 </button>
+                                {signupMutation?.isError && signupMutation.error instanceof AxiosError && (
+                                    <p className="text-red-500 text-sm mt-2">
+                                        {signupMutation.error.response?.data?.message || signupMutation.error.message}
+                                    </p>
+                                )}
+
+                                <p className="pt-3 text-center">
+                                    Already have an account?{" "}
+                                    <Link href={"/login"} className="text-blue-500">Login</Link>
+                                </p>
                             </form>
                         ) : (
                             <div>
@@ -234,8 +262,8 @@ const Signup = () => {
                                 }
                             </div>
                         )}
-                    </div>
-                </div>
+                    </>
+                )}
             </div>
         </div>
     )
