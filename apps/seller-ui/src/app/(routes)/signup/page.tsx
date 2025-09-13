@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import axios, { AxiosError } from "axios";
 import { countries } from "apps/seller-ui/src/utils/countries";
+import CreateShop from "apps/seller-ui/src/shared/module/auth/create-shop";
 
 type FormData = {
     name: string;
@@ -19,7 +20,7 @@ type FormData = {
 
 const Signup = () => {
   
-    const [activeStep, setActiveStep] = useState(1);
+    const [activeStep, setActiveStep] = useState(2);
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [showOtp, setShowOtp] = useState(false);
     const [canResend, setCanResend] = useState(true);
@@ -266,6 +267,8 @@ const Signup = () => {
                         )}
                     </>
                 )}
+
+                {activeStep === 2 && <CreateShop sellerId={sellerId} setActiveStep={setActiveStep} />}
             </div>
         </div>
     )
