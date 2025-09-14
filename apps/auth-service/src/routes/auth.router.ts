@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { createShop, forgotPassword, getUser, loginUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { createShop, createStripeConnectLink, forgotPassword, getSeller, getUser, loginSeller, loginUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 
 const router: Router = express.Router();
@@ -34,5 +34,11 @@ router.post("/seller-registration", registerSeller);
 router.post("/verify-seller", verifySeller);
 
 router.post("/create-shop", createShop);
+
+router.post("/create-stripe-link", createStripeConnectLink);
+
+router.post("/login-seller", loginSeller);
+
+router.get("/logged-in-seller", isAuthenticated, getSeller);
 
 export default router;
