@@ -359,3 +359,49 @@ export const createStripeConnectLink = async(
         next(error);
     }
 }
+
+
+// login seller
+export const loginSeller = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {email, password} = req.body;
+
+        if (!email || !password) {
+            return next(new ValidationError("Emai and Password are required!"));
+        }
+
+        const seller = await prisma.sellers.findUnique({where: { email }});
+
+        if (!seller) {
+            return next(new ValidationError("Seller doesn't exist!"));
+        }
+
+        // Verify Password
+        const isMatch = await bcrypt.compare(password, seller.password!);
+        if (!isMatch) {
+            return next(new AuthError("Invalid email or password!"));
+        }
+
+        // Generate access and refresh tokens
+        const accessToken = jwt.sign({id: seller.id, role: "seller"},
+            process.env.ACCESS_TOKEN_SECRET as string,
+            { expiresIn: '15m' }
+        )
+
+        const refreshToken = jwt.sign({id: seller.id, role: "seller"},
+            process.env.REFRESH_TOKEN_SECRET as string,
+            { expiresIn: '7d' }
+        );
+
+        //store the refresh and access token in an httpOnly secure cookie
+        setCookie(res, "seller_refresh_token", refreshToken);
+        setCookie(res, "seller_access_token", accessToken);
+
+        res.status(200).json({
+            message: "Login successful!",
+            seller: {id: seller.id, email: seller.email, name: seller.name},
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
