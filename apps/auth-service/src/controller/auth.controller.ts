@@ -405,3 +405,17 @@ export const loginSeller = async (req: Request, res: Response, next: NextFunctio
         return next(error);
     }
 }
+
+
+// get logged in seller details
+export const getSeller = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const seller = req.seller;
+        res.status(201).json({
+            success: true,
+            seller,
+        })
+    } catch (error) {
+        next(error);
+    }
+}
