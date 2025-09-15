@@ -394,8 +394,8 @@ export const loginSeller = async (req: Request, res: Response, next: NextFunctio
         );
 
         //store the refresh and access token in an httpOnly secure cookie
-        setCookie(res, "seller_refresh_token", refreshToken);
-        setCookie(res, "seller_access_token", accessToken);
+        setCookie(res, "seller-refresh-token", refreshToken);
+        setCookie(res, "seller-access-token", accessToken);
 
         res.status(200).json({
             message: "Login successful!",
