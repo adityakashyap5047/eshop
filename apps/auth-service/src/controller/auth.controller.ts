@@ -92,6 +92,9 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             return next(new AuthError("Invalid email or password!"));
         }
 
+        res.clearCookie("seller-refresh-token");
+        res.clearCookie("seller-access-token");
+
         // Generate access and refresh tokens
         const accessToken = jwt.sign({id: user.id, role: "user"},
             process.env.ACCESS_TOKEN_SECRET as string,
@@ -117,7 +120,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 }
 
 // refresh token 
-export const refreshToken = async(req: Request, res: Response, next: NextFunction) => {
+export const refreshToken = async(req: any, res: Response, next: NextFunction) => {
     try {
         const refreshToken = req.cookies["refresh_token"] || req.cookies["seller-refresh-token"] || req.headers.authorization?.split(" ")[1];
         
@@ -127,8 +130,8 @@ export const refreshToken = async(req: Request, res: Response, next: NextFunctio
 
         const decoded = jwt.verify(
             refreshToken,
-            process.env.REFRESH_TOKEN_SECRET as string 
-        ) as {id: string; role: string}
+            process.env.REFRESH_TOKEN_SECRET as string
+        ) as { id: string; role: string };
 
         if (!decoded || !decoded.id || !decoded.role) {
             return new JsonWebTokenError("Forbidden! Invalid refresh token.");
@@ -158,6 +161,8 @@ export const refreshToken = async(req: Request, res: Response, next: NextFunctio
         }else if (decoded.role === "seller") {
             setCookie(res, "seller-access-token", newAccessToken);
         }
+
+        req.role = decoded.role;
 
         return res.status(201).json({success: true})
     } catch (error) {
@@ -298,16 +303,22 @@ export const createShop = async(req: any, res: Response, next: NextFunction) => 
             bio,
             address,
             opening_hours,
-            category,
-            sellerId
+            category
         }
 
         if (website && website.trim() !== "") {
             shopData.website = website;
         }
 
+        // Create the shop first
         const shop = await prisma.shops.create({
             data: shopData
+        });
+
+        // Then update the seller with the shopId
+        await prisma.sellers.update({
+            where: { id: sellerId },
+            data: { shopId: shop.id }
         });
 
         res.status(201).json({
@@ -392,6 +403,9 @@ export const loginSeller = async (req: Request, res: Response, next: NextFunctio
         if (!isMatch) {
             return next(new AuthError("Invalid email or password!"));
         }
+
+        res.clearCookie("refresh_token");
+        res.clearCookie("access_token");
 
         // Generate access and refresh tokens
         const accessToken = jwt.sign({id: seller.id, role: "seller"},

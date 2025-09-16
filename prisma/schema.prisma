@@ -60,7 +60,6 @@ model shops {
   socialLinks   Json[]
   ratings       Float    @default(0)
   reviews       shopReviews[]
-  sellerId      String   @db.ObjectId @unique
   sellers       sellers[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -74,8 +73,8 @@ model sellers {
   country     String
   password    String
   stripeId    String?  @unique
-  shop        shops?   @relation(fields: [shopId], references: [id])
+  shop        shops?  @relation(fields: [shopId], references: [id])
+  shopId      String?  @db.ObjectId @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  shopId      String?  @db.ObjectId
 }
