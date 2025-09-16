@@ -116,11 +116,11 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
     }
 }
 
-// refresh token user
+// refresh token 
 export const refreshToken = async(req: Request, res: Response, next: NextFunction) => {
     try {
-        const refreshToken = req.cookies.refresh_token;
-
+        const refreshToken = req.cookies["refresh_token"] || req.cookies["seller-refresh-token"] || req.headers.authorization?.split(" ")[1];
+        
         if (!refreshToken) {
             return new ValidationError("Unauthorized! No refresh token.");
         }
@@ -134,11 +134,17 @@ export const refreshToken = async(req: Request, res: Response, next: NextFunctio
             return new JsonWebTokenError("Forbidden! Invalid refresh token.");
         }
 
-        // let account;
-        // if (decoded.role === "user") {
-        const user = await prisma.users.findUnique({where: {id: decoded.id}});
-
-        if (!user) {
+        let account;
+        if (decoded.role === "user") {
+            account = await prisma.users.findUnique({where: {id: decoded.id}});
+        } else if (decoded.role === "seller") {
+            account = await prisma.sellers.findUnique({
+                where: {id: decoded.id},
+                include: {shop: true}
+            });
+        }
+        
+        if (!account) {
             return new AuthError("Forbidden! User/Seller not found.");
         }
 
@@ -147,7 +153,12 @@ export const refreshToken = async(req: Request, res: Response, next: NextFunctio
             { expiresIn: '15m' }
         );
 
-        setCookie(res, "access_token", newAccessToken);
+        if (decoded.role === "user") {
+            setCookie(res, "access_token", newAccessToken);
+        }else if (decoded.role === "seller") {
+            setCookie(res, "seller-access-token", newAccessToken);
+        }
+
         return res.status(201).json({success: true})
     } catch (error) {
         return next(error);

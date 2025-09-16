@@ -14,8 +14,8 @@ router.post("/verify-user", verifyUser);
 //login user
 router.post("/login-user", loginUser);
 
-//refresh token user
-router.post("/refresh-token-user", refreshToken);
+//refresh token
+router.post("/refresh-token", refreshToken);
 
 // Get logged in user details
 router.get("/logged-in-user", isAuthenticated, getUser);
