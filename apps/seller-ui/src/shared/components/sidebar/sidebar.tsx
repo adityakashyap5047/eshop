@@ -7,7 +7,7 @@ import { useEffect } from "react";
 import Box from "../box";
 import { Sidebar } from "./sidebar.styles";
 import Link from "next/link";
-import { BadgeDollarSign, BellPlus, BellRing, CalendarPlus, Home, LayoutDashboard, List, LogOut, Mail, PackageSearch, Settings, SquarePlus, TicketPercent } from "lucide-react";
+import { BadgeDollarSign, BellPlus, BellRing, CalendarPlus, LayoutDashboard, List, LogOut, Mail, PackageSearch, Settings, SquarePlus, Table2, TicketPercent } from "lucide-react";
 import SidebarItem from "./sidebar.item";
 import SidebarMenu from "./sidebar.menu";
 
@@ -39,7 +39,7 @@ const SidebarWrapper = () => {
       <Sidebar.Header>
         <Box>
           <Link href={"/"} className="flex justify-center text-center gap-2">
-            <Home />
+            <Table2 size={28} />
             <Box>
               <h3 className="text-xl font-medium text-[#ecedee]">{seller?.shop?.name}</h3>
               <h5 className="font-medium pl-2 text-xs text-[#ecedeecf] whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px]">
