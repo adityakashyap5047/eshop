@@ -10,6 +10,7 @@ import CustomSpecifications from "apps/seller-ui/src/shared/components/custom-sp
 import CustomProperties from "apps/seller-ui/src/shared/components/custom-properties.tsx";
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
+import RichTextEditor from "apps/seller-ui/src/shared/components/rich-text-editor";
 
 const Page = () => {
   const {register, control, handleSubmit, formState: {errors}, setValue, watch} = useForm();
@@ -304,6 +305,31 @@ const Page = () => {
                         {errors.subCategory.message as string}
                       </p>
                     )}
+                  </div>
+
+                  <div className="mt-2">
+                    <label className="block font-semibold text-gray-300 mb-1">
+                      Detailed Description* (Min 100 words)
+                    </label>
+                    <Controller
+                      name="detailed_description"
+                      control={control}
+                      rules={{
+                        required: "Detailed description is required",
+                        validate: (value) => {
+                          const wordCount = value?.split(/\s+/).filter((word: string) => word).length;
+                          return (
+                            wordCount >= 100 || "Description must be at least 100 words!"
+                          )
+                        },
+                      }}
+                      render={({field}) => (
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
                   </div>
             </div>
           </div>
