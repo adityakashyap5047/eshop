@@ -71,6 +71,11 @@ const ColorSelector = ({control, errors}: any) => {
                     </div>
                 )}
             />
+            {errors?.colors && (
+                <p className='text-red-500 text-xs mt-1'>
+                    {errors.colors.message as String}
+                </p>
+            )}
         </div>
     )
 }

@@ -5,6 +5,7 @@ interface BaseProps {
     label?: string;
     type?: "text" | "number" | "password" | "email" | "textarea";
     className?: string;
+    labelClass?: string;
 }
 
 type InputProps = BaseProps & React.InputHTMLAttributes<HTMLInputElement>;
@@ -14,11 +15,11 @@ type TextareaProps = BaseProps & React.TextareaHTMLAttributes<HTMLTextAreaElemen
 type Props = InputProps | TextareaProps;
 
 const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, Props>(
-    ({ label, type="text", className, ...props}, ref) => {
+    ({ label, type="text", className, labelClass, ...props}, ref) => {
         return (
             <div className="w-full">
                 {label && (
-                    <label className="block font-semibold text-gray-300 mb-1">{label}</label>
+                    <label className={`block font-semibold text-gray-300 mb-1 ${labelClass}`}>{label}</label>
                 )}
                 {type === "textarea" ? (
                     <textarea 
