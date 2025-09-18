@@ -11,6 +11,7 @@ import CustomProperties from "apps/seller-ui/src/shared/components/custom-proper
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "apps/seller-ui/src/shared/components/rich-text-editor";
+import SizeSelector from "apps/seller-ui/src/shared/components/size-selector";
 
 const Page = () => {
   const {register, control, handleSubmit, formState: {errors}, setValue, watch} = useForm();
@@ -409,7 +410,9 @@ const Page = () => {
                 {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock.message as string}</p>}
               </div>
 
-              
+              <div className="mt-2">
+                <SizeSelector control={control} errors={errors} />
+              </div>
             </div>
           </div>
         </div>
