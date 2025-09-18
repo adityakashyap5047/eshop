@@ -7,6 +7,7 @@ import Input from "packages/components/input";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import CustomSpecifications from "apps/seller-ui/src/shared/components/custom-specifications";
+import CustomProperties from "apps/seller-ui/src/shared/components/custom-properties.tsx";
 
 const Page = () => {
   const {register, control, handleSubmit, formState: {errors}, setValue} = useForm();
@@ -173,6 +174,10 @@ const Page = () => {
 
               <div className="mt-2">
                 <CustomSpecifications control={control} errors={errors} />
+              </div>
+
+              <div className="mt-2">
+                <CustomProperties control={control} errors={errors} />
               </div>
             </div>
           </div>
