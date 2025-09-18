@@ -179,6 +179,28 @@ const Page = () => {
               <div className="mt-2">
                 <CustomProperties control={control} errors={errors} />
               </div>
+
+              <div className="mt-2">
+                <label className="block font-semibold text-gray-300 mb-1">
+                  Cash On Delivery*
+                </label>
+
+                <select 
+                  {...register("cash_on_delivery", {
+                  required: "Cash on Delivery is required",
+                  })}
+                  defaultValue={"yes"}
+                  className="w-full border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer"
+                >
+                  <option value="yes" className="bg-black">Yes</option>
+                  <option value="no" className="bg-black">No</option>
+                </select>
+                {errors.cash_on_delivery && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.cash_on_delivery.message as string}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
