@@ -32,7 +32,7 @@ export const createDiscountCode = async(req: any, res: Response, next: NextFunct
 
         const isDiscountCodeExists = await prisma.discount_codes.findUnique({
             where: {
-                code: discountCode
+                discountCode
             }
         });
 
@@ -66,7 +66,7 @@ export const getDiscountCodes = async(req: any, res: Response, next: NextFunctio
 
         return res.status(200).json({ success: true, discount_codes });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 }
 
