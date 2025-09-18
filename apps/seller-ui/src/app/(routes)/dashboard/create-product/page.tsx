@@ -2,7 +2,7 @@
 
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder/page";
 import { ChevronRightIcon } from "lucide-react";
-import ColorSelector from "packages/components/color-selector";
+import ColorSelector from "apps/seller-ui/src/shared/components/color-selector";
 import Input from "packages/components/input";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -169,6 +169,8 @@ const Page = () => {
               <div className="mt-2">
                 <ColorSelector control={control} errors={errors} />
               </div>
+
+              
             </div>
           </div>
         </div>
