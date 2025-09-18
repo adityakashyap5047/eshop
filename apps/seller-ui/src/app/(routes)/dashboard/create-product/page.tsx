@@ -264,73 +264,152 @@ const Page = () => {
                         </select>
                       )}
                     />
-                  )}
-                  {errors.category && (
+                  )
+                }
+                {errors.category && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.category.message as string}
+                  </p>
+                )}
+
+                <div className="mt-2">
+                  <label className="black font-semibold text-gray-300 mb-1">
+                    Subcategory*
+                  </label>
+                  <Controller
+                    name="subCategory"
+                    control={control}
+                    rules={{required: "Subcategory is required"}}
+                    render={({field}) => (
+                      <select
+                        {...field}
+                        disabled={!selectedCategory || subCategories.length === 0}
+                        className="w-full mt-1 border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer disabled:cursor-not-allowed"
+                      >
+                        <option value="" className="bg-black">
+                          Select Subcategory
+                        </option>
+                        {subCategories.map((subCategory: string) => (
+                          <option
+                            key={subCategory}
+                            value={subCategory}
+                            className="bg-black"
+                          >
+                            {subCategory}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  />
+                  {errors.subCategory && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.category.message as string}
+                      {errors.subCategory.message as string}
                     </p>
                   )}
+                </div>
 
-                  <div className="mt-2">
-                    <label className="black font-semibold text-gray-300 mb-1">
-                      Subcategory*
-                    </label>
-                    <Controller
-                      name="subCategory"
-                      control={control}
-                      rules={{required: "Subcategory is required"}}
-                      render={({field}) => (
-                        <select
-                          {...field}
-                          disabled={!selectedCategory || subCategories.length === 0}
-                          className="w-full mt-1 border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer disabled:cursor-not-allowed"
-                        >
-                          <option value="" className="bg-black">
-                            Select Subcategory
-                          </option>
-                          {subCategories.map((subCategory: string) => (
-                            <option
-                              key={subCategory}
-                              value={subCategory}
-                              className="bg-black"
-                            >
-                              {subCategory}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    />
-                    {errors.subCategory && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.subCategory.message as string}
-                      </p>
+                <div className="mt-2">
+                  <label className="block font-semibold text-gray-300 mb-1">
+                    Detailed Description* (Min 100 words)
+                  </label>
+                  <Controller
+                    name="detailed_description"
+                    control={control}
+                    rules={{
+                      required: "Detailed description is required",
+                      validate: (value) => {
+                        const wordCount = value?.split(/\s+/).filter((word: string) => word).length;
+                        return (
+                          wordCount >= 100 || "Description must be at least 100 words!"
+                        )
+                      },
+                    }}
+                    render={({field}) => (
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
                     )}
-                  </div>
+                  />
+                  {errors.detailed_description && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.detailed_description.message as string}
+                    </p>  
+                  )}
+                </div>
 
-                  <div className="mt-2">
-                    <label className="block font-semibold text-gray-300 mb-1">
-                      Detailed Description* (Min 100 words)
-                    </label>
-                    <Controller
-                      name="detailed_description"
-                      control={control}
-                      rules={{
-                        required: "Detailed description is required",
-                        validate: (value) => {
-                          const wordCount = value?.split(/\s+/).filter((word: string) => word).length;
-                          return (
-                            wordCount >= 100 || "Description must be at least 100 words!"
-                          )
-                        },
-                      }}
-                      render={({field}) => (
-                        <RichTextEditor
-                          value={field.value}
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </div>
+              <div className="mt-2">
+                <Input
+                  label="Video URL"
+                  placeholder="https://www.youtube.com/embed/xyz123"
+                  {...register("video_url", {
+                    pattern: {
+                      value:
+                      /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
+                      message: "Please enter a valid YouTube URL",
+                    },
+                  })}
+                />
+                {errors.video_url && <p className="text-red-500 text-sm mt-1">{errors.video_url.message as string}</p>}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Regular Price"
+                  placeholder="20$"
+                  {...register("regular_price", {
+                    valueAsNumber: true,
+                    min: {value: 1, message: "Price must be at least 1"},
+                    validate: (value) => !isNaN(value) || "Only numbers are allowed",
+                  })}
+                />
+                {errors.regular_price && <p className="text-red-500 text-sm mt-1">{errors.regular_price.message as string}</p>}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Sale Price*"
+                  placeholder="15$"
+                  {...register("sale_price", {
+                    required: "Sale price is required",
+                    valueAsNumber: true,
+                    min: {value: 1, message: "Sale Price must be at least 1"},
+                    validate: (value) => {
+                      if (isNaN(value)) return "Only numbers are allowed";
+                      if (regularPrice && value >= regularPrice) {
+                        return "Sale Price must be less than Regular Price";
+                      }
+                      return true;
+                    }
+                  })}
+                />
+                {errors.sale_price && <p className="text-red-500 text-sm mt-1">{errors.sale_price.message as string}</p>}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label="Stock*"
+                  placeholder="100"
+                  {...register("stock", {
+                    required: "Stock is required",
+                    valueAsNumber: true,
+                    min: {value: 1, message: "Stock must be at least 1"},
+                    max: {
+                      value: 1000,
+                      message: "Stock cannot exceed 1,000"
+                    },
+                    validate: (value) => {
+                      if(isNaN(value)) return "Only numbers are allowed!"
+                      if(!Number.isInteger(value)) return "Stock must be a whole number!"
+
+                      return true;
+                    }
+                  })}
+                />
+                {errors.stock && <p className="text-red-500 text-sm mt-1">{errors.stock.message as string}</p>}
+              </div>
+
+              
             </div>
           </div>
         </div>
