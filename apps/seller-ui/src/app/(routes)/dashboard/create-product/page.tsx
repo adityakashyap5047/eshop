@@ -4,17 +4,43 @@ import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeho
 import { ChevronRightIcon } from "lucide-react";
 import ColorSelector from "apps/seller-ui/src/shared/components/color-selector";
 import Input from "packages/components/input";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import CustomSpecifications from "apps/seller-ui/src/shared/components/custom-specifications";
 import CustomProperties from "apps/seller-ui/src/shared/components/custom-properties.tsx";
+import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 
 const Page = () => {
-  const {register, control, handleSubmit, formState: {errors}, setValue} = useForm();
+  const {register, control, handleSubmit, formState: {errors}, setValue, watch} = useForm();
   const [openImageModal, setOpenImageModal] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
   const [images, setImages] = useState<(File | null)[]>([null]);
   const [loading, setLoading] = useState(false);
+
+  const {data, isLoading, isError} = useQuery({
+    queryKey: ["categories"],
+    queryFn: async() => {
+      try {
+        const res = await axiosInstance.get("/product/api/get-categories");
+        return res.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    staleTime: 1000 * 60 * 5, 
+    retry: 2,
+  })
+
+  const categories = data?.categories || [];
+  const subCategoriesData = data?.subCategories || {};
+
+  const selectedCategory = watch("category");
+  const regularPrice = watch("regular_price");
+
+  const subCategories = useMemo(() => {
+    return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
+  }, [selectedCategory, subCategoriesData]);
 
   const onSubmit = (data: any) => {
     console.log(data);
@@ -207,6 +233,78 @@ const Page = () => {
                 <label className="block font-semibold text-gray-300 mb-1">
                   Category*
                 </label>
+                {
+                  isLoading ? (
+                    <p className="text-gray-400">Loading categories...</p>
+                  ) : isError ? (
+                    <p className="text-red-500">Failed to load categories</p>
+                  ) : (
+                    <Controller 
+                      name="category"
+                      control={control}
+                      rules={{required: "Category is required"}}
+                      render={({field}) => (
+                        <select
+                          {...field}
+                          className="w-full border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer"
+                        >
+                          <option value="" className="bg-black">
+                            Select Category
+                          </option>
+                          {categories.map((category: string) => (
+                            <option
+                              key={category}
+                              value={category}
+                              className="bg-black"
+                            >
+                              {category}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                  )}
+                  {errors.category && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.category.message as string}
+                    </p>
+                  )}
+
+                  <div className="mt-2">
+                    <label className="black font-semibold text-gray-300 mb-1">
+                      Subcategory*
+                    </label>
+                    <Controller
+                      name="subCategory"
+                      control={control}
+                      rules={{required: "Subcategory is required"}}
+                      render={({field}) => (
+                        <select
+                          {...field}
+                          disabled={!selectedCategory || subCategories.length === 0}
+                          className="w-full mt-1 border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          <option value="" className="bg-black">
+                            Select Subcategory
+                          </option>
+                          {subCategories.map((subCategory: string) => (
+                            <option
+                              key={subCategory}
+                              value={subCategory}
+                              className="bg-black"
+                            >
+                              {subCategory}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    />
+                    {errors.subCategory && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.subCategory.message as string}
+                      </p>
+                    )}
+                  </div>
             </div>
           </div>
         </div>
