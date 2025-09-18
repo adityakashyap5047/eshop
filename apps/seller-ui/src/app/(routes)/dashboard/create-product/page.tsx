@@ -48,36 +48,40 @@ const Page = () => {
     console.log(data);
   };
 
-    const handleImageChange = (file: File | null, index: number) => {
-      const updatedImages = [...images];
-      updatedImages[index] = file;
+  const handleImageChange = (file: File | null, index: number) => {
+    const updatedImages = [...images];
+    updatedImages[index] = file;
 
-      if (index === images.length - 1 && images.length < 8) {
-        updatedImages.push(null);
-      }
-      setImages(updatedImages);
-      setValue("images", updatedImages);
-    };
-
-    const handleRemoveImage = (index: number) => {
-        setImages((prevImages) => {
-          let updatedImages = [...prevImages];
-
-          if (index === -1) {
-            updatedImages[0] = null;
-          } else {
-              updatedImages.splice(index, 1);
-          }
-
-          if (!updatedImages.includes(null) && updatedImages.length < 8) {
-            updatedImages.push(null);
-          }
-
-          return updatedImages;
-        })
-
-        setValue("images", images);
+    if (index === images.length - 1 && images.length < 8) {
+      updatedImages.push(null);
     }
+    setImages(updatedImages);
+    setValue("images", updatedImages);
+  };
+
+  const handleRemoveImage = (index: number) => {
+      setImages((prevImages) => {
+        let updatedImages = [...prevImages];
+
+        if (index === -1) {
+          updatedImages[0] = null;
+        } else {
+            updatedImages.splice(index, 1);
+        }
+
+        if (!updatedImages.includes(null) && updatedImages.length < 8) {
+          updatedImages.push(null);
+        }
+
+        return updatedImages;
+      })
+
+      setValue("images", images);
+  }
+
+  const handleSaveDraft = () => {
+
+  }
 
   return (
     <form className='w-full mx-auto p-8 shadow-md rounded-lg text-white' 
@@ -232,112 +236,112 @@ const Page = () => {
             </div>
 
             <div className="w-2/4">
-                <label className="block font-semibold text-gray-300 mb-1">
-                  Category*
-                </label>
-                {
-                  isLoading ? (
-                    <p className="text-gray-400">Loading categories...</p>
-                  ) : isError ? (
-                    <p className="text-red-500">Failed to load categories</p>
-                  ) : (
-                    <Controller 
-                      name="category"
-                      control={control}
-                      rules={{required: "Category is required"}}
-                      render={({field}) => (
-                        <select
-                          {...field}
-                          className="w-full border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer"
-                        >
-                          <option value="" className="bg-black">
-                            Select Category
-                          </option>
-                          {categories.map((category: string) => (
-                            <option
-                              key={category}
-                              value={category}
-                              className="bg-black"
-                            >
-                              {category}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    />
-                  )
-                }
-                {errors.category && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.category.message as string}
-                  </p>
-                )}
-
-                <div className="mt-2">
-                  <label className="black font-semibold text-gray-300 mb-1">
-                    Subcategory*
-                  </label>
-                  <Controller
-                    name="subCategory"
+              <label className="block font-semibold text-gray-300 mb-1">
+                Category*
+              </label>
+              {
+                isLoading ? (
+                  <p className="text-gray-400">Loading categories...</p>
+                ) : isError ? (
+                  <p className="text-red-500">Failed to load categories</p>
+                ) : (
+                  <Controller 
+                    name="category"
                     control={control}
-                    rules={{required: "Subcategory is required"}}
+                    rules={{required: "Category is required"}}
                     render={({field}) => (
                       <select
                         {...field}
-                        disabled={!selectedCategory || subCategories.length === 0}
-                        className="w-full mt-1 border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer disabled:cursor-not-allowed"
+                        className="w-full border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer"
                       >
                         <option value="" className="bg-black">
-                          Select Subcategory
+                          Select Category
                         </option>
-                        {subCategories.map((subCategory: string) => (
+                        {categories.map((category: string) => (
                           <option
-                            key={subCategory}
-                            value={subCategory}
+                            key={category}
+                            value={category}
                             className="bg-black"
                           >
-                            {subCategory}
+                            {category}
                           </option>
                         ))}
                       </select>
                     )}
                   />
-                  {errors.subCategory && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.subCategory.message as string}
-                    </p>
-                  )}
-                </div>
+                )
+              }
+              {errors.category && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.category.message as string}
+                </p>
+              )}
 
-                <div className="mt-2">
-                  <label className="block font-semibold text-gray-300 mb-1">
-                    Detailed Description* (Min 100 words)
-                  </label>
-                  <Controller
-                    name="detailed_description"
-                    control={control}
-                    rules={{
-                      required: "Detailed description is required",
-                      validate: (value) => {
-                        const wordCount = value?.split(/\s+/).filter((word: string) => word).length;
-                        return (
-                          wordCount >= 100 || "Description must be at least 100 words!"
-                        )
-                      },
-                    }}
-                    render={({field}) => (
-                      <RichTextEditor
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    )}
-                  />
-                  {errors.detailed_description && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.detailed_description.message as string}
-                    </p>  
+              <div className="mt-2">
+                <label className="black font-semibold text-gray-300 mb-1">
+                  Subcategory*
+                </label>
+                <Controller
+                  name="subCategory"
+                  control={control}
+                  rules={{required: "Subcategory is required"}}
+                  render={({field}) => (
+                    <select
+                      {...field}
+                      disabled={!selectedCategory || subCategories.length === 0}
+                      className="w-full mt-1 border outline-none border-gray-700 bg-transparent rounded-md px-3 py-2 cursor-pointer disabled:cursor-not-allowed"
+                    >
+                      <option value="" className="bg-black">
+                        Select Subcategory
+                      </option>
+                      {subCategories.map((subCategory: string) => (
+                        <option
+                          key={subCategory}
+                          value={subCategory}
+                          className="bg-black"
+                        >
+                          {subCategory}
+                        </option>
+                      ))}
+                    </select>
                   )}
-                </div>
+                />
+                {errors.subCategory && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.subCategory.message as string}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <label className="block font-semibold text-gray-300 mb-1">
+                  Detailed Description* (Min 100 words)
+                </label>
+                <Controller
+                  name="detailed_description"
+                  control={control}
+                  rules={{
+                    required: "Detailed description is required",
+                    validate: (value) => {
+                      const wordCount = value?.split(/\s+/).filter((word: string) => word).length;
+                      return (
+                        wordCount >= 100 || "Description must be at least 100 words!"
+                      )
+                    },
+                  }}
+                  render={({field}) => (
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+                {errors.detailed_description && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.detailed_description.message as string}
+                  </p>  
+                )}
+              </div>
 
               <div className="mt-2">
                 <Input
@@ -413,7 +417,32 @@ const Page = () => {
               <div className="mt-2">
                 <SizeSelector control={control} errors={errors} />
               </div>
+
+              <div className="mt-3">
+                <label className="block font-semibold text-gray-300 mb-1">
+                  Select Discount Codes (optional)
+                </label>
+              </div>
             </div>
+          </div>
+
+          <div className="mt-6 flex justify-end gap-3">
+            {isChanged && (
+              <button 
+                type="button"
+                className="px-4 py-2 bg-gray-700 text-white rounded-md"
+                onClick={handleSaveDraft}
+              >
+                Save Draft
+              </button>
+            )}
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+              disabled={loading}
+            >
+              {loading ? "Creating..." : "Create"}
+            </button>
           </div>
         </div>
       </div>
