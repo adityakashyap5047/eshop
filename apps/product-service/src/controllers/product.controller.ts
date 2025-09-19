@@ -116,7 +116,7 @@ export const uploadProductImages = async(req: Request, res: Response, next: Next
 
         return res.status(201).json({ 
             file_url: response.url,
-            fileName: response.fileId
+            fileId: response.fileId
          });
     } catch (error) {
         console.error('Upload error:', error);

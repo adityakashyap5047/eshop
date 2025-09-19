@@ -13,11 +13,16 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "apps/seller-ui/src/shared/components/rich-text-editor";
 import SizeSelector from "apps/seller-ui/src/shared/components/size-selector";
 
+interface UploadedImage {
+  fileId: string;
+  file_url: string;
+}
+
 const Page = () => {
   const {register, control, handleSubmit, formState: {errors}, setValue, watch} = useForm();
   const [openImageModal, setOpenImageModal] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
-  const [images, setImages] = useState<(File | null)[]>([null]);
+  const [images, setImages] = useState<(UploadedImage | null)[]>([]);
   const [loading, setLoading] = useState(false);
 
   const {data, isLoading, isError} = useQuery({
@@ -113,8 +118,14 @@ const Page = () => {
         fileName: base64String
       });
       
+      const uploadedImage: UploadedImage = {
+        fileId: res.data.fileId,
+        file_url: res.data.file_url,
+      }
+
       const updatedImages = [...images];
-      updatedImages[index] = res.data.file_url;
+
+      updatedImages[index] = uploadedImage;
 
       if (index === images.length - 1 && updatedImages.length < 8) {
         updatedImages.push(null);
@@ -132,7 +143,7 @@ const Page = () => {
       const updatedImages = [...images];
 
       const imageToRemove = updatedImages[index];
-      if(imageToRemove && typeof imageToRemove === "string") {
+      if(imageToRemove && typeof imageToRemove === "object") {
         // delete the image
       }
 
