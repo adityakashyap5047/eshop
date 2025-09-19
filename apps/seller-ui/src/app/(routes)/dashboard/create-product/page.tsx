@@ -1,7 +1,7 @@
 "use client";
 
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder/page";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, X } from "lucide-react";
 import ColorSelector from "apps/seller-ui/src/shared/components/color-selector";
 import Input from "packages/components/input";
 import { useMemo, useState } from "react";
@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "apps/seller-ui/src/shared/components/rich-text-editor";
 import SizeSelector from "apps/seller-ui/src/shared/components/size-selector";
+import Image from "next/image";
 
 interface UploadedImage {
   fileId: string;
@@ -24,6 +25,7 @@ const Page = () => {
   const [isChanged, setIsChanged] = useState(false);
   const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
 
   const {data, isLoading, isError} = useQuery({
     queryKey: ["categories"],
@@ -75,10 +77,9 @@ const Page = () => {
     return new Promise((resolve, reject) => {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
+      const img = new window.Image();
       
       img.onload = () => {
-        // Calculate new dimensions
         let { width, height } = img;
         
         if (width > maxWidth) {
@@ -89,10 +90,8 @@ const Page = () => {
         canvas.width = width;
         canvas.height = height;
         
-        // Draw and compress
         ctx?.drawImage(img, 0, 0, width, height);
         
-        // Convert to base64 with compression
         const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(compressedDataUrl);
       };
@@ -165,6 +164,8 @@ const Page = () => {
 
   }
 
+  console.log(selectedImage);
+
   return (
     <form className='w-full mx-auto p-8 shadow-md rounded-lg text-white' 
       onSubmit={handleSubmit(onSubmit)}
@@ -184,6 +185,8 @@ const Page = () => {
               size="765 x 850"
               small={false}
               index={0}
+              images={images}
+              setSelectedImage={setSelectedImage}
               onImageChange={handleImageChange}
               onRemove={handleRemoveImage}
             />
@@ -196,6 +199,8 @@ const Page = () => {
               key={index}
               small
               index={index + 1}
+              images={images}
+              setSelectedImage={setSelectedImage}
               onImageChange={handleImageChange}
               onRemove={handleRemoveImage}
               />
@@ -550,6 +555,23 @@ const Page = () => {
           </div>
         </div>
       </div>
+
+      {openImageModal && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-gray-800 p-6 rounded-lg w-[450px] text-white">
+            <div className="flex justify-between items-center pb-3 mb-4">
+              <h2 className="text-lg font-semibold">Enhance Product Image</h2>
+              <X size={20} className="cursor-pointer" onClick={() => setOpenImageModal(false)}/>
+            </div>
+            <Image
+              src={selectedImage}
+              alt="Selected Project Image"
+              layout="fill"
+              objectFit="contain"
+            />
+          </div>
+        </div>
+      )}
     </form>
   )
 }
