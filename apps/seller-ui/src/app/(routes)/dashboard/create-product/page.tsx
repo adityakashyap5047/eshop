@@ -66,15 +66,55 @@ const Page = () => {
     );
   }
 
+  const compressImage = (file: File, quality: number = 0.7, maxWidth: number = 800): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions
+        let { width, height } = img;
+        
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Convert to base64 with compression
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressedDataUrl);
+      };
+      
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleImageChange = async(file: File | null, index: number) => {
     if(!file) return;
 
     try {
-      const fileName = await convertFileToBase64(file);
-
-      const res = await axiosInstance.post("/product/api/upload-product-image", fileName);
+      let base64String: string;
+      
+      if (file.size > 80000) { 
+        base64String = await compressImage(file, 0.6, 600); // Compress to 60% quality, max 600px width
+      } else {
+        base64String = await convertFileToBase64(file);
+      }
+          
+      const res = await axiosInstance.post("/product/api/upload-product-image", {
+        fileName: base64String
+      });
+      
       const updatedImages = [...images];
-      updatedImages[index] = res.data.file_name;
+      updatedImages[index] = res.data.file_url;
 
       if (index === images.length - 1 && updatedImages.length < 8) {
         updatedImages.push(null);
@@ -459,6 +499,7 @@ const Page = () => {
                   <div className="flex flex-wrap gap-2">
                     {discountCodes?.map((code: any) => (
                       <button
+                        key={code.id}
                         type="button"
                         className={`px-3 py-1 rounded-md text-sm font-semibold border ${watch("discountCodes")?.includes(code.id) ? "bg-blue-600 border-blue-600 text-white" : "bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-700"}`}
                         onClick={() => {
