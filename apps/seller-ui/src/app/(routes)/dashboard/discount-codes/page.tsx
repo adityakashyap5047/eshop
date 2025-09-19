@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
-import { ChevronRight, Plus, Trash } from 'lucide-react'
+import { ChevronRight, Plus, Trash, X } from 'lucide-react'
 import Link from 'next/link';
 import React from 'react'
 
@@ -30,6 +30,7 @@ const Page = () => {
           <Plus size={18} /> Create Discount
         </button>
       </div>
+
       <div className="flex items-center text-white">
         <Link href={"/dashboard"} className='text-[#80Deea] cursor-pointer'>Dashboard</Link>
         <ChevronRight size={20} className='opacity-[0.8]' />
@@ -87,6 +88,22 @@ const Page = () => {
           )
         }
       </div>
+
+      {showModal && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg">
+            <div className="flex justify-between items-center border-b border-gray-700 pb-3">
+              <h3 className="text-xl text-white">Create Discount Code</h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className='text-gray-400 hover:text-white'
+              >
+                <X size={22} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
