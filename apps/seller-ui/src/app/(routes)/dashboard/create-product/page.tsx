@@ -32,7 +32,15 @@ const Page = () => {
     },
     staleTime: 1000 * 60 * 5, 
     retry: 2,
-  })
+  });
+
+  const {data: discountCodes = [], isLoading: discountLoading} = useQuery({
+    queryKey: ["shop-discounts"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/product/api/get-discount-codes");
+      return res?.data?.discount_codes || [];
+    }
+  });
 
   const categories = data?.categories || [];
   const subCategoriesData = data?.subCategories || {};
@@ -422,6 +430,27 @@ const Page = () => {
                 <label className="block font-semibold text-gray-300 mb-1">
                   Select Discount Codes (optional)
                 </label>
+                {discountLoading ? (
+                  <p className="text-gray-400">
+                    Loading discount codes...
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {discountCodes?.map((code: any) => (
+                      <button
+                        type="button"
+                        className={`px-3 py-1 rounded-md text-sm font-semibold border ${watch("discountCodes")?.includes(code.id) ? "bg-blue-600 border-blue-600 text-white" : "bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-700"}`}
+                        onClick={() => {
+                          const currentSelection = watch("discountCodes") || [];
+                          const updatedSelection = currentSelection?.includes(code.id) ? currentSelection.filter((id: string) => id !== code.id) : [...currentSelection, code.id];
+                          setValue("discountCodes", updatedSelection);
+                        }}
+                      >
+                        {code?.public_name} ({code.discountValue}{code.discountType === "percentage" ? "%" : "$"})
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
