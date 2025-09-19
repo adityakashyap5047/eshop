@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import DeleteDiscountCodeModal from 'apps/seller-ui/src/shared/components/modals/delete-discount-codes';
 import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
 import { AxiosError } from 'axios';
 import { ChevronRight, Plus, Trash, X } from 'lucide-react'
@@ -12,6 +13,8 @@ import toast from "react-hot-toast";
 
 const Page = () => {
   const [showModal, setShowModal] = React.useState(false);
+  const [showDeleteModal, setShowDeleteModal] = React.useState(false);
+  const [selectedDiscount, setSelectedDiscount] = React.useState<any>();
 
   const {data: discountCodes = [], isLoading} = useQuery({
     queryKey: ["shop-discounts"],
@@ -44,7 +47,21 @@ const Page = () => {
     }
   })
 
-  const handleDeleteClick = async(discount: any) => {}
+  const DeleteDiscountCodeMutation = useMutation({
+    mutationFn: async(discountId: string) => {
+      await axiosInstance.delete(`/product/api/delete-discount-code/${discountId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["shop-discounts"]});
+      setShowDeleteModal(false);
+      toast.success("Discount Code Deleted Successfully!");
+    }
+  })
+
+  const handleDeleteClick = async(discount: any) => {
+    setSelectedDiscount(discount);
+    setShowDeleteModal(true);
+  }
 
   const onsubmit = (data: any) => {
     if(discountCodes.length >= 8){
@@ -154,9 +171,12 @@ const Page = () => {
                   control={control}
                   name='discountType'
                   render={({field}) => (
-                    <select className='w-full border outline-none border-gray-700 bg-transparent py-2 rounded-md cursor-pointer px-3'>
+                    <select 
+                      {...field}
+                      className='w-full border outline-none border-gray-700 bg-transparent py-2 rounded-md cursor-pointer px-3'
+                    >
                       <option value="percentage" className='bg-black text-white'>Percentage (%)</option>
-                      <option value="flat" className='bg-black text-white'>Amount ($)</option>
+                      <option value="flat" className='bg-black text-white'>Flat Amount ($)</option>
                     </select>
                   )}
                 />
@@ -207,6 +227,14 @@ const Page = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {showDeleteModal && selectedDiscount && (
+        <DeleteDiscountCodeModal
+          discount={selectedDiscount}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={() => DeleteDiscountCodeMutation.mutate(selectedDiscount?.id)}
+        />
       )}
     </div>
   )
