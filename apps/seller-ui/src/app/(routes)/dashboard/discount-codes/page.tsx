@@ -1,10 +1,14 @@
 "use client";
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
+import { AxiosError } from 'axios';
 import { ChevronRight, Plus, Trash, X } from 'lucide-react'
 import Link from 'next/link';
+import Input from 'packages/components/input';
 import React from 'react'
+import { Controller, useForm } from 'react-hook-form';
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [showModal, setShowModal] = React.useState(false);
@@ -17,7 +21,38 @@ const Page = () => {
     }
   });
 
+  const queryClient = useQueryClient();
+
+  const {register, handleSubmit, control, reset, formState: {errors}} = useForm({
+    defaultValues: {
+      public_name: "",
+      discountType: "percentage",
+      discountValue: "",
+      discountCode: ""
+    }
+  })
+
+  const creaeteDiscountCodeMutation = useMutation({
+    mutationFn: async(data) =>{
+      await axiosInstance.post("/product/api/create-discount-code", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ["shop-discounts"]});
+      reset();
+      setShowModal(false);
+      toast.success("Discount Code Created Successfully!");
+    }
+  })
+
   const handleDeleteClick = async(discount: any) => {}
+
+  const onsubmit = (data: any) => {
+    if(discountCodes.length >= 8){
+      toast.error("You can only create up to 8 discount codes.")
+      return;
+    }
+    creaeteDiscountCodeMutation.mutate(data);
+  }
 
   return (
     <div className='w-full min-h-screen p-8'>
@@ -101,6 +136,75 @@ const Page = () => {
                 <X size={22} />
               </button>
             </div>
+            <form onSubmit={handleSubmit(onsubmit)} className='mt-4'>
+              <Input
+                label='Title (Public Name'
+                className='text-gray-300'
+                {...register("public_name", {required: "Title is required"})}
+              />
+              {errors.public_name && (
+                <p className='text-red-500 text-xs mt-1'>{errors.public_name.message}</p>
+              )}
+
+              <div className="mt-2">
+                <label className='block font-semibold text-gray-300 mb-1'>
+                  Discount Type
+                </label>
+                <Controller
+                  control={control}
+                  name='discountType'
+                  render={({field}) => (
+                    <select className='w-full border outline-none border-gray-700 bg-transparent py-2 rounded-md cursor-pointer px-3'>
+                      <option value="percentage" className='bg-black text-white'>Percentage (%)</option>
+                      <option value="flat" className='bg-black text-white'>Amount ($)</option>
+                    </select>
+                  )}
+                />
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label='Discount Value'
+                  type='number'
+                  min={1}
+                  {...register("discountValue", {
+                    required: "Discount Value is required"
+                  })}
+                />
+                {errors.discountValue && (
+                  <p className="text-red-500 text-xs mt-1">{errors.discountValue.message}</p>
+                )}
+              </div>
+
+              <div className="mt-2">
+                <Input
+                  label='Discount Code'
+                  {...register("discountCode", {
+                    required: "Discount Code is required"
+                  })}
+                />
+                {errors.discountCode && (
+                  <p className='text-red-500 text-xs mt-1'>{errors.discountCode.message}</p>
+                )}
+              </div>
+
+              <button type="submit"
+                disabled={creaeteDiscountCodeMutation.isPending}
+                className='mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold flex items-center justify-center gap-2'
+              >
+                <Plus size={18} /> 
+                {creaeteDiscountCodeMutation.isPending ? "Creating..." : "Create Discount Code"}
+              </button>
+              {creaeteDiscountCodeMutation.isError && (
+                <p>
+                  {(
+                    creaeteDiscountCodeMutation.error as AxiosError<{
+                      message: string;
+                    }>
+                  )?.response?.data?.message || "Something went wrong!"}
+                </p>
+              )}
+            </form>
           </div>
         </div>
       )}
