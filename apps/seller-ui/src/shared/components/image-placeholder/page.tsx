@@ -3,7 +3,7 @@ import Image from 'next/image';
 import React, { useState } from 'react'
 
 const ImagePlaceHolder = ({
-    size, small, onImageChange, onRemove, defaultImage = null, index = null, images, setOpenImageModal, setSelectedImage
+    size, small, onImageChange, onRemove, defaultImage = null, index = null, images, pictureUploading, setOpenImageModal, setSelectedImage
 }: {
     size: string;
     small?: boolean;
@@ -12,6 +12,7 @@ const ImagePlaceHolder = ({
     defaultImage?: string | null;
     index?:  any;
     images: any;
+    pictureUploading: boolean;
     setOpenImageModal: (openImageModal: boolean) => void;
     setSelectedImage: (image: string) => void;
 }) => {
@@ -34,6 +35,7 @@ const ImagePlaceHolder = ({
             {imagePreview ? (
                 <>
                     <button type='button' onClick={() => onRemove?.(index)}
+                        disabled={pictureUploading}
                         className='absolute top-3 right-3 p-2 !rounded bg-red-600 shadow-lg'    
                     >
                         <X size={16} />
@@ -41,6 +43,7 @@ const ImagePlaceHolder = ({
                     <button 
                         className='absolute top-3 right-[70px] p-2 !rounded bg-blue-500 shadow-lg cursor-pointer'
                         type='button'
+                        disabled={pictureUploading}
                         onClick={() => {
                             setOpenImageModal(true);
                             setSelectedImage(images[index]?.file_url);

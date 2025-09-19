@@ -1,7 +1,7 @@
 "use client";
 
 import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeholder/page";
-import { ChevronRightIcon, X } from "lucide-react";
+import { ChevronRightIcon, Wand, X } from "lucide-react";
 import ColorSelector from "apps/seller-ui/src/shared/components/color-selector";
 import Input from "packages/components/input";
 import { useMemo, useState } from "react";
@@ -13,6 +13,7 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "apps/seller-ui/src/shared/components/rich-text-editor";
 import SizeSelector from "apps/seller-ui/src/shared/components/size-selector";
 import Image from "next/image";
+import { enhcancements } from "apps/seller-ui/src/utils/AI.enhancements";
 
 interface UploadedImage {
   fileId: string;
@@ -26,6 +27,8 @@ const Page = () => {
   const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
+  const [pictureUploading, setPictureUploading] = useState(false);
+  const [activeEffect, setActiveEffect] = useState<string | null>(null);
 
   const {data, isLoading, isError} = useQuery({
     queryKey: ["categories"],
@@ -104,6 +107,7 @@ const Page = () => {
   const handleImageChange = async(file: File | null, index: number) => {
     if(!file) return;
 
+    setPictureUploading(true);
     try {
       let base64String: string;
       
@@ -133,6 +137,8 @@ const Page = () => {
       setValue("images", updatedImages);
     } catch (error) {
       console.log(error);
+    } finally {
+      setPictureUploading(false);
     }
   };
 
@@ -186,6 +192,7 @@ const Page = () => {
               small={false}
               index={0}
               images={images}
+              pictureUploading={pictureUploading}
               setSelectedImage={setSelectedImage}
               onImageChange={handleImageChange}
               onRemove={handleRemoveImage}
@@ -200,6 +207,7 @@ const Page = () => {
               small
               index={index + 1}
               images={images}
+              pictureUploading={pictureUploading}
               setSelectedImage={setSelectedImage}
               onImageChange={handleImageChange}
               onRemove={handleRemoveImage}
@@ -562,13 +570,30 @@ const Page = () => {
             <div className="flex justify-between items-center pb-3 mb-4">
               <h2 className="text-lg font-semibold">Enhance Product Image</h2>
               <X size={20} className="cursor-pointer" onClick={() => setOpenImageModal(false)}/>
+            </div>  
+            <div className="relative w-full h-[250px] rounded-md overflow-hidden border border-gray-600">
+              <Image
+                src={selectedImage}
+                alt="Selected Project Image"
+                layout="fill"
+                className="h-[250px]"
+              />
             </div>
-            <Image
-              src={selectedImage}
-              alt="Selected Project Image"
-              layout="fill"
-              objectFit="contain"
-            />
+            {selectedImage && (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-white text-sm font-semibold">AI Enhancements</h3>
+                <div className="grid grid-cols-2 gap-3 max-h-[250px] overflow-y-auto">
+                  {enhcancements.map(({label, effect}) => (
+                    <button key={effect} 
+                      className={`p-2 rounded-md flex items-center justify-center gap-2 ${activeEffect === effect ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
+                      // onClick={() => setActiveEffect(effect)}
+                    >
+                      <Wand size={18}/> {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
