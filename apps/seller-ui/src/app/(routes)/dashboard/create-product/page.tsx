@@ -22,7 +22,7 @@ const Page = () => {
   const {register, control, handleSubmit, formState: {errors}, setValue, watch} = useForm();
   const [openImageModal, setOpenImageModal] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
-  const [images, setImages] = useState<(UploadedImage | null)[]>([]);
+  const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
 
   const {data, isLoading, isError} = useQuery({
@@ -137,14 +137,16 @@ const Page = () => {
     }
   };
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = async (index: number) => {
 
     try {
       const updatedImages = [...images];
 
       const imageToRemove = updatedImages[index];
       if(imageToRemove && typeof imageToRemove === "object") {
-        // delete the image
+        await axiosInstance.delete("/product/api/delete-product-image", {
+          data: {fileId: imageToRemove.fileId}
+        });
       }
 
       updatedImages.splice(index, 1);

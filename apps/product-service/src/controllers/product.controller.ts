@@ -123,3 +123,18 @@ export const uploadProductImages = async(req: Request, res: Response, next: Next
         return next(error);
     }
 }
+
+export const deleteProductImage = async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { fileId } = req.body;
+
+        const response = await imagekit.deleteFile(fileId);
+
+        return res.status(201).json({
+            success: true,
+            response
+        })
+    } catch (error) {
+        return next(error);
+    }
+}
