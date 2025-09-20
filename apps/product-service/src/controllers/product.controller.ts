@@ -192,11 +192,10 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
                 slug
             }
         });
-
         if(isSlugExists) {
             return next(new ValidationError("Slug already exists please use a different slug!"));
         }
-
+        
         const product = await prisma.products.create({
             data: {
                 title,
@@ -212,7 +211,7 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
                 category,
                 subCategory,
                 colors: colors || [],
-                discount_codes: discountCodes.map((codeId: string) => codeId),
+                discount_codes: discountCodes?.map((codeId: string) => codeId),
                 sizes: sizes || [],
                 stock: parseInt(stock),
                 sale_price: parseFloat(sale_price),
@@ -220,14 +219,11 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
                 custom_properties: customProperties || {},
                 custom_specifications: custom_specifications || {},
                 images: {
-                    create: images.filter((img: any) => img && img.fileId && img.file_url).map((image: any) => ({
+                    create: images.filter((img: any) => img && img.fileId && img.file_url)?.map((image: any) => ({
                         file_id: image.fileId,
                         url: image.file_url,
                     }))
                 }
-            },
-            include: {
-                images: true,
             }
         });
 
