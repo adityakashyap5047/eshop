@@ -31,10 +31,16 @@ const ProductList = () => {
         {
             accessorKey: "image",
             header: "Image",
-            cell: ({row}: any) => (<Image src={row.original.image}
-                alt={row.original.image}
-                className="w-12 h-12 rounded-md object-cover"
-            />)
+            cell: ({row}: any) => {
+                return (
+                    <Image src={row.original.images[0]?.url}
+                        alt={row.original.images[0]?.url}
+                        className="w-12 h-12 rounded-md object-cover"
+                        width={200}
+                        height={200}
+                    />
+                )
+            }
         },
         {
             accessorKey: "name",
@@ -111,7 +117,7 @@ const ProductList = () => {
                 </div>
             )
         }
-    ])
+    ], []);
 
     const table = useReactTable({
         data: products,
@@ -154,7 +160,39 @@ const ProductList = () => {
             />
         </div>
 
-        
+        <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
+            {isLoading ? (
+                <p className="text-center text-white">Loading products...</p>
+            ) : (
+                <table className="w-full text-white">
+                    <thead>
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <tr key={headerGroup.id} className="border-b border-gray-800">
+                                {headerGroup.headers.map(header => (
+                                    <th key={header.id} className="p-3 text-left">
+                                        {header.isPlaceholder ? null : flexRender(
+                                            header.column.columnDef.header,
+                                            header.getContext()
+                                        )}
+                                    </th>
+                                ))}
+                            </tr>
+                        ))}
+                    </thead>
+                    <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                            <tr key={row.id} className="border-b border-gray-800 hover:bg-gray-800 transition">
+                                {row.getVisibleCells().map(cell => (
+                                    <td key={cell.id} className="p-3">
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            )}
+        </div>
     </div>
   )
 }

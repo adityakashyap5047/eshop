@@ -224,6 +224,9 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
                         url: image.file_url,
                     }))
                 }
+            },
+            include: {
+                images: true,
             }
         });
 
