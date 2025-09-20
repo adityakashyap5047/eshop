@@ -4,7 +4,7 @@ import ImagePlaceHolder from "apps/seller-ui/src/shared/components/image-placeho
 import { ChevronRightIcon, Wand, X } from "lucide-react";
 import ColorSelector from "apps/seller-ui/src/shared/components/color-selector";
 import Input from "packages/components/input";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import CustomSpecifications from "apps/seller-ui/src/shared/components/custom-specifications";
 import CustomProperties from "apps/seller-ui/src/shared/components/custom-properties.tsx";
@@ -13,7 +13,8 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import RichTextEditor from "apps/seller-ui/src/shared/components/rich-text-editor";
 import SizeSelector from "apps/seller-ui/src/shared/components/size-selector";
 import Image from "next/image";
-import { enhcancements } from "apps/seller-ui/src/utils/AI.enhancements";
+import { enhancements } from "apps/seller-ui/src/utils/AI.enhancements";
+import { BarLoader } from "react-spinners";
 
 interface UploadedImage {
   fileId: string;
@@ -29,6 +30,14 @@ const Page = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [pictureUploading, setPictureUploading] = useState(false);
   const [activeEffect, setActiveEffect] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+
+  useEffect(() => {
+    if (selectedImage && !processing) {
+      setImageLoading(true);
+    }
+  }, [selectedImage]);
 
   const {data, isLoading, isError} = useQuery({
     queryKey: ["categories"],
@@ -166,11 +175,25 @@ const Page = () => {
     }
   }
 
+  const applyTransformation = async(transformation: string) => {
+    if (!selectedImage || processing || imageLoading) return;
+    setProcessing(true);
+    setImageLoading(true);
+    setActiveEffect(transformation);
+    
+    try {
+      const transformedUrl = `${selectedImage.split("?")[0]}?tr=${transformation}`;
+      setSelectedImage(transformedUrl);
+    } catch (error) {
+      console.log(error);
+      setProcessing(false);
+      setImageLoading(false);
+    }
+  }
+
   const handleSaveDraft = () => {
 
   }
-
-  console.log(selectedImage);
 
   return (
     <form className='w-full mx-auto p-8 shadow-md rounded-lg text-white' 
@@ -572,21 +595,38 @@ const Page = () => {
               <X size={20} className="cursor-pointer" onClick={() => setOpenImageModal(false)}/>
             </div>  
             <div className="relative w-full h-[250px] rounded-md overflow-hidden border border-gray-600">
+              {imageLoading && (
+                <div className="absolute inset-0 bg-gray-700 flex items-center justify-center z-10">
+                  <div className="w-8 h-8 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                </div>
+              )}
               <Image
                 src={selectedImage}
                 alt="Selected Project Image"
                 layout="fill"
                 className="h-[250px]"
+                unoptimized
+                onLoad={() => {
+                  setImageLoading(false);
+                  setProcessing(false);
+                }}
+                onError={() => {
+                  setImageLoading(false);
+                  setProcessing(false);
+                }}
               />
             </div>
             {selectedImage && (
               <div className="mt-4 space-y-2">
+                {(processing || imageLoading) && <BarLoader width={"100%"} className={`w-full bg-gray-600`} />}
                 <h3 className="text-white text-sm font-semibold">AI Enhancements</h3>
                 <div className="grid grid-cols-2 gap-3 max-h-[250px] overflow-y-auto">
-                  {enhcancements.map(({label, effect}) => (
+                  {enhancements.map(({label, effect}) => (
                     <button key={effect} 
-                      className={`p-2 rounded-md flex items-center justify-center gap-2 ${activeEffect === effect ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
-                      // onClick={() => setActiveEffect(effect)}
+                      type="button"
+                      className={`p-2 rounded-md flex items-center justify-center gap-2 ${(processing || imageLoading) ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} ${activeEffect === effect ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
+                      onClick={() => applyTransformation(effect)}
+                      disabled={processing || imageLoading}
                     >
                       <Wand size={18}/> {label}
                     </button>

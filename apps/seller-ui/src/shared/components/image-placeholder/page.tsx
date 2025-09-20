@@ -36,12 +36,12 @@ const ImagePlaceHolder = ({
                 <>
                     <button type='button' onClick={() => onRemove?.(index)}
                         disabled={pictureUploading}
-                        className='absolute top-3 right-3 p-2 !rounded bg-red-600 shadow-lg'    
+                        className={`absolute top-3 right-3 p-2 !rounded bg-red-600 shadow-lg ${pictureUploading ? "cursor-not-allowed" : "cursor-pointer"}`}
                     >
                         <X size={16} />
                     </button>
                     <button 
-                        className='absolute top-3 right-[70px] p-2 !rounded bg-blue-500 shadow-lg cursor-pointer'
+                        className={`absolute top-3 right-[70px] p-2 !rounded bg-blue-500 shadow-lg ${pictureUploading ? "cursor-not-allowed" : "cursor-pointer"}`}
                         type='button'
                         disabled={pictureUploading}
                         onClick={() => {
@@ -67,6 +67,7 @@ const ImagePlaceHolder = ({
                     width={400}
                     height={300}
                     className='w-full h-full object-cover rounded-lg'
+                    unoptimized
                 />
             ) : (
                 <>
