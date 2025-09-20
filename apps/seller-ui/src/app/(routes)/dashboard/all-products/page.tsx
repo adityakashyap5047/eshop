@@ -5,12 +5,20 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart, ChevronRightIcon, Eye, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
+import { BarChart, ChevronRightIcon, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete-confirmation-modal";
 
 const fetchProducts = async () => {
     const res = await axiosInstance.get("/product/api/get-shop-products")
     return res?.data?.products;
+}
+
+const deleteProduct = async(productId: string) => {
+    await axiosInstance.delete(`/product/api/delete-product/${productId}`);
+}
+
+const restoreProduct = async(productId: string) => {
+    await axiosInstance.put(`/product/api/restore-product/${productId}`);
 }
 
 const ProductList = () => {
@@ -111,13 +119,13 @@ const ProductList = () => {
                         <BarChart size={18} />
                     </button>
                     <button
-                        className="text-red-400 hover:text-red-300 transition"
+                        className={`${!row.original.isDeleted ? "text-red-400 hover:text-red-300 transition" : "text-cyan-400 hover:text-cyan-300 transition"}`}
                         onClick={() => {
                             setSelectedProduct(row.original);
                             setShowDeleteModal(true);
                         }}
                     >
-                        <Trash2 size={18} />
+                        {!row.original.isDeleted ? <Trash2 size={18} /> : <FileAxis3D size={18} />}
                     </button>
                 </div>
             )
@@ -132,6 +140,22 @@ const ProductList = () => {
         globalFilterFn: "includesString",
         state: {globalFilter},
         onGlobalFilterChange: setGlobalFilter,
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: deleteProduct,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ["shop-products"]});
+            setShowDeleteModal(false);
+        }
+    });
+
+    const restoreMutation = useMutation({
+        mutationFn: restoreProduct,
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ["shop-products"]});
+            setShowDeleteModal(false);
+        }
     });
 
   return (
@@ -202,8 +226,8 @@ const ProductList = () => {
                 <DeleteConfirmationModal
                     product={selectedProduct}
                     onClose={() => setShowDeleteModal(false)}
-                    // onConfirm={() => deleteMutation.mutate(selectedProduct.id)}
-                    // onRestore={() => restoreMutation.mutate(selectedProduct.id)}
+                    onConfirm={() => deleteMutation.mutate(selectedProduct.id)}
+                    onRestore={() => restoreMutation.mutate(selectedProduct.id)}
                 />
             )}
         </div>
