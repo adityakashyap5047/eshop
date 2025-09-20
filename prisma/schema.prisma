@@ -21,6 +21,8 @@ model images {
   users     users?   @relation(fields: [userId], references: [id])
   shopId    String?  @db.ObjectId @unique
   shops     shops?   @relation(fields: [shopId], references: [id])
+  products products? @relation(fields: [productsId], references: [id])
+  productsId String? @db.ObjectId
 }
 
 model users {
@@ -63,25 +65,26 @@ model shops {
   sellers       sellers[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  products      products[]
 }
 
 model sellers {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  email       String   @unique
-  phone_number String
-  country     String
-  password    String
-  stripeId    String?  @unique
-  shop        shops?  @relation(fields: [shopId], references: [id])
-  shopId      String?  @db.ObjectId @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String   @unique
+  phone_number  String
+  country       String
+  password      String
+  stripeId      String?  @unique
+  shop          shops?  @relation(fields: [shopId], references: [id])
+  shopId        String?  @db.ObjectId @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model site_config {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  categories String[]
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  categories    String[]
   subCategories Json
 }
 
@@ -91,7 +94,47 @@ model discount_codes {
   discountType  String
   discountValue Float
   discountCode  String   @unique
-  sellerId     String   @db.ObjectId
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  sellerId      String   @db.ObjectId
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model products {
+  id                    String @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String
+  slug                  String @unique
+  category              String
+  subCategory           String
+  description           String
+  detailed_description  String
+  images                images[]
+  vedio_url             String?
+  tags                  String?
+  brand                 String?
+  colors                String[]
+  sizes                 String[]
+  starting_date         DateTime?
+  ending_date           DateTime?
+  stock                 Int
+  sale_price            Float
+  regular_price         Float
+  ratings               Float @default(0)
+  warranty              String?
+  custom_specifications  Json?
+  custom_properties     Json?
+  isDeleted             Boolean? @default(false)
+  cashOnDelivery        String?
+  discount_codes        String[] @db.ObjectId
+  status                prodStatus @default(Active)
+  deletedAt             DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  shopId                String @db.ObjectId
+  Shop                  shops @relation(fields: [shopId], references: [id])
+}
+
+enum prodStatus {
+  Active
+  Pending
+  Draft
 }

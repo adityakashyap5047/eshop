@@ -1,4 +1,4 @@
-import { NotFoundError, ValidationError } from "@packages/error-handler";
+import { AuthError, NotFoundError, ValidationError } from "@packages/error-handler";
 import { imagekit } from "@packages/libs/imagekit";
 import prisma from "@packages/libs/prisma";
 import { NextFunction, Request, Response } from "express";
@@ -136,5 +136,55 @@ export const deleteProductImage = async(req: Request, res: Response, next: NextF
         })
     } catch (error) {
         return next(error);
+    }
+}
+
+export const createProduct = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const {
+            title,
+            description,
+            detailed_description,
+            warranty,
+            custom_specifications,
+            slug,
+            tags,
+            cash_on_delivery,
+            brand,
+            video_url,
+            category,
+            colors = [],
+            sizes = [],
+            discountCodes,
+            stock,
+            sale_price,
+            regular_price,
+            subCategory,
+            customProperties,
+            images = [],
+        } = req.body;
+
+        if(
+            !title ||
+            !slug || 
+            !description ||
+            !category ||
+            !subCategory ||
+            !sale_price ||
+            !images ||
+            !tags ||
+            !stock || 
+            !regular_price
+        ) {
+            return next(new ValidationError("Please provide all the required fields!"));
+        }
+
+        if(!req.seller.id) {
+            return next(new AuthError("Only seller can create a products"));
+        }
+
+        
+    } catch (error) {
+        return next(error);   
     }
 }
