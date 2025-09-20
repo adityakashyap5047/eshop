@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { BarChart, ChevronRightIcon, Eye, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
+import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete-confirmation-modal";
 
 const fetchProducts = async () => {
     const res = await axiosInstance.get("/product/api/get-shop-products")
@@ -111,6 +112,10 @@ const ProductList = () => {
                     </button>
                     <button
                         className="text-red-400 hover:text-red-300 transition"
+                        onClick={() => {
+                            setSelectedProduct(row.original);
+                            setShowDeleteModal(true);
+                        }}
                     >
                         <Trash2 size={18} />
                     </button>
@@ -191,6 +196,15 @@ const ProductList = () => {
                         ))}
                     </tbody>
                 </table>
+            )}
+
+            {showDeleteModal && (
+                <DeleteConfirmationModal
+                    product={selectedProduct}
+                    onClose={() => setShowDeleteModal(false)}
+                    // onConfirm={() => deleteMutation.mutate(selectedProduct.id)}
+                    // onRestore={() => restoreMutation.mutate(selectedProduct.id)}
+                />
             )}
         </div>
     </div>
