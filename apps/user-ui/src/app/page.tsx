@@ -1,8 +1,11 @@
 import React from 'react'
+import Hero from '../shared/components/hero'
 
 const Page = () => {
   return (
-    <div className='h-[200vh]'>Page</div>
+    <div className='bg-[#f5f5f5]'>
+      <Hero />
+    </div>
   )
 }
 

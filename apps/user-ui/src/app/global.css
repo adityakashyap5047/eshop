@@ -391,3 +391,19 @@
       }
     }
   
+
+.h-main{
+  height: calc(100vh - 148.8px);
+}
+
+@media screen and (max-width: 1024px) {
+  .h-main{
+    height: calc(100vh - 154.8px);
+  }
+}
+
+@media screen and (max-width: 740px) {
+  .h-main{
+    height: calc(100vh - 176.8px);
+  }
+}
