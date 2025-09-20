@@ -252,3 +252,71 @@ export const getShopProducts = async(req: any, res: Response, next: NextFunction
         return next(error);
     }
 }
+
+export const deleteProduct = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const {productId} = req.params;
+
+        const shopId = req.seller?.shop?.id;
+
+        const product = await prisma.products.findUnique({
+            where: {id: productId},
+            select: {id: true, shopId: true, isDeleted: true}
+        });
+
+        if (!product) {
+            return next(new ValidationError("Product not found"));
+        }
+
+        if (product.shopId !== shopId) {
+            return next(new AuthError("Unauthorized action"));
+        }
+
+        if(product.isDeleted) {
+            return res.status(400).json({message: "Product is already deleted"});
+        }
+
+        const deletedProduct = await prisma.products.update({
+            where: {id: productId},
+            data: {isDeleted: true, deletedAt: new Date(Date.now() + 24 * 60 * 60 * 1000)}
+        })
+
+        return res.status(200).json({success: true, message: "Product moved to deleted state. It will be permanently deleted after 24 hours unless restored.", deletedAt: deletedProduct.deletedAt});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const restoreProduct = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const {productId} = req.params;
+
+        const shopId = req.seller?.shop?.id;
+
+        const product = await prisma.products.findUnique({
+            where: {id: productId},
+            select: {id: true, shopId: true, isDeleted: true}
+        });
+
+        if (!product) {
+            return next(new ValidationError("Product not found"));
+        }
+
+        if (product.shopId !== shopId) {
+            return next(new AuthError("Unauthorized action"));
+        }
+
+        if(!product.isDeleted) {
+            return res.status(400).json({message: "Product is not in deleted state"});
+        }
+
+        await prisma.products.update({
+            where: {id: productId},
+            data: {isDeleted: false, deletedAt: null}
+        })
+
+        return res.status(200).json({success: true, message: "Product restored successfully."});
+    } catch (error) {
+        return next(error);
+    }
+}
