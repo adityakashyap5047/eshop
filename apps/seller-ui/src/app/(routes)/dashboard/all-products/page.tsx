@@ -184,7 +184,7 @@ const ProductList = () => {
                 type="text"
                 placeholder="Search products..."
                 className="bg-transparent outline-none flex-1 text-white placeholder-gray-500"
-                value={globalFilter ?? ""}
+                value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
             />
         </div>
