@@ -232,3 +232,20 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
         return next(error);   
     }
 }
+
+export const getShopProducts = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const products = await prisma.products.findMany({
+            where: {
+                shopId: req?.seller?.shop?.id
+            }, 
+            include: {
+                images: true,
+            }
+        });
+
+        return res.status(200).json({ success: true, products });
+    } catch (error) {
+        return next(error);
+    }
+}
