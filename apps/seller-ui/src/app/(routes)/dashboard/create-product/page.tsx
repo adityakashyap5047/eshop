@@ -15,6 +15,8 @@ import SizeSelector from "apps/seller-ui/src/shared/components/size-selector";
 import Image from "next/image";
 import { enhancements } from "apps/seller-ui/src/utils/AI.enhancements";
 import { BarLoader } from "react-spinners";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface UploadedImage {
   fileId: string;
@@ -32,6 +34,7 @@ const Page = () => {
   const [activeEffect, setActiveEffect] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (selectedImage && !processing) {
@@ -71,8 +74,17 @@ const Page = () => {
     return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
   }, [selectedCategory, subCategoriesData]);
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async(data: any) => {
+    try {
+      setLoading(true);
+      await axiosInstance.post("/product/api/create-product", data);
+      router.push("/dashboard/all-products");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to create product");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {

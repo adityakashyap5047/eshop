@@ -179,11 +179,59 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
             return next(new ValidationError("Please provide all the required fields!"));
         }
 
-        if(!req.seller.id) {
+        if(!req.seller?.id) {
             return next(new AuthError("Only seller can create a products"));
         }
 
-        
+        if(!req.seller?.shop?.id) {
+            return next(new AuthError("Seller must have a shop to create products"));
+        }
+
+        const isSlugExists = await prisma.products.findUnique({
+            where: {
+                slug
+            }
+        });
+
+        if(isSlugExists) {
+            return next(new ValidationError("Slug already exists please use a different slug!"));
+        }
+
+        const product = await prisma.products.create({
+            data: {
+                title,
+                description,
+                detailed_description,
+                warranty,
+                cashOnDelivery: cash_on_delivery,
+                slug, 
+                shopId: req?.seller?.shop?.id!,
+                tags: Array.isArray(tags) ? tags : tags.split(','),
+                brand,
+                video_url: video_url,
+                category,
+                subCategory,
+                colors: colors || [],
+                discount_codes: discountCodes.map((codeId: string) => codeId),
+                sizes: sizes || [],
+                stock: parseInt(stock),
+                sale_price: parseFloat(sale_price),
+                regular_price: parseFloat(regular_price),
+                custom_properties: customProperties || {},
+                custom_specifications: custom_specifications || {},
+                images: {
+                    create: images.filter((img: any) => img && img.fileId && img.file_url).map((image: any) => ({
+                        file_id: image.fileId,
+                        url: image.file_url,
+                    }))
+                }
+            },
+            include: {
+                images: true,
+            }
+        });
+
+        return res.status(201).json({ success: true, product });
     } catch (error) {
         return next(error);   
     }

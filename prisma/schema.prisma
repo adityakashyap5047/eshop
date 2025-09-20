@@ -108,8 +108,8 @@ model products {
   description           String
   detailed_description  String
   images                images[]
-  vedio_url             String?
-  tags                  String?
+  video_url             String?
+  tags                  String[]
   brand                 String?
   colors                String[]
   sizes                 String[]
