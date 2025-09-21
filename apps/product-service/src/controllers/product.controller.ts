@@ -163,6 +163,8 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
             subCategory,
             customProperties,
             images = [],
+            starting_date,
+            ending_date,
         } = req.body;
 
         if(
@@ -214,6 +216,8 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
                 colors: colors || [],
                 discount_codes: discountCodes?.map((codeId: string) => codeId),
                 sizes: sizes || [],
+                starting_date: starting_date || null,
+                ending_date: ending_date || null,
                 stock: parseInt(stock),
                 sale_price: parseFloat(sale_price),
                 regular_price: parseFloat(regular_price),
@@ -330,17 +334,16 @@ export const getAllProudcts = async(req: Request, res: Response, next: NextFunct
         const type = req.query.type;
     
         const baseFilter = {
-            OR: [{
-                starting_date: null,
-            }, {
-                ending_data: null,
-            }]
+            OR: [
+                { starting_date: { equals: null } },
+                { ending_date: { equals: null } }
+            ]
         }
     
         const orderBy: Prisma.productsOrderByWithRelationInput = 
-            // type === "latest" ? 
-                 { createdAt: 'desc' as Prisma.SortOrder }
-                // : { totalSales: 'desc' as Prisma.SortOrder }
+            type === "latest" 
+                ? { createdAt: 'desc' as Prisma.SortOrder }
+                : { totalSales: 'desc' as Prisma.SortOrder }
 
         const [products, total, top10Products] = await Promise.all([
             prisma.products.findMany({
@@ -351,9 +354,9 @@ export const getAllProudcts = async(req: Request, res: Response, next: NextFunct
                     Shop: true
                 },
                 where: baseFilter,
-                // orderBy: {
-                //     totalSales: 'desc'
-                // },
+                orderBy: {
+                    totalSales: 'desc'
+                },
             }),
             prisma.products.count({where: baseFilter}),
             prisma.products.findMany({
