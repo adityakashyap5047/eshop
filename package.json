@@ -42,7 +42,8 @@
     "stripe": "^18.5.0",
     "styled-components": "^6.1.19",
     "swagger-autogen": "^2.23.7",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@nx/docker": "21.4.1",
