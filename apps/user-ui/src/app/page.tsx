@@ -48,7 +48,7 @@ const Page = () => {
         )}
 
         {!isLoading && !isError && (
-          <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <div className="m-auto py-4 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {products?.map((product: any) => (
               <ProductCard key={product.id} product={product}/>
             ))}
