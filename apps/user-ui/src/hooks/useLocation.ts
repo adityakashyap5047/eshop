@@ -5,6 +5,8 @@ const LOCATION_STORAGE_KEY = "user_location";
 const LOCATION_EXPIRY_DAYS = 20;
 
 const getStoredLocation = () => {
+    if (typeof window === 'undefined') return null;
+    
     const storedData = localStorage.getItem(LOCATION_STORAGE_KEY);
 
     if (!storedData) return null;
@@ -17,10 +19,14 @@ const getStoredLocation = () => {
 }
 
 const useLocation = () => {
-    const [location, setLocation] = useState<{country: string; city: string} | null>(getStoredLocation());
+    const [location, setLocation] = useState<{country: string; city: string} | null>(null);
 
     useEffect(() => {
-        if (location) return;
+        const storedLocation = getStoredLocation();
+        if (storedLocation) {
+            setLocation(storedLocation);
+            return;
+        }
 
         fetch("https://ip-api.com/json/").then(res => res.json()).then((data) => {
             const newLocation = {
@@ -29,11 +35,12 @@ const useLocation = () => {
                 timestamp: Date.now()
             };
 
-            localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(newLocation));
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(newLocation));
+            }
             setLocation(newLocation);
         }).catch((error) => console.log("Failed to get location", error));
-    }, []);
-
+    }, []); 
     return location;
 }
 
