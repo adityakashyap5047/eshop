@@ -5,10 +5,13 @@ import React from 'react'
 import { HeartIcon, Search, ShoppingCartIcon, UserIcon } from 'lucide-react'
 import HeaderBottom from './header-bottom'
 import useUser from 'apps/user-ui/src/hooks/useUser';
+import { useStore } from 'apps/user-ui/src/store';
 
 const Header = () => {
 
     const { user, isLoading } = useUser();
+    const wishList = useStore((state: any) => state.whishList);
+    const cart = useStore((state: any) => state.cart);
 
   return (
     <div className='w-full bg-white'>
@@ -56,13 +59,13 @@ const Header = () => {
                     <Link href={"/wishlist"} className="relative">
                         <HeartIcon />
                         <div className='w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]'>
-                            <span className='text-white font-medium text-sm'>0</span>
+                            <span className='text-white font-medium text-sm'>{wishList?.length || 0}</span>
                         </div>
                     </Link>
                     <Link href={"/cart"} className="relative">
                         <ShoppingCartIcon />
                         <div className='w-6 h-6 border-2 border-white bg-red-500 rounded-full flex items-center justify-center absolute top-[-10px] right-[-10px]'>
-                            <span className='text-white font-medium text-sm'>0</span>
+                            <span className='text-white font-medium text-sm'>{cart?.length || 0}</span>
                         </div>
                     </Link>
                 </div>

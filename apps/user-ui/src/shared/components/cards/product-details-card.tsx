@@ -4,6 +4,10 @@ import React from 'react'
 import Ratings from '../ratings';
 import { Heart, MapPin, MessagesSquareIcon, ShoppingCart, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useStore } from 'apps/user-ui/src/store';
+import useUser from 'apps/user-ui/src/hooks/useUser';
+import useLocation from 'apps/user-ui/src/hooks/useLocation';
+import useDeviceInfo from 'apps/user-ui/src/hooks/useDeviceInfo';
 
 const ProductDetailsCard = ({data, setOpen}: {data: any, setOpen: (open: boolean) => void}) => {
     const [activeImage, setActiveImage] = React.useState(0);
@@ -12,10 +16,25 @@ const ProductDetailsCard = ({data, setOpen}: {data: any, setOpen: (open: boolean
     const [quantity, setQuantity] = React.useState(1);
     const router = useRouter();
 
+    const user = useUser();
+    const location = useLocation();
+    const deviceInfo = useDeviceInfo();
+
     const estimatedDelivery = new Date();
     estimatedDelivery.setDate(estimatedDelivery.getDate() + 7);
 
+    const addToCart = useStore((state: any) => state.addToCart);
+    const cart = useStore((state: any) => state.cart);
+    const isInCart = cart?.some((item: any) => item.id === data?.id);
+
+    const addToWishList = useStore((state: any) => state.addToWhishList);
+    const removeFromWishList = useStore((state: any) => state.removeFromWhishList);
+    const wishList = useStore((state: any) => state.whishList);
+    const isWishListed = wishList?.some((item: any) => item.id === data?.id);
+
   return (
+
+
     <div
         className='fixed flex items-center justify-center top-8 left-0 h-screen  w-full bg-[#0000001d] z-50'
         onClick={() => setOpen(false)}
@@ -170,11 +189,34 @@ const ProductDetailsCard = ({data, setOpen}: {data: any, setOpen: (open: boolean
                                 </div>
 
                             </div>
-                            <button className={` mt-4 flex items-center gap-2 px-4 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition`}>
+                            <button
+                                disabled={isInCart}
+                                onClick={() => 
+                                    addToCart(
+                                        {
+                                            ...data,
+                                            quantity,
+                                            selectedOptions: {
+                                                color: isSelected,
+                                                size: isSizeSelected,
+                                            },
+                                        },
+                                        user,
+                                        location,
+                                        deviceInfo
+                                    )
+                                }
+                                className={` mt-4 flex items-center gap-2 px-4 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition ${isInCart ? "cursor-not-allowed" : "cursor-pointer"}`}>
                             <ShoppingCart size={18}/> Add to Cart
                             </button>
                             <button className="opacity-[.7] cursor-pointer">
-                                <Heart size={30} fill='red' color='transparent' />
+                                <Heart size={30}
+                                    fill={isWishListed ? 'red' : 'transparent'}
+                                    color={isWishListed ? 'transparent' : 'black'}
+                                    onClick={() => 
+                                        isWishListed ? removeFromWishList(data?.id, user, location, deviceInfo) : addToWishList({...data, quantity, selectedOption: { color: isSelected, size: isSizeSelected }}, user, location, deviceInfo)
+                                    }
+                                />
                             </button>
                         </div>
 

@@ -9,6 +9,7 @@ import ProductDetailsCard from './product-details-card';
 import { useStore } from 'apps/user-ui/src/store';
 import useUser from 'apps/user-ui/src/hooks/useUser';
 import useLocation from 'apps/user-ui/src/hooks/useLocation';
+import useDeviceInfo from 'apps/user-ui/src/hooks/useDeviceInfo';
 
 const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolean}) => {
     
@@ -17,6 +18,7 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
 
     const user = useUser();
     const location = useLocation();
+    const deviceInfo = useDeviceInfo();
 
     const addToCart = useStore((state: any) => state.addToCart);
     const cart = useStore((state: any) => state.cart);
@@ -138,6 +140,10 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
                 <ShoppingCart 
                     size={22}
                     className='cursor-pointer text-[#4b5563] hover:scale-110 transition'
+                    onClick={() =>
+                        !isInCart && 
+                        addToCart({...product, quantity: 1}, user, location, deviceInfo)
+                    }
                 />
             </div>  
         </div>
