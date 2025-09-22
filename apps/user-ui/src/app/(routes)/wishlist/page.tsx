@@ -72,7 +72,7 @@ const WishListPage = () => {
                                                 alt={item.title}
                                                 width={80}
                                                 height={80}
-                                                className='rounded'
+                                                className='rounded-md'
                                             />
                                             <span>{item.title}</span>
                                         </td>
