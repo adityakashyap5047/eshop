@@ -5,10 +5,12 @@ import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import Ratings from '../ratings';
 import { Eye, Heart, ShoppingCart } from 'lucide-react';
+import ProductDetailsCard from './product-details-card';
 
 const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolean}) => {
     
     const [timeLeft, setTimeLeft] = useState("");
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         if(isEvent && product?.ending_time){
@@ -32,6 +34,7 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
 
             return () => clearInterval(interval);
         }
+        return () => {};
     }, [isEvent, product?.ending_time]);
 
     console.log(product);
@@ -108,6 +111,7 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
             </div>
             <div className="bg-white rounded-full p-[6px] shadow-md">
                 <Eye 
+                    onClick={() => setOpen(!open)}
                     className='cursor-pointer text-[#4b5563] hover:scale-110 transition'
                     size={22}
                 />
@@ -119,6 +123,10 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
                 />
             </div>  
         </div>
+
+        {open && (
+            <ProductDetailsCard data={product} setOpen={setOpen} />
+        )}
     </div>
   )
 }
