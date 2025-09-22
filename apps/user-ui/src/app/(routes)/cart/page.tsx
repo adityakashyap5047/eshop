@@ -4,7 +4,7 @@ import useDeviceInfo from "apps/user-ui/src/hooks/useDeviceInfo";
 import useLocation from "apps/user-ui/src/hooks/useLocation";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,10 @@ const Page = () => {
 
     const [discountedProductId, setDiscountedProductId] = useState("");
     const [discountPercet, setDiscountPercent] = useState(0);
+    const [discountAmount, setDiscountAmount] = useState(0);
+    const [couponCode, setCouponCode] = useState("");
+    const [selectedAddressId, setSelectedAddressId] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const decreasingQuantity = (id: string) => {
         useStore.setState((state: any) => ({
@@ -148,6 +152,88 @@ const Page = () => {
                                 ))}
                             </tbody>
                         </table>
+
+                        <div className="p-6 shadow-md w-full lg:w-[30%] bg-[#f9f9f9] rounded-lg">
+                            {discountAmount > 0 && (
+                                <div className="flex justify-between items-center text-[#010f1c] text-base font-medium pb-1">
+                                    <span className="font-jost">Discount ({discountPercet} % )</span>
+                                    <span className="text-green-600">- ${discountAmount.toFixed(2)}</span>
+                                </div>
+                            )}
+
+                            <div className="flex justify-between items-center text-[#010f1c] text-[20px] font-[550] pb-3">
+                                <span className="font-jost">Subtotal</span>
+                                <span>${(subTotal - discountAmount).toFixed(2)}</span>
+                            </div>
+                            <hr className="my-4 text-slate-200"/>
+                            <div className="mb-4">
+                                <h4 className="mb-[7px] font-[500] text-[15px]">
+                                    Have a Coupon?
+                                </h4>
+                                <div className="flex gap-4">
+                                    <input type="text" value={couponCode} 
+                                        onChange={(e) => setCouponCode(e.target.value)}
+                                        placeholder="Enter Coupon Code"
+                                        className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                                    />
+                                    <button
+                                        className="bg-blue-500 cursor-pointer text-white px-4 rounded-md hover:bg-blue-600 transition-all"
+                                        // onClick={}
+                                    >
+                                        Apply
+                                    </button>
+                                    {/* {error && (
+                                        <p className="text-sm pt-2 text-red-500">{error}</p>
+                                    )} */}
+                                </div>
+
+                                <hr className="my-4 text-slate-200"/>
+
+                                <div className="mb-4">
+                                    <h4 className="mb-[7px] font-medium text-[15px]">
+                                        Select Shipping Address
+                                    </h4>
+                                    <select
+                                        className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                                        value={selectedAddressId}
+                                        onChange={(e) => setSelectedAddressId(e.target.value)}
+                                    >
+                                        <option value="123">Home - Mumbai - India</option>
+                                    </select>
+                                </div>
+
+                                <hr className="my-4 text-slate-200"/>
+
+                                <div className="mb-4">
+                                    <h4 className="mb-[7px] font-medium text-[15px]">
+                                        Select Payment Method
+                                    </h4>
+                                    <select
+                                        className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                                        value={selectedAddressId}
+                                        onChange={(e) => setSelectedAddressId(e.target.value)}
+                                    >
+                                        <option value="credit_card">Online Payment</option>
+                                        <option value="cash_on_delivery">Cash on Delivery</option>
+                                    </select>
+                                </div>
+
+                                <hr className="my-4 text-slate-200"/>
+
+                                <div className="flex justify-between items-center text-[#010f1c] text-[20px] font-[550] pb-3">
+                                    <span className="font-jost">Total</span>
+                                    <span>${(subTotal - discountAmount).toFixed(2)}</span>
+                                </div>
+
+                                <button
+                                    disabled={loading}
+                                    className="w-full flex items-center justify-center gap-2 cursor-pointer my-4 py-2 bg-[#010f1c] text-white hover:bg-[#0989FF] transition-all rounded-md"
+                                >
+                                    {loading && <Loader2 className="animate-spin h-5 w-5" />}
+                                    {loading ? "Redirecting..." : "Proceed to Checkout"}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
