@@ -6,11 +6,26 @@ import React, { useEffect, useState } from 'react'
 import Ratings from '../ratings';
 import { Eye, Heart, ShoppingCart } from 'lucide-react';
 import ProductDetailsCard from './product-details-card';
+import { useStore } from 'apps/user-ui/src/store';
+import useUser from 'apps/user-ui/src/hooks/useUser';
+import useLocation from 'apps/user-ui/src/hooks/useLocation';
 
 const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolean}) => {
     
     const [timeLeft, setTimeLeft] = useState("");
     const [open, setOpen] = useState(false);
+
+    const user = useUser();
+    const location = useLocation();
+
+    const addToCart = useStore((state: any) => state.addToCart);
+    const cart = useStore((state: any) => state.cart);
+    const isInCart = cart?.some((item: any) => item.id === product?.id);
+
+    const addToWishList = useStore((state: any) => state.addToWhishList);
+    const removeFromWishList = useStore((state: any) => state.removeFromWhishList);
+    const wishList = useStore((state: any) => state.whishList);
+    const isWishListed = wishList?.some((item: any) => item.id === product?.id);
 
     useEffect(() => {
         if(isEvent && product?.ending_time){
@@ -105,8 +120,11 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
                 <Heart 
                     className='cursor-pointer hover:scale-110 transition'
                     size={22}
-                    fill='red'
-                    stroke='red'
+                    fill={isWishListed ? 'red' : 'transparent'}
+                    stroke={isWishListed ? 'red' : '#4b5563'}
+                    onClick={() => 
+                        isWishListed ? removeFromWishList(product?.id, user, location, deviceInfo) : addToWishList({...product, quantity: 1}, user, location, deviceInfo)
+                    }
                 />
             </div>
             <div className="bg-white rounded-full p-[6px] shadow-md">
