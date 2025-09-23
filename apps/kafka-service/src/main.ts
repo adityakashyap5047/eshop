@@ -20,6 +20,7 @@ const processQueue = async() => {
       "add_to_wishlist",
       "add_to_cart",
       "product_view",
+      "remove_from_cart",
       "remove_from_wishlist",
     ];
 
