@@ -67,7 +67,7 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
             query.set("page", "1");
             query.set("limit", "5");
 
-            const res = await axiosInstance.get(`/products/api/get-filtered-products?${query.toString()}`);
+            const res = await axiosInstance.get(`/product/api/get-filtered-products?${query.toString()}`);
             setRecommendedProducts(res.data.products);
         } catch (error) {
             console.error("Error fetching filtered products:", error);
