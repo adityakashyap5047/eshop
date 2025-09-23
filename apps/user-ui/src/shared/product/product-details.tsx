@@ -5,10 +5,32 @@ import { useState } from "react"
 import ReactImageMagnify from "react-image-magnify";
 import Ratings from "../components/ratings";
 import Link from "next/link";
+import { useStore } from "../../store";
 
 const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const [currentImage, setCurrentImage] = useState(productDetails?.images[0]?.url);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isSelected, setIsSelected] = useState(
+        productDetails?.colors?.[0] || ""
+    );
+    const [isSizeSelected, setIsSizeSelected] = useState(
+        productDetails?.sizes?.[0] || ""
+    );
+    const [quantity, setQuantity] = useState(1);
+    const [priceRange, setPriceRange] = useState([
+        productDetails?.sale_price,
+        449
+    ]);
+    const [recommendedProducts, setRecommendedProducts] = useState<any[]>([]);
+
+    const addToCart = useStore((state: any) => state.addToCart);
+    const cart = useStore((state: any) => state.cart);
+    const isInCart = cart?.some((item: any) => item.id === productDetails?.id);
+
+    const addToWishList = useStore((state: any) => state.addToWhishList);
+    const removeFromWishList = useStore((state: any) => state.removeFromWhishList);
+    const wishList = useStore((state: any) => state.whishList);
+    const isWishListed = wishList?.some((item: any) => item.id === productDetails?.id);
 
     const prevImage = () => {
         if(currentIndex > 0){
@@ -141,8 +163,55 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
                                 {productDetails?.colors?.length > 0 && (
                                     <div>
                                         <strong>Color: </strong>
+                                        <div className="flex gap-2 mt-2">
+                                            {productDetails?.colors?.map((color: string, index: number) => (
+                                                <button
+                                                    key={index}
+                                                    className={`w-8 h-8 rounded-full border-2 transition ${isSelected === color ? 'border-gray-400 scale-110 shadow-md' : 'border-transparent'}`}
+                                                    onClick={() => setIsSelected(color)}
+                                                    style={{backgroundColor: color}}
+                                                />
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
+
+                                {productDetails?.sizes?.length > 0 && (
+                                    <div>
+                                        <strong>Size: </strong>
+                                        <div className="flex gap-2 mt-2">
+                                            {productDetails?.sizes?.map((size: string, index: number) => (
+                                                <button
+                                                    key={index}
+                                                    className={`px-4 py-1 border rounded-md text-sm transition ${isSizeSelected === size ? 'text-white bg-gray-800' : 'bg-gray-300 text-black'}`}
+                                                    onClick={() => setIsSizeSelected(size)}
+                                                >
+                                                    {size}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="mt-6">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center rounded-md">
+                                    <button 
+                                        className="px-3 cursor-pointer py-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-l-md"
+                                        onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                                    >
+                                        -
+                                    </button>
+                                    <span className="px-4 bg-gray-100 py-1">{quantity}</span>
+                                    <button 
+                                        className="px-3 cursor-pointer py-1 bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-r-md"
+                                        onClick={() => setQuantity((prev) => prev + 1)}
+                                    >
+                                        +
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
