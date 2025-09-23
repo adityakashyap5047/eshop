@@ -1,7 +1,7 @@
 "use client";
 import { ChevronLeft, ChevronRight, Heart, MapPin, MessageSquareText, Package, ShoppingCartIcon, WalletMinimal } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ReactImageMagnify from "react-image-magnify";
 import Ratings from "../components/ratings";
 import Link from "next/link";
@@ -9,6 +9,8 @@ import { useStore } from "../../store";
 import useUser from "../../hooks/useUser";
 import useLocation from "../../hooks/useLocation";
 import useDeviceInfo from "../../hooks/useDeviceInfo";
+import ProductCard from "../components/cards/product-card";
+import axiosInstance from "../../utils/axiosInstance";
 
 const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const [currentImage, setCurrentImage] = useState(productDetails?.images[0]?.url);
@@ -56,6 +58,25 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const discountPercentage = Math.round(
         ((productDetails?.regular_price - productDetails?.sale_price) / productDetails?.regular_price) * 100
     )
+
+    const fetchFilteredProducts = async() => {
+        try {
+            const query = new URLSearchParams();
+
+            query.set("priceRange", priceRange.join(","));
+            query.set("page", "1");
+            query.set("limit", "5");
+
+            const res = await axiosInstance.get(`/products/api/get-filtered-products?${query.toString()}`);
+            setRecommendedProducts(res.data.products);
+        } catch (error) {
+            console.error("Error fetching filtered products:", error);
+        }
+    }
+
+    useEffect(() => {
+        fetchFilteredProducts();
+    }, [priceRange]);
 
     return (
         <div className="w-full bg-[#f5f5f5] py-5">
@@ -320,7 +341,66 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
                             </div>
                         </div>
 
-                        
+                        <div className="grid grid-cols-3 gap-2 border-t border-t-gray-200 mt-3 pt-3">
+                            <div>
+                                <p className="text-[12px] text-gray-500">
+                                    Positive Seller Ratings
+                                </p>
+                                <p className="text-lg font-semibold">88%</p>
+                            </div>
+                            <div>
+                                <p className="text-[12px] text-gray-500">Ship on Time</p>
+                                <p className="text-lg font-semibold">100%</p>
+                            </div>
+                            <div>
+                                <p className="text-[12px] text-gray-500">
+                                    Chat Response Rate
+                                </p>
+                                <p className="text-lg font-semibold">100%</p>
+                            </div>
+                        </div>
+
+                        <div className="text-center mt-4 border-t border-t-gray-200 pt-2">
+                            <Link
+                                href={`/shops/${productDetails?.Shop?.id}`}
+                                className="text-blue-500 font-medium text-sm hover:underline"
+                            >
+                                GO TO STORE
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="w-[90%] lg:w-[80%] mx-auto mt-5">
+                <div className="bg-white min-h-[60vh] h-full p-5">
+                    <h3 className="text-lg font-semibold">
+                        Product details of {productDetails?.title}
+                    </h3>
+                    <div className="prose prose-sm text-slate-600 max-w-none"
+                        dangerouslySetInnerHTML={{__html: productDetails?.detailed_description}}
+                    />
+                </div>
+            </div>
+            
+            <div className="w-[90%] lg:w-[80%] mx-auto">
+                <div className="bg-white min-h-[50vh] h-full mt-5 p-5">
+                    <h3 className="text-lg font-semibold">
+                        Ratings & Reviews of {productDetails?.title}
+                    </h3>
+                    <p className="text-center pt-14">
+                        No Reviews available yet.
+                    </p>
+                </div>
+            </div>
+
+            <div className="w-[90%] lg:w-[80%] mx-auto">
+                <div className="w-full h-full my-5 p-5">
+                    <h3 className="text-xl font-semibold mb-2">You may also like</h3>
+                    <div className="m-auto grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                        {recommendedProducts?.map((i: any) => (
+                            <ProductCard key={i?.id} product={i} />
+                        ))}
                     </div>
                 </div>
             </div>
