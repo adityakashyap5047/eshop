@@ -1,11 +1,14 @@
 "use client";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, ShoppingCartIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react"
 import ReactImageMagnify from "react-image-magnify";
 import Ratings from "../components/ratings";
 import Link from "next/link";
 import { useStore } from "../../store";
+import useUser from "../../hooks/useUser";
+import useLocation from "../../hooks/useLocation";
+import useDeviceInfo from "../../hooks/useDeviceInfo";
 
 const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const [currentImage, setCurrentImage] = useState(productDetails?.images[0]?.url);
@@ -31,6 +34,10 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const removeFromWishList = useStore((state: any) => state.removeFromWhishList);
     const wishList = useStore((state: any) => state.whishList);
     const isWishListed = wishList?.some((item: any) => item.id === productDetails?.id);
+
+    const { user, isLoading } = useUser();
+    const location = useLocation();
+    const deviceInfo = useDeviceInfo();
 
     const prevImage = () => {
         if(currentIndex > 0){
@@ -225,8 +232,27 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
                                     </span>
                                 )}
                             </div>
-
-                            
+                                
+                            <button className={`flex mt-6 items-center gap-2 px-5 py-[10px] bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition ${isInCart ? "cursor-not-allowed" : "cursor-pointer"}`}
+                                disabled={isInCart || productDetails?.stock === 0}
+                                onClick={() => 
+                                    addToCart(
+                                        {
+                                            ...productDetails,
+                                            quantity,
+                                            selectedOptions: {
+                                                color: isSelected,
+                                                size: isSizeSelected
+                                            }
+                                        },
+                                        user,
+                                        location,
+                                        deviceInfo
+                                    )
+                                }
+                            >
+                                <ShoppingCartIcon /> {isInCart ? "In Cart" : "Add to Cart"}
+                            </button>
                         </div>
                     </div>
                 </div>
