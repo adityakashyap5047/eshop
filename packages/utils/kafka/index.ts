@@ -6,7 +6,7 @@ export const kafka = new Kafka({
     ssl: true,
     sasl: {
         mechanism: 'plain',
-        username: process.env.KAFKA_USERNAME!,
-        password: process.env.KAFKA_PASSWORD!
+        username: process.env.KAFKA_API_KEY!,
+        password: process.env.KAFKA_API_SECRET!
     }
-})
+});
