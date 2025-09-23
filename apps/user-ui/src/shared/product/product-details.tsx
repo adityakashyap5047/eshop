@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight, Heart, ShoppingCartIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, MapPin, MessageSquareText, Package, ShoppingCartIcon, WalletMinimal } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react"
 import ReactImageMagnify from "react-image-magnify";
@@ -275,6 +275,52 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
                                 <ShoppingCartIcon /> {isInCart ? "In Cart" : "Add to Cart"}
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <div className="bg-[#fafafa] -mt-6">
+                    <div className="mb-1 p-3 border-b border-b-gray-100">
+                        <span className="text-sm text-gray-600">Delivery Option</span>
+                        <div className="flex items-center text-gray-600 gap-1">
+                            <MapPin size={18} className="ml-[-5px]" />
+                            <span className="text-lg font-normal">
+                                {location?.city || "Delhi" + ", " + location?.country}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="mb-1 px-3 pb-1 border-b border-b-gray-100">
+                        <span className="text-sm text-gray-600">Return & Warranty</span>
+                        <div className="flex items-center text-gray-600 gap-1">
+                            <Package size={18} className="ml-[-5px]" />
+                            <span className="text-base font-normal">7 Days Returns</span>
+                        </div>
+                        <div className="flex items-center py-2 text-gray-600 gap-1">
+                            <WalletMinimal size={18} className="ml-[-5px]" />
+                            <span className="text-base font-normal">Warranty not available</span>
+                        </div>
+                    </div>
+
+                    <div className="px-3 py-1">
+                        <div className="w-[85%] rounded-lg">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <span className="text-sm text-gray-600 font-light">
+                                        Sold by
+                                    </span>
+                                    <span className="block max-w-[150px] truncate font-medium text-lg">{productDetails?.Shop?.name}</span>
+                                </div>
+                                <Link
+                                    href={"#"}
+                                    className="text-blue-500 text-sm flex items-center gap-1"
+                                >
+                                    <MessageSquareText />
+                                    Chat Now
+                                </Link>
+                            </div>
+                        </div>
+
+                        
                     </div>
                 </div>
             </div>
