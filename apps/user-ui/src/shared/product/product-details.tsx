@@ -212,7 +212,21 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
                                         +
                                     </button>
                                 </div>
+                                {productDetails?.stock > 0 ? (
+                                    <span className="text-green-600 font-semibold">
+                                        In Stock{" "}
+                                        <span className="text-gray-500 font-medium">
+                                            (Stock {productDetails?.stock})
+                                        </span>
+                                    </span>
+                                ) : (
+                                    <span className="text-red-600 font-semibold">
+                                        Out of Stock
+                                    </span>
+                                )}
                             </div>
+
+                            
                         </div>
                     </div>
                 </div>
