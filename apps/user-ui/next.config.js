@@ -17,6 +17,13 @@ const nextConfig = {
         hostname: "ik.imagekit.io",
       }
     ]
+  },
+  webpack: (config, { isServer }) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@packages': require('path').resolve(__dirname, '../../packages'),
+    };
+    return config;
   }
 };
 
