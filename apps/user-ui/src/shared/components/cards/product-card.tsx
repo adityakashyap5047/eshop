@@ -54,7 +54,6 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
         return () => {};
     }, [isEvent, product?.ending_time]);
 
-    console.log(product);
     return (
     <div className='w-full min-h-[350px] h-max bg-white rounded-lg relative'>
         {isEvent && (

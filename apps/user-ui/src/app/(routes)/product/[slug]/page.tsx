@@ -28,9 +28,9 @@ export async function generateMetadata({params}: {params: Promise<{slug: string}
     }
 }
 
-const page = async ({params}: {params: {slug: string}}) => {
-
-    const productDetails = await fetchProductDetails(params.slug);
+const page = async ({params}: {params: Promise<{slug: string}>}) => {
+    
+    const productDetails = await fetchProductDetails((await params).slug);
 
     return (
         <ProductDetails productDetails={productDetails} />
