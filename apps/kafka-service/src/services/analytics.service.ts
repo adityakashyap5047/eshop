@@ -75,8 +75,73 @@ export const updateUserAnalytics = async(event: any) => {
         });
 
         // Also update product analytics
-
+        await updateProductAnalytics(event);
     } catch (error) {
         console.log("Error storing user analytics: ", error);
+    }
+}
+
+export const updateProductAnalytics = async(event: any) => {
+    try {
+        if(!event.productId) return;
+
+        // Define update fields dynamically
+        const updateFields: any = {};
+
+        if(event.action === "product_view") {
+            updateFields.views = {
+                increment: 1
+            };
+        }
+
+        if(event.action === "add_to_cart") {
+            updateFields.cartAdds = {
+                increment: 1
+            };
+        }
+
+        if(event.action === "remover_from_cart"){
+            updateFields.cartAdds = {
+                decrement: 1
+            };
+        }
+
+        if(event.action === "add_to_wishlist") {
+            updateFields.wishlistAdds = {
+                increment: 1
+            };
+        }
+
+        if(event.action === "remove_from_wishlist"){
+            updateFields.wishlistAdds = {
+                decrement: 1
+            };
+        }
+
+        if(event.action === "purchase"){
+            updateFields.purchases = {
+                increment: 1
+            };
+        }
+
+        // Update or create product analytics
+        await prisma.productAnalytics.upsert({
+            where: {productId: event.productId},
+            update: {
+                lastViewedAt: new Date(),
+                ...updateFields
+            },
+            create: {
+                productId: event.productId,
+                shopId: event.shopId || null,
+                views: event.action === "product_view" ? 1 : 0,
+                cartAdds: event.action === "add_to_cart" ? 1 : 0,
+                wishlistAdds: event.action === "add_to_wishlist" ? 1 : 0,
+                purchases: event.action === "purchase" ? 1 : 0,
+                lastViewedAt: new Date(),
+            }
+        })
+    } catch (error) {
+        console.log("Error updating product analytics: ", error);
     }
 }
