@@ -1,8 +1,10 @@
 "use client";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react"
 import ReactImageMagnify from "react-image-magnify";
+import Ratings from "../components/ratings";
+import Link from "next/link";
 
 const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const [currentImage, setCurrentImage] = useState(productDetails?.images[0]?.url);
@@ -21,6 +23,10 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
             setCurrentImage(productDetails?.images[currentIndex + 1]?.url);
         }
     }
+
+    const discountPercentage = Math.round(
+        ((productDetails?.regular_price - productDetails?.sale_price) / productDetails?.regular_price) * 100
+    )
 
     return (
         <div className="w-full bg-[#f5f5f5] py-5">
@@ -89,6 +95,56 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
                                 <ChevronRight size={24} />
                             </button>
                         )}
+                    </div>
+                </div>
+
+                <div className="p-4">
+                    <h1 className="text-xl mb-2 font-medium">{productDetails?.title}</h1>
+                    <div className="w-full flex items-center justify-between">
+                        <div className="flex gap-2 mt-2 text-yellow-500">
+                            <Ratings rating={productDetails?.ratings} />
+                            <Link href={`#reviews`} className="text-blue-500 hover:underline">
+                                (0 reviews)
+                            </Link>
+                        </div>
+                        <div>
+                            <Heart
+                                size={25}
+                                fill="red"
+                                color="transparent"
+                                className="cursor-pointer mt-4"
+                            />
+                        </div>
+                    </div>
+                    <div className="py-2 border-b border-gray-200">
+                        <span className="text-gray-500">
+                            Brand: {" "}
+                            <span className="text-blue-500">
+                                {productDetails?.brand || 'No brand'}
+                            </span>
+                        </span>
+                    </div>
+
+                    <div className="mt-3">
+                        <span className="text-3xl font-bold text-orange-500">
+                            ${productDetails?.sale_price}
+                        </span>
+                        <div className="flex gap-2 pb-2 text-lg border-b border-b-slate-200">
+                            <span className="text-gray-400 line-through">
+                                ${productDetails?.regular_price}
+                            </span>
+                            <span className="text-gray-500">-{discountPercentage}%</span>
+                        </div>
+
+                        <div className="mt-2">
+                            <div className="flex flex-col md:flex-row items-start gap-5 mt-4">
+                                {productDetails?.colors?.length > 0 && (
+                                    <div>
+                                        <strong>Color: </strong>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
