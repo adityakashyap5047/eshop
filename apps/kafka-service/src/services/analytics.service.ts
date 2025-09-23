@@ -1,0 +1,82 @@
+import prisma from "@packages/libs/prisma"
+
+export const updateUserAnalytics = async(event: any) => {
+    try {
+        const existingData = await prisma.userAnalytics.findUnique({
+            where: {
+                userId: event.userId
+            }
+        });
+
+        let updatedActions: any = existingData ? existingData.actions : [];
+
+        const actionExists = updatedActions.some((entry: any) => entry.productId === event.productId && entry.action === event.action);
+    
+        //Allows store `product_view` for recommendation system
+        if(event.action === "product_view"){
+            updatedActions.push({
+                productId: event.productId,
+                shopId: event.shopId,
+                action: event.action,
+                timestamp: new Date(),
+            })
+        }
+        else if(["add_to_cart", "add_to_wishlist"].includes(event.action) && !actionExists) {
+            updatedActions.push({
+                productId: event?.productId,
+                shopId: event.shopId,
+                action: event?.action,
+                timestamp: new Date(),
+            })
+        // remove "add_to_cart" if "remove_from_cart" action is received
+        } else if(event.action === "remove_from_cart"){
+            updatedActions = updatedActions.filter(
+                (entry: any) => !(entry.productId === event.productId && entry.action === "add_to_cart")
+            )
+        } else if(event.action === "remove_from_wishlist"){
+            updatedActions = updatedActions.filter(
+                (entry: any) => !(entry.productId === event.productId && entry.action === "add_to_wishlist")
+            )
+        }
+
+        // Keep only the latest 100 actions
+        if(updatedActions.length < 100) {
+            updatedActions.shift();
+        }
+
+        const extraFields:Record<string, any> = {};
+
+        if(event.country){
+            extraFields.country = event.country;
+        }
+
+        if(event.city){
+            extraFields.city = event.city;
+        }
+
+        if(event.device){
+            extraFields.device = event.device;
+        }
+
+        // update or create userAnalytics
+        await prisma.userAnalytics.upsert({
+            where: {userId: event.userId},
+            update: {
+                lastVisited: new Date(),
+                actions: updatedActions,
+                ...extraFields
+            },
+            create: {
+                userId: event?.userId,
+                lastVisited: new Date(),
+                actions: updatedActions,
+                ...extraFields
+            }
+        });
+
+        // Also update product analytics
+
+    } catch (error) {
+        console.log("Error storing user analytics: ", error);
+    }
+}
