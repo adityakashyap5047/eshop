@@ -80,6 +80,10 @@ const Page = () => {
         fetchFilteredProduct();
     }, [priceRange, selectedCategories, selectedColors, selectedSizes, page])
 
+    const toggleCategory = (label: string) => {
+        setSelectedCategories((prev) => prev.includes(label) ? prev.filter((cat) => cat !== label) : [...prev, label])
+    }
+
   return (
     <div className="w-full bg-[#f5f5f5] pb-10">
         <div className="w-[90%] lg:w-[80%] m-auto">
@@ -97,7 +101,7 @@ const Page = () => {
             <div className="w-full flex flex-col lg:flex-row gap-8">
                 <aside className="w-full lg:w-[270px] !rounded bg-white p-4 space-y-6 shadow-md">
                     <h3 className="text-xl font-Poppins font-medium">Price Filter</h3>
-                    <div className="ml-2">
+                     <div className="ml-2">
                         <Range
                             step={1}
                             min={MIN}
@@ -152,6 +156,32 @@ const Page = () => {
                             Apply
                         </button>
                     </div>
+
+                    <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-300 pb-1">
+                        Categories
+                    </h3>
+
+                    <ul className="space-y-2 !mt-3">
+                        {isLoading ? (
+                            <p>Loading ...</p>
+                        ) : (
+                            data?.categories?.map((category: any) => (
+                                <li
+                                    key={category}
+                                    className="flex items-center justify-between"
+                                >
+                                    <label className="flex items-center gap-3 text-sm text-gray-700 ">
+                                        <input type="checkbox"
+                                            checked={selectedCategories.includes(category)}
+                                            onChange={() => toggleCategory(category)}
+                                            className="accent-blue-600"
+                                        />
+                                        {category}
+                                    </label>
+                                </li>
+                            ))
+                        )}
+                    </ul>
                 </aside>
             </div>
         </div>
