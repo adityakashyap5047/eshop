@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Range } from "react-range";
 
 const MIN = 0;
-const MAX = 1190;
+const MAX = 1199;
 
 const Page = () => {
 
@@ -20,7 +20,7 @@ const Page = () => {
     const [page, setPage] = useState(1);
     const [products, setProducts] = useState<any[]>([]);
     const [totalPages, setTotalPages] = useState(1);
-    const [tempPriceRange, setTempPriceRange] = useState([0, 1199]);
+    const [tempPriceRange, setTempPriceRange] = useState([199, 499]);
 
     const router = useRouter();
 
@@ -94,7 +94,7 @@ const Page = () => {
                 <Link href={"/"} className="text-[#55585b] hover:underline">
                     Home
                 </Link>
-                <span className="inline-block p-[1.5px] mx-1 bg-[#a8acb0] rounded-full">.</span>
+                <span className="inline-block p-[1.5px] mx-1 bg-[#a8acb0] rounded-full"></span>
                 <span className="text-[#55585b]">All Products</span>
             </div>
 
@@ -107,36 +107,58 @@ const Page = () => {
                             min={MIN}
                             max={MAX}
                             values={tempPriceRange}
-                            onChange={(values) => setTempPriceRange(values)}
+                            allowOverlap={false}
+                            onChange={(values) => {
+                                if (values && values.length === 2) {
+                                    setTempPriceRange(values);
+                                }
+                            }}
                             renderTrack={({props, children}) => {
-                                const [min, max] = tempPriceRange;
-                                const percentageLeft = ((min - MIN) / (MAX - MIN)) * 100;
-                                const percentageRight = ((max - MIN) / (MAX - MIN)) * 100;
+                                const [min, max] = tempPriceRange || [MIN, MAX];
+                                const percentageLeft = Math.max(0, Math.min(100, ((min - MIN) / (MAX - MIN)) * 100));
+                                const percentageRight = Math.max(0, Math.min(100, ((max - MIN) / (MAX - MIN)) * 100));
 
                                 return(
                                     <div 
                                         {...props}
-                                        className="h-[6px bg-blue-200 rounded relative"
-                                        style={{...props.style}}
+                                        className="relative !cursor-pointer"
+                                        style={{
+                                            ...props.style,
+                                            height: '6px',
+                                            background: '#e5e7eb',
+                                            borderRadius: '3px',
+                                            margin: '12px 0'
+                                        }}
                                     >
-                                        <div className="absolute h-full bg-blue-600 rounded"
+                                        <div 
+                                            className="absolute bg-blue-600 rounded"
                                             style={{
-                                                left: `${percentageLeft}`,
-                                                width: `${percentageRight - percentageLeft}`
+                                                left: `${percentageLeft}%`,
+                                                width: `${Math.max(0, percentageRight - percentageLeft)}%`,
+                                                height: '100%',
+                                                borderRadius: '3px',
+                                                top: 0
                                             }}
-                                        >
-                                            {children}
-                                        </div>
+                                        />
+                                        {children}
                                     </div>
                                 )
                             }}
-                            renderThumb={({props}) => {
+                            renderThumb={({props, index}) => {
                                 const {key, ...rest} = props;
                                 return (
                                     <div 
                                         key={key}
                                         {...rest}
-                                        className="w-[16px] h-[16px] bg-blue-600 rounded-full shadow"
+                                        className="w-[18px] h-[18px] bg-blue-600 rounded-full shadow-lg border-2 border-white cursor-pointer hover:bg-blue-700 transition-colors"
+                                        style={{
+                                            ...rest.style,
+                                            transform: 'translate(-50%, -50%)',
+                                            top: '10%',
+                                            outline: 'none',
+                                            zIndex: 10
+                                        }}
+                                        title={`${index === 0 ? 'Min' : 'Max'}: $${tempPriceRange[index]}`}
                                     />
                                 )
                             }}
@@ -144,12 +166,14 @@ const Page = () => {
                     </div>
                     <div className="flex justify-between items-center mt-2">
                         <div className="text-sm text-gray-600">
-                            ${tempPriceRange[0]} - ${tempPriceRange[1]}
+                            ${tempPriceRange?.[0] || MIN} - ${tempPriceRange?.[1] || MAX}
                         </div>
                         <button
                             onClick={() => {
-                                setPriceRange(tempPriceRange)
-                                setPage(1);
+                                if (tempPriceRange && tempPriceRange.length === 2) {
+                                    setPriceRange(tempPriceRange);
+                                    setPage(1);
+                                }
                             }}
                             className="text-sm px-4 py-1 bg-gray-200 hover:bg-blue-600 hover:text-white transition !rounded"
                         >
@@ -170,11 +194,11 @@ const Page = () => {
                                     key={category}
                                     className="flex items-center justify-between"
                                 >
-                                    <label className="flex items-center gap-3 text-sm text-gray-700 ">
+                                    <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
                                         <input type="checkbox"
                                             checked={selectedCategories.includes(category)}
                                             onChange={() => toggleCategory(category)}
-                                            className="accent-blue-600"
+                                            className="accent-blue-600 cursor-pointer"
                                         />
                                         {category}
                                     </label>
