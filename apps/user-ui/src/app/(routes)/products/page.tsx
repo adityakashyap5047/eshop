@@ -5,6 +5,10 @@ import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Range } from "react-range";
+
+const MIN = 0;
+const MAX = 1190;
 
 const Page = () => {
 
@@ -93,6 +97,61 @@ const Page = () => {
             <div className="w-full flex flex-col lg:flex-row gap-8">
                 <aside className="w-full lg:w-[270px] !rounded bg-white p-4 space-y-6 shadow-md">
                     <h3 className="text-xl font-Poppins font-medium">Price Filter</h3>
+                    <div className="ml-2">
+                        <Range
+                            step={1}
+                            min={MIN}
+                            max={MAX}
+                            values={tempPriceRange}
+                            onChange={(values) => setTempPriceRange(values)}
+                            renderTrack={({props, children}) => {
+                                const [min, max] = tempPriceRange;
+                                const percentageLeft = ((min - MIN) / (MAX - MIN)) * 100;
+                                const percentageRight = ((max - MIN) / (MAX - MIN)) * 100;
+
+                                return(
+                                    <div 
+                                        {...props}
+                                        className="h-[6px bg-blue-200 rounded relative"
+                                        style={{...props.style}}
+                                    >
+                                        <div className="absolute h-full bg-blue-600 rounded"
+                                            style={{
+                                                left: `${percentageLeft}`,
+                                                width: `${percentageRight - percentageLeft}`
+                                            }}
+                                        >
+                                            {children}
+                                        </div>
+                                    </div>
+                                )
+                            }}
+                            renderThumb={({props}) => {
+                                const {key, ...rest} = props;
+                                return (
+                                    <div 
+                                        key={key}
+                                        {...rest}
+                                        className="w-[16px] h-[16px] bg-blue-600 rounded-full shadow"
+                                    />
+                                )
+                            }}
+                        />
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                        <div className="text-sm text-gray-600">
+                            ${tempPriceRange[0]} - ${tempPriceRange[1]}
+                        </div>
+                        <button
+                            onClick={() => {
+                                setPriceRange(tempPriceRange)
+                                setPage(1);
+                            }}
+                            className="text-sm px-4 py-1 bg-gray-200 hover:bg-blue-600 hover:text-white transition !rounded"
+                        >
+                            Apply
+                        </button>
+                    </div>
                 </aside>
             </div>
         </div>
