@@ -293,6 +293,20 @@ const Page = () => {
                     ) : (
                         <div>No products found</div>
                     )}
+
+                    {totalPages > 1 && (
+                        <div className="flex justify-center mt-8 gap-2">
+                            {Array.from({length: totalPages}).map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setPage(i+1)}
+                                    className={`px-3 py-1 !rounded border border-gray-200 text-sm ${page === i + 1 ? "bg-blue-600 text-white" : "bg-white text-black"}`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
