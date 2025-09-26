@@ -122,10 +122,15 @@ const Page = () => {
             </div>
 
             <div className="w-full flex flex-col lg:flex-row gap-8">
-                <aside className="w-full lg:w-[270px] !rounded bg-white p-4 space-y-6 shadow-md">
-                    <h3 className="text-xl font-Poppins font-medium">Price Filter</h3>
-                     <div className="ml-2">
-                        <Range
+                <aside className="w-full lg:w-[300px] bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden sticky top-4 h-fit">
+                    {/* Price Filter Section */}
+                    <div className="p-6 border-b border-gray-100">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
+                            <h3 className="text-lg font-semibold text-gray-800">Price Range</h3>
+                        </div>
+                        <div className="px-2 py-2">
+                            <Range
                             step={1}
                             min={MIN}
                             max={MAX}
@@ -186,92 +191,153 @@ const Page = () => {
                                 )
                             }}
                         />
-                    </div>
-                    <div className="flex justify-between items-center mt-2">
-                        <div className="text-sm text-gray-600">
-                            ${tempPriceRange?.[0] || MIN} - ${tempPriceRange?.[1] || MAX}
                         </div>
-                        <button
-                            onClick={() => {
-                                if (tempPriceRange && tempPriceRange.length === 2) {
-                                    setPriceRange(tempPriceRange);
-                                    setPage(1);
-                                }
-                            }}
-                            className="text-sm px-4 py-1 bg-gray-200 hover:bg-blue-600 hover:text-white transition !rounded"
-                        >
-                            Apply
-                        </button>
+                        <div className="flex justify-between items-center mt-4">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700">Range:</span>
+                                <span className="text-sm text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded">
+                                    ${tempPriceRange?.[0] || MIN} - ${tempPriceRange?.[1] || MAX}
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    if (tempPriceRange && tempPriceRange.length === 2) {
+                                        setPriceRange(tempPriceRange);
+                                        setPage(1);
+                                    }
+                                }}
+                                className="text-sm px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 transition-all duration-200 rounded-lg shadow-sm hover:shadow-md font-medium"
+                            >
+                                Apply
+                            </button>
+                        </div>
                     </div>
 
-                    <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-300 pb-1">
-                        Categories
-                    </h3>
+                    {/* Categories Section */}
+                    <div className="p-6 border-b border-gray-100">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-1 h-6 bg-green-600 rounded-full"></div>
+                            <h3 className="text-lg font-semibold text-gray-800">Categories</h3>
+                        </div>
 
-                    <ul className="space-y-2 !mt-3">
-                        {isLoading ? (
-                            <p>Loading ...</p>
-                        ) : (
-                            data?.categories?.map((category: any) => (
-                                <li
-                                    key={category}
-                                    className="flex items-center justify-between"
-                                >
-                                    <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
-                                        <input type="checkbox"
-                                            checked={selectedCategories.includes(category)}
-                                            onChange={() => toggleCategory(category)}
-                                            className="accent-blue-600 cursor-pointer"
+                        <ul className="space-y-3">
+                            {isLoading ? (
+                                <div className="flex items-center gap-2 text-gray-500">
+                                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                    <span className="text-sm">Loading categories...</span>
+                                </div>
+                            ) : (
+                                data?.categories?.map((category: any) => (
+                                    <li key={category} className="group">
+                                        <label className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors duration-200">
+                                            <input 
+                                                type="checkbox"
+                                                checked={selectedCategories.includes(category)}
+                                                onChange={() => toggleCategory(category)}
+                                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                                            />
+                                            <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium">
+                                                {category}
+                                            </span>
+                                            {selectedCategories.includes(category) && (
+                                                <span className="ml-auto text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">✓</span>
+                                            )}
+                                        </label>
+                                    </li>
+                                ))
+                            )}
+                        </ul>
+                    </div>
+
+                    {/* Colors Section */}
+                    <div className="p-6 border-b border-gray-100">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-1 h-6 bg-purple-600 rounded-full"></div>
+                            <h3 className="text-lg font-semibold text-gray-800">Colors</h3>
+                        </div>
+                        
+                        <ul className="space-y-3">
+                            {colors?.map((color: any) => (
+                                <li key={color.name} className="group">
+                                    <label className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors duration-200">
+                                        <input 
+                                            type="checkbox"
+                                            checked={selectedColors.includes(color.code)}
+                                            onChange={() => toggleColor(color.code)}
+                                            className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2 cursor-pointer"
                                         />
-                                        {category}
+                                        <div className="flex items-center gap-2">
+                                            <div 
+                                                className="w-5 h-5 rounded-full border-2 border-gray-200 shadow-sm ring-1 ring-gray-100"
+                                                style={{ backgroundColor: color.code }}
+                                            />
+                                            <span className="text-sm text-gray-700 group-hover:text-gray-900 font-medium capitalize">
+                                                {color.name}
+                                            </span>
+                                        </div>
+                                        {selectedColors.includes(color.code) && (
+                                            <span className="ml-auto text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">✓</span>
+                                        )}
                                     </label>
                                 </li>
-                            ))
-                        )}
-                    </ul>
+                            ))}
+                        </ul>
+                    </div>
 
-                    <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-300 pb-1 mt-6">
-                        Filter by color 
-                    </h3>
-                    <ul className="space-y-2 !mt-3">
-                        {colors?.map((color: any) => (
-                            <li
-                                key={color.name}
-                                className="flex items-center justify-between"
-                            >
-                                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
-                                    <input type="checkbox"
-                                        checked={selectedColors.includes(color.code)}
-                                        onChange={() => toggleColor(color.code)}
-                                        className="accent-blue-600 cursor-pointer"
-                                    />
-                                    <span
-                                        className="w-[16px] h-[16px] rounded-full border border-gray-200"
-                                        style={{backgroundColor: color.code}}
-                                    />
-                                    {color.name}
-                                </label>
-                            </li>
-                        ))}
-                    </ul>
-
-                    <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-300 pb-1 mt-6">
-                        Filter by Sizes 
-                    </h3>
-                    <ul className="space-y-2 !mt-3">
-                        {sizes.map((size) => (
-                            <li className="flex items-center justify-between" key={size}>
-                                <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
-                                    <input type="checkbox" 
+                    {/* Sizes Section */}
+                    <div className="p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <div className="w-1 h-6 bg-orange-600 rounded-full"></div>
+                            <h3 className="text-lg font-semibold text-gray-800">Sizes</h3>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-2">
+                            {sizes.map((size) => (
+                                <label 
+                                    key={size}
+                                    className={`
+                                        relative flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer transition-all duration-200
+                                        ${selectedSizes.includes(size) 
+                                            ? 'border-orange-500 bg-orange-50 text-orange-700' 
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                        }
+                                    `}
+                                >
+                                    <input 
+                                        type="checkbox" 
                                         checked={selectedSizes.includes(size)}
                                         onChange={() => toggleSize(size)}
-                                        className="accent-blue-600"
+                                        className="sr-only"
                                     />
-                                    <span className="font-medium">{size}</span>
+                                    <span className="text-sm font-semibold">{size}</span>
+                                    {selectedSizes.includes(size) && (
+                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                                            <span className="text-white text-xs">✓</span>
+                                        </div>
+                                    )}
                                 </label>
-                            </li>
-                        ))}
-                    </ul>
+                            ))}
+                        </div>
+
+                        {/* Clear Filters Button */}
+                        {(selectedCategories.length > 0 || selectedColors.length > 0 || selectedSizes.length > 0 || priceRange[0] !== MIN || priceRange[1] !== MAX) && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                                <button
+                                    onClick={() => {
+                                        setSelectedCategories([]);
+                                        setSelectedColors([]);
+                                        setSelectedSizes([]);
+                                        setPriceRange([MIN, MAX]);
+                                        setTempPriceRange([MIN, MAX]);
+                                        setPage(1);
+                                    }}
+                                    className="w-full text-sm px-4 py-2 bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors duration-200 rounded-lg font-medium"
+                                >
+                                    Clear All Filters
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </aside>
 
                 <div className="flex-1 px-2 lg:px-3">
