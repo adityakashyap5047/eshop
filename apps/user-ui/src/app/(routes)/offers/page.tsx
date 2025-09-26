@@ -112,13 +112,13 @@ const Page = () => {
         <div className="w-[90%] lg:w-[80%] m-auto">
             <div className="pb-[50px]">
                 <h1 className="md:pt-[40px] font-medium text-[44px] leading-3 mb-[14px] font-jost">
-                    All Products
+                    All Offers
                 </h1>
                 <Link href={"/"} className="text-[#55585b] hover:underline">
                     Home
                 </Link>
                 <span className="inline-block p-[1.5px] mx-1 bg-[#a8acb0] rounded-full"></span>
-                <span className="text-[#55585b]">All Products</span>
+                <span className="text-[#55585b]">All Offers</span>
             </div>
 
             <div className="w-full flex flex-col lg:flex-row gap-8">
@@ -287,7 +287,7 @@ const Page = () => {
                     ) : products.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
                             {products.map((product) => (
-                                <ProductCard key={product.id} product={product} />
+                                <ProductCard key={product.id} product={product} isEvent={true}/>
                             ))}
                         </div>
                     ) : (
