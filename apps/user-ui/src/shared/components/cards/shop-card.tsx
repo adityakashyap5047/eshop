@@ -2,6 +2,7 @@ import { ArrowRight, MapPin, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react'
+import { categories } from '../../../utils/categories';
 
 interface ShopCardProps {
     shop: {
@@ -18,6 +19,11 @@ interface ShopCardProps {
 }
 
 const ShopCard: React.FC<ShopCardProps> = ({shop}) => {
+  // Helper function to get category label from category value
+  const getCategoryLabel = (categoryValue: string) => {
+    const category = categories.find(cat => cat.value === categoryValue);
+    return category ? category.label : categoryValue;
+  };
   return (
     <div className='w-full rounded-md cursor-pointer bg-white border border-gray-200 shadow-sm overflow-hidden transition'>
         <div className="h-[120px] w-full relative">
@@ -64,8 +70,8 @@ const ShopCard: React.FC<ShopCardProps> = ({shop}) => {
 
             {shop?.category && (
                 <div className="mt-3 flex flex-wrap justify-center gap-2 text-xs">
-                    <span className="bg-blue-50 capitalize text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                        {shop.category}
+                    <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-medium">
+                        {getCategoryLabel(shop.category)}
                     </span>
                 </div>
             )}
