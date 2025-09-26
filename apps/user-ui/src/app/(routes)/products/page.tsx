@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import ProductCard from "apps/user-ui/src/shared/components/cards/product-card";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,6 +10,19 @@ import { Range } from "react-range";
 
 const MIN = 0;
 const MAX = 1199;
+
+const colors = [
+    {name: 'Black', code: '#000000'},
+    {name: 'White', code: '#FFFFFF'},
+    {name: 'Red', code: '#FF0000'},
+    {name: 'Green', code: '#00FF00'},
+    {name: 'Blue', code: '#0000FF'},
+    {name: 'Yellow', code: '#FFFF00'},
+    {name: 'Magenta', code: '#FF00FF'},
+    {name: 'Cyan', code: '#00FFFF'},
+] 
+
+const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
 const Page = () => {
 
@@ -29,6 +43,7 @@ const Page = () => {
         if(selectedCategories.length > 0) params.set("categories", selectedCategories.join(","));
         if(selectedColors.length > 0) params.set("colors", selectedColors.join(","))
         if(selectedSizes.length > 0) params.set("sizes", selectedSizes.join(","))
+        params.set("priceRange", priceRange.join(","));
         params.set("page", page.toString());
         
         router.replace(`/products?${decodeURIComponent(params.toString())}`);
@@ -82,6 +97,14 @@ const Page = () => {
 
     const toggleCategory = (label: string) => {
         setSelectedCategories((prev) => prev.includes(label) ? prev.filter((cat) => cat !== label) : [...prev, label])
+    }
+
+    const toggleColor = (color: string) => {
+        setSelectedColors((prev) => prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]);
+    }
+
+    const toggleSize = (size: string) => {
+        setSelectedSizes((prev) => prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]);
     }
 
   return (
@@ -206,7 +229,71 @@ const Page = () => {
                             ))
                         )}
                     </ul>
+
+                    <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-300 pb-1 mt-6">
+                        Filter by color 
+                    </h3>
+                    <ul className="space-y-2 !mt-3">
+                        {colors?.map((color: any) => (
+                            <li
+                                key={color.name}
+                                className="flex items-center justify-between"
+                            >
+                                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+                                    <input type="checkbox"
+                                        checked={selectedColors.includes(color.code)}
+                                        onChange={() => toggleColor(color.code)}
+                                        className="accent-blue-600 cursor-pointer"
+                                    />
+                                    <span
+                                        className="w-[16px] h-[16px] rounded-full border border-gray-200"
+                                        style={{backgroundColor: color.code}}
+                                    />
+                                    {color.name}
+                                </label>
+                            </li>
+                        ))}
+                    </ul>
+
+                    <h3 className="text-xl font-Poppins font-medium border-b border-b-slate-300 pb-1 mt-6">
+                        Filter by Sizes 
+                    </h3>
+                    <ul className="space-y-2 !mt-3">
+                        {sizes.map((size) => (
+                            <li className="flex items-center justify-between" key={size}>
+                                <label className="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
+                                    <input type="checkbox" 
+                                        checked={selectedSizes.includes(size)}
+                                        onChange={() => toggleSize(size)}
+                                        className="accent-blue-600"
+                                    />
+                                    <span className="font-medium">{size}</span>
+                                </label>
+                            </li>
+                        ))}
+                    </ul>
                 </aside>
+
+                <div className="flex-1 px-2 lg:px-3">
+                    {isProductLoading ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
+                            {Array.from({length: 10}).map((_, index) => (
+                            <div 
+                                key={index}
+                                className='h-[250px] bg-gray-300 animate-pulse rounded-xl'
+                            />
+                            ))}
+                        </div>
+                    ) : products.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
+                            {products.map((product) => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div>No products found</div>
+                    )}
+                </div>
             </div>
         </div>
     </div>
