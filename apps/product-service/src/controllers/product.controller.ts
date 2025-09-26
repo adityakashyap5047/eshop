@@ -571,8 +571,12 @@ export const getFilteredShops = async(req: Request, res: Response, next: NextFun
         }
         
         if(countries && (countries as string[]).length > 0){
-            filters.country = {
-                in: Array.isArray(countries) ? countries : String(countries).split(','),
+            filters.sellers = {
+                some: {
+                    country: {
+                        in: Array.isArray(countries) ? countries : String(countries).split(','),
+                    }
+                }
             }
         }
 
@@ -584,7 +588,7 @@ export const getFilteredShops = async(req: Request, res: Response, next: NextFun
                 include: {
                     sellers: true,
                     products: true,
-                    followers: true,
+                    // followers: true,
                 },
             }),
             prisma.shops.count({ where: filters })
@@ -672,18 +676,18 @@ export const topShops = async(
             select: {
                 id: true,
                 name: true,
-                avatar: true,
+                // avatar: true,
                 coverBanner: true,
                 address: true,
                 ratings: true,
-                followers: true,
+                // followers: true,
                 category: true,
             },
         });
 
         // Merge sales with shop data
         const enrichedShops = shops.map((shop) => {
-            const salesData = topShopData.find((s) => s.shopId === shop.id);
+            const salesData = topShopData.find((s: any) => s.shopId === shop.id);
             return {
                 ...shop,
                 totalSales: salesData ? salesData._sum.total : 0
