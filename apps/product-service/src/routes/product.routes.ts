@@ -24,7 +24,7 @@ router.get("/get-product/:slug", getProductDetails);
 
 router.get("/get-filtered-products", getFilteredProducts);
 router.get("/search-products", searchProducts);
-router.get("/get-filtered-events", getFilteredEvents);
+router.get("/get-filtered-offers", getFilteredEvents);
 
 router.get("/get-filtered-shops", getFilteredShops);
 router.get("/top-shops", topShops);
