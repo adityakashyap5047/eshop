@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import { createDiscountCode, createProduct, deleteDiscountCode, deleteProduct, deleteProductImage, getAllProudcts, getCategories, getDiscountCodes, getFilteredEvents, getFilteredProducts, getFilteredShops, getProductDetails, getShopProducts, restoreProduct, searchProducts, topShops, uploadProductImages } from '../controllers/product.controller';
+import { createDiscountCode, createProduct, deleteDiscountCode, deleteProduct, deleteProductImage, getAllEvents, getAllProudcts, getCategories, getDiscountCodes, getFilteredEvents, getFilteredProducts, getFilteredShops, getProductDetails, getShopProducts, restoreProduct, searchProducts, topShops, uploadProductImages } from '../controllers/product.controller';
 import isAuthenticated from '@packages/middleware/isAuthenticated';
 
 const router: Router = express.Router();
@@ -25,6 +25,7 @@ router.get("/get-product/:slug", getProductDetails);
 router.get("/get-filtered-products", getFilteredProducts);
 router.get("/search-products", searchProducts);
 router.get("/get-filtered-offers", getFilteredEvents);
+router.get("/get-all-events", getAllEvents);
 
 router.get("/get-filtered-shops", getFilteredShops);
 router.get("/top-shops", topShops);

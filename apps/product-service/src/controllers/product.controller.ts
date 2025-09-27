@@ -382,6 +382,57 @@ export const getAllProudcts = async(req: Request, res: Response, next: NextFunct
     
 }
 
+export const getAllEvents = async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+    
+        const baseFilter = {
+            AND: [
+                { starting_date: { not: null } },
+                { ending_date: { not: null } }
+            ]
+        }
+
+        const [events, total, top10BySales] = await Promise.all([
+            prisma.products.findMany({
+                skip,
+                take: limit,
+                include: {
+                    images: true,
+                    Shop: true
+                },
+                where: baseFilter,
+                orderBy: {
+                    totalSales: 'desc'
+                },
+            }),
+            prisma.products.count({where: baseFilter}),
+            prisma.products.findMany({
+                take: 10,
+                where: baseFilter,
+                orderBy: {
+                    totalSales: 'desc'
+                },
+            })
+        ]);
+
+        res.status(200).json({
+            events,
+            top10BySales,
+            total,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit)
+        });
+
+
+    } catch (error) {
+        next(error);
+    }
+    
+}
+
 export const getProductDetails = async(req: Request, res: Response, next: NextFunction) => {
     try {
         const product = await prisma.products.findUnique({
@@ -653,50 +704,53 @@ export const topShops = async(
 ) => {
     try {
         // Aggregate total sales pr shop from orders
-        const topShopData = await prisma.orders.groupBy({
-            by: ['shopId'],
-            _sum: {
-                total: true,
-            },
-            orderBy: {
-                _sum: {
-                    total: 'desc'
-                }
-            },
-            take: 10,
-        });
+        // const topShopData = await prisma.orders.groupBy({
+        //     by: ['shopId'],
+        //     _sum: {
+        //         total: true,
+        //     },
+        //     orderBy: {
+        //         _sum: {
+        //             total: 'desc'
+        //         }
+        //     },
+        //     take: 10,
+        // });
 
-        const shopIds = topShopData.map((item: any) => item.shopId);
-        const shops = await prisma.shops.findMany({
-            where: {
-                id: {
-                    in: shopIds
-                }
-            },
-            select: {
-                id: true,
-                name: true,
-                // avatar: true,
-                coverBanner: true,
-                address: true,
-                ratings: true,
-                // followers: true,
-                category: true,
-            },
-        });
+        // const shopIds = topShopData.map((item: any) => item.shopId);
+        // const shops = await prisma.shops.findMany({
+        //     where: {
+        //         id: {
+        //             in: shopIds
+        //         }
+        //     },
+        //     select: {
+        //         id: true,
+        //         name: true,
+        //         // avatar: true,
+        //         coverBanner: true,
+        //         address: true,
+        //         ratings: true,
+        //         // followers: true,
+        //         category: true,
+        //     },
+        // });
 
-        // Merge sales with shop data
-        const enrichedShops = shops.map((shop) => {
-            const salesData = topShopData.find((s: any) => s.shopId === shop.id);
-            return {
-                ...shop,
-                totalSales: salesData ? salesData._sum.total : 0
-            }
-        })
+        // // Merge sales with shop data
+        // const enrichedShops = shops.map((shop) => {
+        //     const salesData = topShopData.find((s: any) => s.shopId === shop.id);
+        //     return {
+        //         ...shop,
+        //         totalSales: salesData ? salesData._sum.total : 0
+        //     }
+        // })
 
-        const top10Shops = enrichedShops.sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0)).slice(0, 10);
+        // const top10Shops = enrichedShops.sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0)).slice(0, 10);
         
-        return res.status(200).json({ shops: top10Shops });
+        // return res.status(200).json({ shops: top10Shops });
+
+        const shops = await prisma.shops.findMany({});
+        return res.status(200).json({shops});
     } catch (error) {
         return next(error);
     }
