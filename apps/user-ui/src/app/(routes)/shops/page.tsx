@@ -95,7 +95,7 @@ const Page = () => {
                     </nav>
                 </div>
 
-                <div className="w-full flex flex-col lg:flex-row gap-8">
+                <div className="w-full flex flex-col lg:flex-row gap-8 mb-8">
                     <aside className="w-full lg:w-[320px] bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden sticky top-4 h-fit">
                         {/* Categories Section */}
                         <div className="p-6 border-b border-gray-100">
