@@ -20,7 +20,7 @@ const Page = () => {
 
   });
 
-  const {data: latestProducts } = useQuery({
+  const {data: latestProducts, isLoading: isLatestProductLoading } = useQuery({
     queryKey: ["latest-products"],
     queryFn: async() => {
       const res = await axiosInstance.get("/product/api/get-all-products?page=1&limit=10&type=latest");
@@ -50,6 +50,33 @@ const Page = () => {
         {!isLoading && !isError && (
           <div className="m-auto py-4 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {products?.map((product: any) => (
+              <ProductCard key={product.id} product={product}/>
+            ))}
+          </div>
+        )}
+
+        {products?.length === 0 && (
+          <p className='text-center'>
+            No Products available yet
+          </p>
+        )}
+
+        <div className="mb-8 block">
+          <SectionTitle title='Latest Products' />
+        </div>
+        {isLatestProductLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 2xl:grid-cols-5 gap-5">
+            {Array.from({length: 10}).map((_, index) => (
+              <div 
+                key={index}
+                className='h-[250px] bg-gray-300 animate-pulse rounded-xl'
+              />
+            ))}
+          </div>
+        )}
+        {!isLatestProductLoading && (
+          <div className="m-auto py-4 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {latestProducts?.map((product: any) => (
               <ProductCard key={product.id} product={product}/>
             ))}
           </div>
