@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use } from 'react'
+import React from 'react'
 import Hero from '../shared/components/hero'
 import SectionTitle from '../shared/widgets/section/section-title'
 import { useQuery } from '@tanstack/react-query'
@@ -50,7 +50,7 @@ const Page = () => {
   return (
     <div className='bg-[#f5f5f5]'>
       <Hero />
-      <div className="md:w-[80%] w-[90%] my-10 m-auto">
+      <div className="md:w-[80%] w-[90%] mt-10 pb-8 m-auto">
         <div className="mb-8">
           <SectionTitle title='Suggested Products' />
         </div>
