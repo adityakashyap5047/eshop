@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { createShop, createStripeConnectLink, forgotPassword, getSeller, getUser, loginSeller, loginUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { createShop, createStripeConnectLink, forgotPassword, getSeller, getUser, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import { isSeller } from "@packages/middleware/authorizeRoles";
 
@@ -19,6 +19,9 @@ router.post("/refresh-token", refreshToken);
 
 // Get logged in user details
 router.get("/logged-in-user", isAuthenticated, getUser);
+
+// Logout the user
+router.get("/logout-user", logOutUser);
 
 // Forgot password
 router.post("/forgot-password-user", forgotPassword)

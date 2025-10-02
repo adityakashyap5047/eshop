@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, response } from "express";
 import { checkOtpRestrictions, handleForgotPassword, sendOtp, trackOtpRequests, validateRegistrationData, verifyForgotPasswordOtp, verifyOtp } from "../utils/auth.helper";
 import prisma from "@packages/libs/prisma";
 import { AuthError, ValidationError } from "@packages/error-handler";
@@ -181,6 +181,16 @@ export const getUser = async(req: any, res: Response, next: NextFunction) => {
     } catch (error) {
         next(error);
     }
+}
+
+// logout user
+export const logOutUser = async(req: any, res: Response) => {
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+
+    res.status(201).json({
+        success: true
+    })
 }
 
 // user forgot password
@@ -382,7 +392,6 @@ export const createStripeConnectLink = async(
     }
 }
 
-
 // login seller
 export const loginSeller = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -430,7 +439,6 @@ export const loginSeller = async (req: Request, res: Response, next: NextFunctio
         return next(error);
     }
 }
-
 
 // get logged in seller details
 export const getSeller = async(req: any, res: Response, next: NextFunction) => {
