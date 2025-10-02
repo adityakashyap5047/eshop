@@ -36,7 +36,7 @@ const ShippingAddressSection = () => {
         }
     });
 
-    const {mutate: addAddress} = useMutation({
+    const {mutate: addAddress, isPending} = useMutation({
         mutationFn: async(payload: any) => {
             const res = await axiosInstance.post("/api/add-address", payload);
             return res.data.address;
@@ -173,9 +173,10 @@ const ShippingAddressSection = () => {
 
                             <button
                                 type="submit"
-                                className="w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 transition"
+                                disabled={isPending}
+                                className={`w-full bg-blue-600 text-white text-sm py-2 rounded-md hover:bg-blue-700 transition ${isPending ? "cursor-not-allowed" : "cursor-pointer"}`}
                             >
-                                Save Address
+                                {!isPending ? "Save Address" : "Saving"}
                             </button>
                         </form>
                     </div>
