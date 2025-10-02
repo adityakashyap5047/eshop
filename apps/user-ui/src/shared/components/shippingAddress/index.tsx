@@ -1,6 +1,7 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { countries } from "apps/user-ui/src/utils/countries";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
@@ -27,7 +28,24 @@ const ShippingAddressSection = () => {
         }
     });
 
-    const onsubmit = async() => {};
+    const {mutate: addAddress} = useMutation({
+        mutationFn: async(payload: any) => {
+            const res = await axiosInstance.post("/api/add-address", payload);
+            return res.data.address;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ["shipping-addresses"]});
+            reset();
+            setShowModal(false);
+        }
+    })
+
+    const onsubmit = async(data: any) => {
+        addAddress({
+            ...data,
+            isDefault: data?.isDefault === "true",
+        })
+    };
 
     return (
         <div className="space-y-4">
