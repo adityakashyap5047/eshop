@@ -1,14 +1,16 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import useDeviceInfo from "apps/user-ui/src/hooks/useDeviceInfo";
 import useLocation from "apps/user-ui/src/hooks/useLocation";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import { useStore } from "apps/user-ui/src/store";
+import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Page = () => {
     const router = useRouter();
@@ -45,6 +47,23 @@ const Page = () => {
     const removeItem = (id: string) => {
         removeFromCart(id, user, location, deviceInfo);
     }
+
+    const {data: addresses = []} = useQuery({
+        queryKey: ["shipping-addresses"],
+        queryFn: async() => {
+            const res = await axiosInstance.get("/api/shipping-addresses");
+            return res.data.addresses;
+        }
+    });
+
+    useEffect(() => {
+        if(addresses.length > 0 && !selectedAddressId) {
+            const defaultAddr = addresses.find((addr: any) => addr.isDefault);
+            if(defaultAddr){
+                setSelectedAddressId(defaultAddr.id);
+            }
+        }
+    }, [addresses, selectedAddressId]);
 
   return (
     <div className="w-full bg-white">
@@ -193,13 +212,24 @@ const Page = () => {
                                     <h4 className="mb-[7px] font-medium text-[15px]">
                                         Select Shipping Address
                                     </h4>
-                                    <select
-                                        className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                                        value={selectedAddressId}
-                                        onChange={(e) => setSelectedAddressId(e.target.value)}
-                                    >
-                                        <option value="123">Home - Mumbai - India</option>
-                                    </select>
+                                    {addresses?.length !== 0 && (
+                                        <select
+                                            className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
+                                            value={selectedAddressId}
+                                            onChange={(e) => setSelectedAddressId(e.target.value)}
+                                        >
+                                            {addresses?.map((address: any) => (
+                                                <option value={address.id} key={address.id}>
+                                                    {address.label} - {address.city}, {address.city}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
+                                    {addresses?.length === 0 && (
+                                        <p className="text-sm text-slate-800">
+                                            Please add an address from profile to create an order!
+                                        </p>
+                                    )}
                                 </div>
 
                                 <hr className="my-4 text-slate-200"/>
