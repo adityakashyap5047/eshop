@@ -4,7 +4,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import StatCard from "apps/user-ui/src/shared/components/cards/stat-card";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import { Bell, CheckCircle, Clock, Inbox, Loader2, Lock, LogOut, MapPin, ShoppingBag, Truck, User } from "lucide-react";
+import { Bell, CheckCircle, Clock, Inbox, Loader2, Lock, LogOut, MapPin, Pen, Pencil, ShoppingBag, Truck, User } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -69,7 +70,7 @@ const page = () => {
                     />
                 </div>
                             
-                <div className="mt-10 flex flex-col md:flex-row gap6">
+                <div className="mt-10 flex flex-col md:flex-row gap-6">
                     <div className="bg-white p-4 rounded-md shadow-md border border-gray-100 w-full md:w-1/5">
                         <nav className="space-y-2">
                             <NavItem
@@ -115,6 +116,42 @@ const page = () => {
                                 onClick={() => logOutHandler()}
                             />
                         </nav>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-md shadow-md border border-gray-100 w-full md:w-[55%]">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                            {activeTab}
+                        </h2>
+                        {activeTab === "Profile" && !isLoading && user ? (
+                            <div className="space-y-4 text-sm text-gray-700">
+                                <div className="flex items-center gap-3">
+                                    <Image
+                                        src={user?.avatar || "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520"}
+                                        alt="User Avatar"
+                                        width={60}
+                                        height={60}
+                                        className="w-16 h-16 border border-gray-200 rounded-full object-cover"
+                                    />
+                                    <button className="flex items-center gap-1 text-blue-500 text-xs font-medium">
+                                        <Pencil className="w-4 h-4" /> Change Picture 
+                                    </button>
+                                </div>
+                                <p>
+                                    <span className="font-semibold">Name: </span>{user.name}
+                                </p>
+                                <p>
+                                    <span className="font-semibold">Email: </span>{user.email}
+                                </p>
+                                <p>
+                                    <span className="font-semibold">Joined: </span>{new Date(user.createdAt).toLocaleDateString()}
+                                </p>
+                                <p>
+                                    <span className="font-semibold">Earned Points: </span>{user.points || 0}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className=""></div>
+                        )}
                     </div>
                 </div>
             </div>
