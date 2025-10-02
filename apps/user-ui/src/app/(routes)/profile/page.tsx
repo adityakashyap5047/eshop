@@ -4,8 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import useUser from "apps/user-ui/src/hooks/useUser";
 import QuickActionCard from "apps/user-ui/src/shared/components/cards/quick-action-card";
 import StatCard from "apps/user-ui/src/shared/components/cards/stat-card";
+import ShippingAddressSection from "apps/user-ui/src/shared/components/shippingAddress";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pen, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, Truck, User } from "lucide-react";
+import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, Truck, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -150,8 +151,12 @@ const page = () => {
                                     <span className="font-semibold">Earned Points: </span>{user.points || 0}
                                 </p>
                             </div>
+                        ) : activeTab === "Shipping Address" ? (
+                            <ShippingAddressSection />
                         ) : (
-                            <div className=""></div>
+                            <div>
+                                <p>Welcome to Eshop</p>
+                            </div>
                         )}
                     </div>
 

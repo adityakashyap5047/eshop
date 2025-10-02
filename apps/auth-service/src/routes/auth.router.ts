@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { createShop, createStripeConnectLink, forgotPassword, getSeller, getUser, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getSeller, getUser, getUserAddresses, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import { isSeller } from "@packages/middleware/authorizeRoles";
 
@@ -21,7 +21,7 @@ router.post("/refresh-token", refreshToken);
 router.get("/logged-in-user", isAuthenticated, getUser);
 
 // Logout the user
-router.get("/logout-user", logOutUser);
+router.get("/logout-user", isAuthenticated, logOutUser);
 
 // Forgot password
 router.post("/forgot-password-user", forgotPassword)
@@ -44,5 +44,10 @@ router.post("/create-stripe-link", createStripeConnectLink);
 router.post("/login-seller", loginSeller);
 
 router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
+
+// User Service ---> Handling Address
+router.post("/add-address", isAuthenticated, addUserAddress);
+router.get("/shipping-addresses", isAuthenticated, getUserAddresses);
+router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
 
 export default router;
