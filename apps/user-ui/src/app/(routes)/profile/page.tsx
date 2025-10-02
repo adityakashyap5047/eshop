@@ -121,7 +121,7 @@ const page = () => {
                     </div>
 
                     <div className="bg-white p-6 rounded-md shadow-md border border-gray-100 w-full md:w-[55%]">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                        <h2 className="text-xl underline italic  font-semibold text-gray-800 mb-4">
                             {activeTab}
                         </h2>
                         {activeTab === "Profile" && !isLoading && user ? (
