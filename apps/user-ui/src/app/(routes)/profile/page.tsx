@@ -2,9 +2,10 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import useUser from "apps/user-ui/src/hooks/useUser";
+import QuickActionCard from "apps/user-ui/src/shared/components/cards/quick-action-card";
 import StatCard from "apps/user-ui/src/shared/components/cards/stat-card";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
-import { Bell, CheckCircle, Clock, Inbox, Loader2, Lock, LogOut, MapPin, Pen, Pencil, ShoppingBag, Truck, User } from "lucide-react";
+import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOut, MapPin, Pen, Pencil, PhoneCall, Receipt, Settings, ShoppingBag, Truck, User } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -152,6 +153,34 @@ const page = () => {
                         ) : (
                             <div className=""></div>
                         )}
+                    </div>
+
+                    <div className="w-full md:w-1/4 space-y-4">
+                        <QuickActionCard
+                            Icon={Gift}
+                            title="Referral Program"
+                            description="Invite friends and earn rewards."
+                        />
+                        <QuickActionCard
+                            Icon={BadgeCheck}
+                            title="Your Badges"
+                            description="View your earned achievements."
+                        />
+                        <QuickActionCard
+                            Icon={Settings}
+                            title="Account Settings"
+                            description="Manage preferences and security."
+                        />
+                        <QuickActionCard
+                            Icon={Receipt}
+                            title="Billing History"
+                            description="Check your recent payments."
+                        />
+                        <QuickActionCard
+                            Icon={PhoneCall}
+                            title="Support Center"
+                            description="Need help? Contact support."
+                        />
                     </div>
                 </div>
             </div>
