@@ -34,10 +34,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable} ${poppins.variable} ${oregano.variable}`}>
+      <body className={`flex flex-col min-h-screen ${roboto.variable} ${poppins.variable} ${oregano.variable}`}>
         <Providers>
           <Header />
-          {children}
+          <main className='flex-1'>
+            {children}
+          </main>
           <Footer />
         </Providers>
       </body>
