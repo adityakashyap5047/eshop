@@ -55,7 +55,7 @@ const ShippingAddressSection = () => {
         })
     };
 
-    const {mutate: deleteAddress} = useMutation({
+    const {mutate: deleteAddress, isPending: deleteAddressPending} = useMutation({
         mutationFn: async (id: string) => {
             await axiosInstance.delete(`/api/delete-address/${id}`);
         },
@@ -102,10 +102,11 @@ const ShippingAddressSection = () => {
                                 </div>
                                 <div className="flex gap-3 mt-4">
                                     <button 
-                                        className="flex items-center gap-1 !cursor-pointer text-xs text-red-500"
+                                        className={`flex items-center gap-1 text-xs text-red-500 ${deleteAddressPending ? "!cursor-not-allowed" : "!cursor-pointer"}`}
+                                        disabled={deleteAddressPending}
                                         onClick={() => deleteAddress(address.id)}
                                     >
-                                        <Trash2 className="w-4 h-4" /> Delete
+                                        <Trash2 className="w-4 h-4" /> {deleteAddressPending ? "Deleting ..." : "Delete"}
                                     </button>
                                 </div>
                             </div>
