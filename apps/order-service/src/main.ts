@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import { errorMiddleware } from '@packages/error-handler/error-middleware';
 import router from './routes/order.route';
+import { createOrder } from './controllers/order.controller';
 
 const app = express();
 
@@ -15,6 +16,10 @@ app.use(
   })
 );
 
+app.post("/api/create-order", bodyParser.raw({ type: 'application/json' }), (req, res, next) => {
+  (req as any).rawBody = req.body;
+  next();
+}, createOrder);
 app.use(express.json());
 app.use(cookieParser());
 
