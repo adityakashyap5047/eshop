@@ -61,17 +61,17 @@ export const useStore = create<Store>()(
                 })
 
                 // Send kafka event
-                // if(user?.id && location && deviceInfo){
-                //     sendKafkaEvent({
-                //         userId: user.id,
-                //         productId: product.id,
-                //         shopId: product.shopId,
-                //         action: 'add_to_cart',
-                //         device: deviceInfo,
-                //         country: location?.country || "India",
-                //         city: location?.city || "Unknown",
-                //     });
-                // }
+                if(user?.id && location && deviceInfo){
+                    sendKafkaEvent({
+                        userId: user.id,
+                        productId: product.id,
+                        shopId: product.shopId,
+                        action: 'add_to_cart',
+                        device: deviceInfo,
+                        country: location?.country || "India",
+                        city: location?.city || "Unknown",
+                    });
+                }
             },
 
             removeFromCart: (id: string, user: any, location: any, deviceInfo: string) => {
@@ -81,17 +81,17 @@ export const useStore = create<Store>()(
                 }))
 
                 // Send kafka event
-                // if(user?.id && location && deviceInfo && removeProduct){
-                //     sendKafkaEvent({
-                //         userId: user.id,
-                //         productId: removeProduct.id,
-                //         shopId: removeProduct.shopId,
-                //         action: 'remove_from_cart',
-                //         device: deviceInfo,
-                //         country: location?.country || "India",
-                //         city: location?.city || "Unknown",
-                //     });
-                // }
+                if(user?.id && location && deviceInfo && removeProduct){
+                    sendKafkaEvent({
+                        userId: user.id,
+                        productId: removeProduct.id,
+                        shopId: removeProduct.shopId,
+                        action: 'remove_from_cart',
+                        device: deviceInfo,
+                        country: location?.country || "India",
+                        city: location?.city || "Unknown",
+                    });
+                }
             },
 
             addToWhishList: (product: Product, user: any, location: any, deviceInfo: any) => {
@@ -106,17 +106,17 @@ export const useStore = create<Store>()(
                 });
 
                 // Send kafka event
-                // if(user?.id && location && deviceInfo){
-                //     sendKafkaEvent({
-                //         userId: user.id,
-                //         productId: product.id,
-                //         shopId: product.shopId,
-                //         action: 'add_to_wishlist',
-                //         device: deviceInfo,
-                //         country: location?.country || "India",
-                //         city: location?.city || "Unknown",
-                //     });
-                // }
+                if(user?.id && location && deviceInfo){
+                    sendKafkaEvent({
+                        userId: user.id,
+                        productId: product.id,
+                        shopId: product.shopId,
+                        action: 'add_to_wishlist',
+                        device: deviceInfo,
+                        country: location?.country || "India",
+                        city: location?.city || "Unknown",
+                    });
+                }
             },
 
             removeFromWhishList: (id: string, user: any, location: any, deviceInfo: any) => {
@@ -127,17 +127,17 @@ export const useStore = create<Store>()(
                 }))
 
                 // Send kafka event
-                // if(user?.id && location && deviceInfo && removedProduct){
-                //     sendKafkaEvent({
-                //         userId: user.id,
-                //         productId: removedProduct.id,
-                //         shopId: removedProduct.shopId,
-                //         action: 'remove_from_wishlist',
-                //         device: deviceInfo,
-                //         country: location?.country || "India",
-                //         city: location?.city || "Unknown",
-                //     });
-                // }
+                if(user?.id && location && deviceInfo && removedProduct){
+                    sendKafkaEvent({
+                        userId: user.id,
+                        productId: removedProduct.id,
+                        shopId: removedProduct.shopId,
+                        action: 'remove_from_wishlist',
+                        device: deviceInfo,
+                        country: location?.country || "India",
+                        city: location?.city || "Unknown",
+                    });
+                }
             }
         }),
         { name: "store-storage" }

@@ -137,7 +137,7 @@ export const updateProductAnalytics = async(event: any) => {
                 shopId: event.shopId || null,
                 views: event.action === "product_view" ? 1 : 0,
                 cartAdds: event.action === "add_to_cart" ? 1 : 0,
-                wishlistAdds: event.action === "add_to_wishlist" ? 1 : 0,
+                wishListAdds: event.action === "add_to_wishlist" ? 1 : 0,
                 purchases: event.action === "purchase" ? 1 : 0,
                 lastViewedAt: new Date(),
             }

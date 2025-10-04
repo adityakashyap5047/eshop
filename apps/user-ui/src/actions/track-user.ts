@@ -1,7 +1,5 @@
 "use server"
-import { kafka } from "packages/utils/kafka"
-
-const producer = kafka.producer();
+import { createProducer } from "packages/utils/kafka"
 
 export async function sendKafkaEvent(eventData: {
     userId?: string;
@@ -12,16 +10,27 @@ export async function sendKafkaEvent(eventData: {
     country?: string;
     city?: string;
 }) {
+    let producer = null;
     try {
-        await producer.connect();
+        console.log('📤 Sending Kafka event:', eventData.action);
+        producer = await createProducer();
 
         await producer.send({
-            topic: 'user-events',
+            topic: 'users-events',
             messages: [{value: JSON.stringify(eventData)}],
-        })
+        });
+        
+        console.log('✅ Kafka event sent successfully');
     } catch (error) {
-        console.error("Error sending Kafka event: ", error);
+        console.error("❌ Error sending Kafka event:", error);
+        throw error; // Re-throw to let caller handle
     } finally {
-        await producer.disconnect();
+        if (producer) {
+            try {
+                await producer.disconnect();
+            } catch (disconnectError) {
+                console.error("❌ Error disconnecting producer:", disconnectError);
+            }
+        }
     }
 }
