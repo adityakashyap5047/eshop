@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const Page = () => {
     const router = useRouter();
@@ -26,6 +27,23 @@ const Page = () => {
     const [couponCode, setCouponCode] = useState("");
     const [selectedAddressId, setSelectedAddressId] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const createPaymentSession = async() => {
+        setLoading(true);
+        try {
+            const res = await axiosInstance.post("/order/api/create-payment-session", {
+                cart,
+                selectedAddressId,
+                coupon: {}
+            })
+            const sessionId = res.data.sessionId;
+            router.push(`/checkout?sessionId=${sessionId}`);
+        } catch (error) {
+            toast.error("Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const decreasingQuantity = (id: string) => {
         useStore.setState((state: any) => ({
@@ -256,6 +274,7 @@ const Page = () => {
                                 </div>
 
                                 <button
+                                    onClick={createPaymentSession}
                                     disabled={loading}
                                     className="w-full flex items-center justify-center gap-2 cursor-pointer my-4 py-2 bg-[#010f1c] text-white hover:bg-[#0989FF] transition-all rounded-md"
                                 >
