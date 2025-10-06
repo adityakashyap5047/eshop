@@ -5,7 +5,7 @@ import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import { XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import CheckoutForm from 'apps/user-ui/src/shared/components/checkout/checkoutForm';
+import CheckoutForm from 'apps/user-ui/src/shared/components/checkout/CheckoutForm';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -45,7 +45,7 @@ const Page = () => {
 
                 setCartItems(cart);
                 setCoupon(coupon);
-                const sellersStripeAccountId = sellers[0].stripeAccountId;
+                const sellersStripeAccountId = sellers[0].stripeId;
 
                 const intentRes = await axiosInstance.post(
                     "/order/api/create-payment-intent", {
@@ -63,7 +63,9 @@ const Page = () => {
                 setLoading(false);
             }
         }
-    })
+
+        fetchSessionAndClientSecret();
+    }, [sessionId]);
 
     const appearance: Appearance = {
         theme: "stripe"

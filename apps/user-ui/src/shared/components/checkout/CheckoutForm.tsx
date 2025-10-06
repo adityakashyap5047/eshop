@@ -41,7 +41,7 @@ const CheckoutForm = ({
         return_url: `${window.location.origin}/payment-success?sessionId=${sessionId}`,
       }
     })
-
+    console.log(res);
     if(res.error) {
       setErrorMessage(res.error.message || 'An unexpected error occurred.');
       setStatus('failed');
@@ -70,11 +70,11 @@ const CheckoutForm = ({
           ))}
 
           <div className="flex justify-between font-semibold pt-2 border-t">
-            {coupon?.discountAmount !==0 && (
+            {coupon?.discountAmount && (
               <>
                 <span>Discount</span>
                 <span className="text-green-600">
-                  ${(coupon.discountAmount).toFixed(2)}
+                  ${(coupon?.discountAmount).toFixed(2)}
                 </span>
               </>
             )}
@@ -89,7 +89,7 @@ const CheckoutForm = ({
         <PaymentElement />
         <button type="submit"
           disabled={!stripe || loading}
-          className='w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed'
+          className='w-full flex items-center justify-center gap-6 bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed'
         >
           {loading && <Loader2 className='animate-spin w-5 h-5' />}
           {loading ? 'Processing...' : `Pay $${total.toFixed(2)}`}

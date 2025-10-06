@@ -23,7 +23,7 @@ const PaymentSuccessPage = () => {
 
   return (
     <div className='min-h-[80vh] flex items-center justify-center px-4'>
-        <div className="bg-white shadow-sm border border-gray-200 rounded-lg">
+        <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6 ">
             <div className="text-green-500 mb-4">
                 <CheckCircle className='w-16 h-16 mx-auto' />
             </div>

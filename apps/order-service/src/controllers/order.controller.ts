@@ -18,7 +18,8 @@ export const createPaymentIntent = async(
     next: NextFunction
 ) => {
     try {
-        const {amount, sellerStripeAccountId, sessionId} = req.body;
+        const {amount, sessionId} = req.body;
+        const sellerStripeAccountId = "acct_1SFFW06TEoGpbzBg";
 
         const customerAmount = Math.round(amount * 100);
         const platformFee = Math.floor(customerAmount * 0.1);
