@@ -25,10 +25,14 @@ const Page = () => {
     const [discountPercet, setDiscountPercent] = useState(0);
     const [discountAmount, setDiscountAmount] = useState(0);
     const [couponCode, setCouponCode] = useState("");
-    const [selectedAddressId, setSelectedAddressId] = useState("");
+    const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-
     const createPaymentSession = async() => {
+        if(!selectedAddressId) {
+            toast.error("Please select a shipping address before proceeding.");
+            return;
+        }
+        
         setLoading(true);
         try {
             const res = await axiosInstance.post("/order/api/create-payment-session", {
@@ -79,6 +83,8 @@ const Page = () => {
             const defaultAddr = addresses.find((addr: any) => addr.isDefault);
             if(defaultAddr){
                 setSelectedAddressId(defaultAddr.id);
+            } else {
+                setSelectedAddressId(addresses[0].id);
             }
         }
     }, [addresses, selectedAddressId]);
@@ -233,12 +239,15 @@ const Page = () => {
                                     {addresses?.length !== 0 && (
                                         <select
                                             className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                                            value={selectedAddressId}
-                                            onChange={(e) => setSelectedAddressId(e.target.value)}
+                                            value={selectedAddressId || ""}
+                                            onChange={(e) => {
+                                                setSelectedAddressId(e.target.value || null)
+                                            }}
                                         >
+                                            <option value="">Select a shipping address</option>
                                             {addresses?.map((address: any) => (
                                                 <option value={address.id} key={address.id}>
-                                                    {address.label} - {address.city}, {address.city}
+                                                    {address.label} - {address.city}, {address.country}
                                                 </option>
                                             ))}
                                         </select>
@@ -258,8 +267,8 @@ const Page = () => {
                                     </h4>
                                     <select
                                         className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
-                                        value={selectedAddressId}
-                                        onChange={(e) => setSelectedAddressId(e.target.value)}
+                                        // value={selectedAddressId}
+                                        // onChange={(e) => setSelectedAddressId(e.target.value)}
                                     >
                                         <option value="credit_card">Online Payment</option>
                                         <option value="cash_on_delivery">Cash on Delivery</option>
