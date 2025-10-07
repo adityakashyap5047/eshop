@@ -177,7 +177,7 @@ export const verifyPaymentSession = async(
 }
 
 // Create Order
-export const createOrder = async(   // Also it doesn't call when webhook is triggered
+export const createOrder = async(
     req: Request,
     res: Response,
     next: NextFunction
