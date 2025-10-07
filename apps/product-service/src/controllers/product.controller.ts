@@ -221,6 +221,7 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
                 stock: parseInt(stock),
                 sale_price: parseFloat(sale_price),
                 regular_price: parseFloat(regular_price),
+                totalSales: 0,
                 custom_properties: customProperties || {},
                 custom_specifications: custom_specifications || {},
                 images: {

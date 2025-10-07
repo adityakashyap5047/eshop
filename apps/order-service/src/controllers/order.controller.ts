@@ -18,7 +18,7 @@ export const createPaymentIntent = async(
     next: NextFunction
 ) => {
     try {
-        const {amount, sellerStripeAccountId, sessionId} = req.body;
+        const {amount, sessionId} = req.body;
         const sellersStripeAccountId = "acct_1SFFW06TEoGpbzBg";  // add it dynamically later
 
         const customerAmount = Math.round(amount * 100);
@@ -273,13 +273,17 @@ export const createOrder = async(   // Also it doesn't call when webhook is trig
                 for(const item of orderItems) {
                     const {id: productId, quantity} = item;
 
+                    // Get current product data to handle null totalSales
+                    const currentProduct = await prisma.products.findUnique({
+                        where: {id: productId},
+                        select: {totalSales: true}
+                    });
+
                     await prisma.products.update({
                         where: {id: productId},
                         data: {
                             stock: {decrement: quantity},
-                            totalSales: {
-                                increment: quantity
-                            }
+                            totalSales: (currentProduct?.totalSales || 0) + quantity
                         },
                     });
 
