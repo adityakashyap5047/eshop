@@ -18,8 +18,8 @@ export const createPaymentIntent = async(
     next: NextFunction
 ) => {
     try {
-        const {amount, sessionId} = req.body;
-        const sellerStripeAccountId = "acct_1SFFW06TEoGpbzBg";
+        const {amount, sellersStripeAccountId, sessionId} = req.body;
+        // const sellerStripeAccountId = "acct_1SFFW06TEoGpbzBg";  // add it dynamically later
 
         const customerAmount = Math.round(amount * 100);
         const platformFee = Math.floor(customerAmount * 0.1);
@@ -30,7 +30,7 @@ export const createPaymentIntent = async(
             payment_method_types: ['card'],
             application_fee_amount: platformFee,
             transfer_data: {
-                destination: sellerStripeAccountId,
+                destination: sellersStripeAccountId,
             },
             metadata: {
                 sessionId,
@@ -177,7 +177,7 @@ export const verifyPaymentSession = async(
 }
 
 // Create Order
-export const createOrder = async(
+export const createOrder = async(   // Also it doesn't call when webhook is triggered
     req: Request,
     res: Response,
     next: NextFunction
