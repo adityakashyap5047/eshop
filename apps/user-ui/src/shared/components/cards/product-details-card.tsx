@@ -110,8 +110,11 @@ const ProductDetailsCard = ({data, setOpen}: {data: any, setOpen: (open: boolean
                                 <X size={25} onClick={() => setOpen(false)} />
                             </button>
                         </div>
-
-                        <h3 className="text-xl font-semibold mt-3">{data?.title}</h3>
+                        <h3 className="text-xl font-semibold mt-3">{data?.title} <span className='font-semibold text-gray-500 text-sm ml-4'>{data?.createdAt ? new Date(data.createdAt).toLocaleDateString('en-GB', { 
+                                day: 'numeric', 
+                                month: 'short', 
+                                year: 'numeric',
+                            }) : ''}</span></h3>
                         <p className="mt-2 text-gray-700 whitespace-pre-wrap w-full">
                             {data?.description}
                             Lorem ipsum dolor sit amet consectetur adipisicing elit. Explicabo rem perferendis vero dolorem at excepturi molestiae molestias tempore animi eos quibusdam voluptatibus sint eligendi magni, quos laborum optio culpa sapiente odit ipsa earum. Tempora molestiae veritatis impedit unde, fugit recusandae dignissimos consequuntur, cumque illum nam deserunt aliquam quia itaque quas, deleniti alias maxime ut. Quam odit libero repellat, consectetur nihil asperiores quasi alias possimus autem nesciunt iusto error ex inventore minima necessitatibus rem nemo nam omnis suscipit consequuntur illum mollitia eum ducimus. Assumenda tenetur est officia porro quia maiores inventore possimus quo, doloribus distinctio, delectus magni dolorum illo, velit tempore.
