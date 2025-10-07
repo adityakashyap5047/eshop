@@ -59,11 +59,10 @@ export const useStore = create<Store>()(
                         cart: [...state.cart, { ...product, quantity: product?.quantity ?? 1 }]
                     }
                 })
-
                 // Send kafka event
-                if(user?.id && location && deviceInfo){
+                if(user?.user?.id && location && deviceInfo){
                     sendKafkaEvent({
-                        userId: user.id,
+                        userId: user.user.id,
                         productId: product.id,
                         shopId: product.shopId,
                         action: 'add_to_cart',
@@ -79,7 +78,6 @@ export const useStore = create<Store>()(
                 set((state: any) => ({
                     cart: state.cart?.filter((item: Product) => item.id !== id)
                 }))
-
                 // Send kafka event
                 if(user?.id && location && deviceInfo && removeProduct){
                     sendKafkaEvent({
@@ -106,9 +104,9 @@ export const useStore = create<Store>()(
                 });
 
                 // Send kafka event
-                if(user?.id && location && deviceInfo){
+                if(user?.user?.id && location && deviceInfo){
                     sendKafkaEvent({
-                        userId: user.id,
+                        userId: user.user.id,
                         productId: product.id,
                         shopId: product.shopId,
                         action: 'add_to_wishlist',
@@ -125,11 +123,10 @@ export const useStore = create<Store>()(
                 set((state: any) => ({
                     whishList: state.whishList?.filter((item: Product) => item.id !== id)
                 }))
-
                 // Send kafka event
-                if(user?.id && location && deviceInfo && removedProduct){
+                if(user?.user?.id && location && deviceInfo && removedProduct){
                     sendKafkaEvent({
-                        userId: user.id,
+                        userId: user.user.id,
                         productId: removedProduct.id,
                         shopId: removedProduct.shopId,
                         action: 'remove_from_wishlist',

@@ -29,19 +29,25 @@ export const updateUserAnalytics = async(event: any) => {
                 action: event?.action,
                 timestamp: new Date(),
             })
-        // remove "add_to_cart" if "remove_from_cart" action is received
+        // Add "remove_from_cart" action as a new entry
         } else if(event.action === "remove_from_cart"){
-            updatedActions = updatedActions.filter(
-                (entry: any) => !(entry.productId === event.productId && entry.action === "add_to_cart")
-            )
+            updatedActions.push({
+                productId: event?.productId,
+                shopId: event.shopId,
+                action: event?.action,
+                timestamp: new Date(),
+            })
         } else if(event.action === "remove_from_wishlist"){
-            updatedActions = updatedActions.filter(
-                (entry: any) => !(entry.productId === event.productId && entry.action === "add_to_wishlist")
-            )
+            updatedActions.push({
+                productId: event?.productId,
+                shopId: event.shopId,
+                action: event?.action,
+                timestamp: new Date(),
+            })
         }
 
         // Keep only the latest 100 actions
-        if(updatedActions.length < 100) {
+        if(updatedActions.length > 100) {
             updatedActions.shift();
         }
 
@@ -101,20 +107,20 @@ export const updateProductAnalytics = async(event: any) => {
             };
         }
 
-        if(event.action === "remover_from_cart"){
+        if(event.action === "remove_from_cart"){
             updateFields.cartAdds = {
                 decrement: 1
             };
         }
 
         if(event.action === "add_to_wishlist") {
-            updateFields.wishlistAdds = {
+            updateFields.wishListAdds = {
                 increment: 1
             };
         }
 
         if(event.action === "remove_from_wishlist"){
-            updateFields.wishlistAdds = {
+            updateFields.wishListAdds = {
                 decrement: 1
             };
         }

@@ -12,7 +12,6 @@ export async function sendKafkaEvent(eventData: {
 }) {
     let producer = null;
     try {
-        console.log('📤 Sending Kafka event:', eventData.action);
         producer = await createProducer();
 
         await producer.send({
@@ -20,16 +19,15 @@ export async function sendKafkaEvent(eventData: {
             messages: [{value: JSON.stringify(eventData)}],
         });
         
-        console.log('✅ Kafka event sent successfully');
     } catch (error) {
-        console.error("❌ Error sending Kafka event:", error);
-        throw error; // Re-throw to let caller handle
+        console.error("Error sending Kafka event:", error);
+        throw error;
     } finally {
         if (producer) {
             try {
                 await producer.disconnect();
             } catch (disconnectError) {
-                console.error("❌ Error disconnecting producer:", disconnectError);
+                console.error("Error disconnecting producer:", disconnectError);
             }
         }
     }
