@@ -34,13 +34,15 @@ const PaymentSuccessPage = () => {
                 Thank you for your purchase! Your order has been placed successfully!
             </p>
 
-            <button
-                onClick={() => router.push(`/profile?active=My+Orders`)}
-                className='inline-flex items-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition'
-            >
-                <Truck className='w-4 h-4' />
-                Track Order
-            </button>
+            <div className="text-center">
+                <button
+                    onClick={() => router.push(`/profile?active=My+Orders`)}
+                    className='inline-flex items-center gap-2 bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition'
+                >
+                    <Truck className='w-4 h-4' />
+                    Track Order
+                </button>
+            </div>
 
             <div className="mt-8 text-xs text-gray-400">
                 Payment Session Id: <span className="font-mono">{sessionId}</span>
