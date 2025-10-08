@@ -21,7 +21,6 @@ const Page = () => {
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const router = useRouter();
-
     const fetchOrder = async() => {
         try {
             const res = await axiosInstance.get(
