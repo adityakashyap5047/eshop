@@ -396,3 +396,44 @@ export const createOrder = async(
         return next(error);
     }
 }
+
+// Get Sellers Order
+export const getSellersOrder = async(
+    req: any,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const shop = await prisma.shops.findFirst({
+            where: {
+                sellers: {
+                    some: {
+                        id: req.seller.id
+                    }
+                }
+            }
+        });
+
+        if(!shop) {
+            return next(new ValidationError("Shop not found for this seller"));
+        }
+
+        const orders = await prisma.orders.findMany({
+            where: {shopId: shop.id},
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    }
+                }
+            },
+            orderBy: {createdAt: 'desc'}
+        });
+
+        res.status(200).json({success: true, orders});
+    } catch (error) {
+        
+    }
+}
