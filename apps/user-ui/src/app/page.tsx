@@ -26,7 +26,7 @@ const Page = () => {
       return res.data.products;
     },
     staleTime: 1000 * 60 * 2,
-  });
+  });;
 
   const {data: shops, isLoading: isShopLoading, isError: isShopError} = useQuery({
     queryKey: ["shops"],
@@ -35,17 +35,18 @@ const Page = () => {
       return res.data.shops;
     },
     staleTime: 1000 * 60 * 2,
-  })
+  });
 
   const {data: offers, isLoading: isOfferLoading, isError: isOfferError} = useQuery({
     queryKey: ["offers"],
     queryFn: async() => {
-      const res = await axiosInstance.get("/product/api/get-all-events?page=10&limit=10");
+      const res = await axiosInstance.get("/product/api/get-all-events?page=1&limit=10");
       return res.data.events;
     },
     staleTime: 1000 * 60 * 2,
-  })
+  });
 
+  console.log("offers", offers);
   return (
     <div className='bg-[#f5f5f5]'>
       <Hero />

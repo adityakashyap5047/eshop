@@ -382,7 +382,6 @@ export const getAllEvents = async(req: Request, res: Response, next: NextFunctio
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
-    
         const baseFilter = {
             AND: [
                 { starting_date: { not: null } },
@@ -412,7 +411,6 @@ export const getAllEvents = async(req: Request, res: Response, next: NextFunctio
                 },
             })
         ]);
-
         res.status(200).json({
             events,
             top10BySales,
@@ -420,7 +418,6 @@ export const getAllEvents = async(req: Request, res: Response, next: NextFunctio
             currentPage: page,
             totalPages: Math.ceil(total / limit)
         });
-
 
     } catch (error) {
         next(error);
