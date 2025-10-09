@@ -2,6 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import useRequiredAuth from "apps/user-ui/src/hooks/useRequiredAuth";
+import { useAuthStore } from "apps/user-ui/src/store/authStore";
 import QuickActionCard from "apps/user-ui/src/shared/components/cards/quick-action-card";
 import StatCard from "apps/user-ui/src/shared/components/cards/stat-card";
 import ShippingAddressSection from "apps/user-ui/src/shared/components/shippingAddress";
@@ -11,8 +12,19 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+interface UserType {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+    createdAt: string;
+    points?: number;
+}
+
 const page = () => {
-    const {user, isLoading} = useRequiredAuth();
+    const {user: rawUser, isLoading} = useRequiredAuth();
+    const { logout } = useAuthStore();
+    const user = rawUser as UserType;
 
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -20,6 +32,29 @@ const page = () => {
     
     const queryTab = searchParams.get("active") || "Profile";
     const [activeTab, setActiveTab] = useState(queryTab);
+
+    useEffect(() => {
+        if(activeTab !== queryTab){
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set("active", activeTab);
+            router.replace(`/profile?${newParams.toString()}`); 
+        }
+    }, [activeTab, queryTab, searchParams, router]);
+
+    const logOutHandler = async() => {
+        try {
+            await axiosInstance.get("/api/logout-user");
+            
+            logout();
+            router.push("/");
+            queryClient.clear();
+        } catch (error) {
+            console.error("Logout error:", error);
+            logout();
+            router.push("/");
+            queryClient.clear();
+        }
+    };
 
     if (isLoading) {
         return (
@@ -29,26 +64,9 @@ const page = () => {
         );
     }
 
-    // Don't render anything if user is not authenticated (will be redirected)
     if (!user) {
         return null;
     }
-
-    useEffect(() => {
-        if(activeTab !== queryTab){
-            const newParams = new URLSearchParams(searchParams);
-            newParams.set("active", activeTab);
-            router.replace(`/profile?${newParams.toString()}`); 
-        }
-    }, [activeTab]);
-
-    const logOutHandler = async() => {
-        await axiosInstance.get("/api/logout-user").then((res) => {
-            queryClient.invalidateQueries({queryKey: ["user"]});
-
-            router.push("/");
-        })
-    };
 
     return (
         <div className='bg-gray-50 p-6 pb-14'>
