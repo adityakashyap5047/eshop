@@ -460,68 +460,105 @@ const CreateEventPage = () => {
                 {errors.subCategory && <p className="text-red-500 text-sm mt-1">{errors.subCategory.message as string}</p>}
               </div>
 
+              {/* Detailed Event Description Section */}
+              <div className="mt-4">
+                <label className="block font-semibold text-gray-300 mb-3">
+                  Detailed Event Description
+                </label>
+                <Controller
+                  name="detailed_description"
+                  control={control}
+                  render={({field}) => (
+                    <RichTextEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
+              </div>
+
+              {/* Event Date Section with Enhanced Styling */}
               <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-600">
                 <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-blue-400" />
+                  <Calendar className="w-5 h-5 text-blue-400 cursor-pointer hover:text-blue-300 transition-colors" />
                   Event Schedule
                 </h3>
                 
-                <div className="space-y-3">
-                  <div>
+                <div className="space-y-4">
+                  <div className="relative">
                     <label className="font-semibold text-gray-300 mb-2 flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-green-400" />
+                      <Clock className="w-4 h-4 text-green-400 cursor-pointer hover:text-green-300 transition-colors" />
                       Event Start Date & Time*
                     </label>
-                    <input
-                      type="datetime-local"
-                      min={getCurrentDateTime()}
-                      className="w-full border outline-none border-gray-600 bg-gray-700 text-white rounded-md px-3 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                      {...register("starting_date", {
-                        required: "Event start date is required",
-                        validate: (value) => {
-                          const selectedDate = new Date(value);
-                          const now = new Date();
-                          if (selectedDate <= now) {
-                            return "Event start date must be in the future";
+                    <div className="relative">
+                      <input
+                        type="datetime-local"
+                        min={getCurrentDateTime()}
+                        className="w-full border outline-none border-gray-600 bg-gray-700 text-white rounded-md px-4 py-3 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 hover:border-gray-500 placeholder:text-gray-400"
+                        {...register("starting_date", {
+                          required: "Event start date is required",
+                          validate: (value) => {
+                            const selectedDate = new Date(value);
+                            const now = new Date();
+                            if (selectedDate <= now) {
+                              return "Event start date must be in the future";
+                            }
+                            return true;
                           }
-                          return true;
-                        }
-                      })}
-                    />
+                        })}
+                      />
+                    </div>
                     {errors.starting_date && <p className="text-red-500 text-sm mt-1">{errors.starting_date.message as string}</p>}
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <label className="font-semibold text-gray-300 mb-2 flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-red-400" />
+                      <Clock className="w-4 h-4 text-red-400 cursor-pointer hover:text-red-300 transition-colors" />
                       Event End Date & Time*
                     </label>
-                    <input
-                      type="datetime-local"
-                      min={startingDate || tomorrowDateTime}
-                      className="w-full border outline-none border-gray-600 bg-gray-700 text-white rounded-md px-3 py-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                      {...register("ending_date", {
-                        required: "Event end date is required",
-                        validate: (value) => {
-                          if (!startingDate) return "Please select start date first";
-                          const endDate = new Date(value);
-                          const startDate = new Date(startingDate);
-                          if (endDate <= startDate) {
-                            return "Event end date must be after start date";
+                    <div className="relative">
+                      <input
+                        type="datetime-local"
+                        min={startingDate || tomorrowDateTime}
+                        className="w-full border outline-none border-gray-600 bg-gray-700 text-white rounded-md px-4 py-3 pr-12 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 hover:border-gray-500 placeholder:text-gray-400"
+                        {...register("ending_date", {
+                          required: "Event end date is required",
+                          validate: (value) => {
+                            if (!startingDate) return "Please select start date first";
+                            const endDate = new Date(value);
+                            const startDate = new Date(startingDate);
+                            if (endDate <= startDate) {
+                              return "Event end date must be after start date";
+                            }
+                            return true;
                           }
-                          return true;
-                        }
-                      })}
-                    />
+                        })}
+                      />
+                    </div>
                     {errors.ending_date && <p className="text-red-500 text-sm mt-1">{errors.ending_date.message as string}</p>}
                   </div>
 
                   {startingDate && watch("ending_date") && (
-                    <div className="mt-3 p-3 bg-blue-900/30 rounded-md border border-blue-600/30">
-                      <p className="text-blue-300 text-sm flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Duration: {Math.ceil((new Date(watch("ending_date")).getTime() - new Date(startingDate).getTime()) / (1000 * 60 * 60 * 24))} days
-                      </p>
+                    <div className="mt-4 p-4 bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-lg border border-blue-600/40 shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-blue-500/20 rounded-full">
+                            <Calendar className="w-5 h-5 text-blue-400" />
+                          </div>
+                          <div>
+                            <span className="text-blue-300 font-medium text-lg">Event Duration</span>
+                            <p className="text-blue-400 text-sm">Total event length</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-white text-2xl font-bold">
+                            {Math.ceil((new Date(watch("ending_date")).getTime() - new Date(startingDate).getTime()) / (1000 * 60 * 60 * 24))}
+                          </p>
+                          <p className="text-blue-400 text-sm font-medium">
+                            {Math.ceil((new Date(watch("ending_date")).getTime() - new Date(startingDate).getTime()) / (1000 * 60 * 60 * 24)) === 1 ? 'day' : 'days'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -621,22 +658,6 @@ const CreateEventPage = () => {
             </div>
           </div>
           
-          <div className="w-full mt-6">
-            <label className="block font-semibold text-gray-300 mb-3">
-              Detailed Event Description
-            </label>
-            <Controller
-              name="detailed_description"
-              control={control}
-              render={({field}) => (
-                <RichTextEditor
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </div>
-
           <div className="mt-6 flex justify-end gap-3">
             {isChanged && (
               <button 
