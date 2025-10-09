@@ -39,7 +39,7 @@ export const createDiscountCode = async(req: any, res: Response, next: NextFunct
         });
 
         if (isDiscountCodeExists) {
-            return next(new ValidationError('Discount code already available please use a different code!'));
+            throw new ValidationError('Discount code already available please use a different code!');
         }
 
         const discount_code = await prisma.discount_codes.create({
@@ -83,11 +83,11 @@ export const deleteDiscountCode = async(req: any, res: Response, next: NextFunct
         });
 
         if(!discount_code) {
-            return next(new NotFoundError('Discount code not found!'));
+            throw new NotFoundError('Discount code not found!');
         }
 
         if(discount_code.sellerId !== sellerId) {
-            return next(new ValidationError('Unauthorized access!'));
+            throw new ValidationError('Unauthorized access!');
         }
 
         await prisma.discount_codes.delete({
@@ -179,15 +179,15 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
             !stock || 
             !regular_price
         ) {
-            return next(new ValidationError("Please provide all the required fields!"));
+            throw new ValidationError("Please provide all the required fields!");
         }
 
         if(!req.seller?.id) {
-            return next(new AuthError("Only seller can create a products"));
+            throw new AuthError("Only seller can create a products");
         }
 
         if(!req.seller?.shop?.id) {
-            return next(new AuthError("Seller must have a shop to create products"));
+            throw new AuthError("Seller must have a shop to create products");
         }
 
         const isSlugExists = await prisma.products.findUnique({
@@ -196,7 +196,7 @@ export const createProduct = async(req: any, res: Response, next: NextFunction) 
             }
         });
         if(isSlugExists) {
-            return next(new ValidationError("Slug already exists please use a different slug!"));
+            throw new ValidationError("Slug already exists please use a different slug!");
         }
         
         const product = await prisma.products.create({
@@ -271,11 +271,11 @@ export const deleteProduct = async(req: any, res: Response, next: NextFunction) 
         });
 
         if (!product) {
-            return next(new ValidationError("Product not found"));
+            throw new ValidationError("Product not found");
         }
 
         if (product.shopId !== shopId) {
-            return next(new AuthError("Unauthorized action"));
+            throw new AuthError("Unauthorized action");
         }
 
         if(product.isDeleted) {
@@ -305,11 +305,11 @@ export const restoreProduct = async(req: any, res: Response, next: NextFunction)
         });
 
         if (!product) {
-            return next(new ValidationError("Product not found"));
+            throw new ValidationError("Product not found");
         }
 
         if (product.shopId !== shopId) {
-            return next(new AuthError("Unauthorized action"));
+            throw new AuthError("Unauthorized action");
         }
 
         if(!product.isDeleted) {

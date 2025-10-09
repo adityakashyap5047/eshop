@@ -56,7 +56,7 @@ export const createPaymentSession = async(
         const userId = req.user.id;
 
         if(!cart || !Array.isArray(cart) || cart.length === 0) {
-            return next(new ValidationError("Cart is empty or invalid!"));
+            throw new ValidationError("Cart is empty or invalid!");
         }
 
         const normailizedCart = JSON.stringify(
@@ -415,7 +415,7 @@ export const getSellersOrder = async(
         });
 
         if(!shop) {
-            return next(new ValidationError("Shop not found for this seller"));
+            throw new ValidationError("Shop not found for this seller");
         }
 
         const orders = await prisma.orders.findMany({
@@ -454,7 +454,7 @@ export const getOrderDetails = async(
         })
 
         if(!order) {
-            return next(new NotFoundError("Order not found"));
+            throw new NotFoundError("Order not found");
         }
 
         const shippingAddress = order.shippingAddressId ? await prisma.address.findUnique({
@@ -526,7 +526,7 @@ export const updateDeliveryStatus = async(
         ]
 
         if(!allowedStatuses.includes(deliveryStatus)) {
-            return next(new ValidationError("Invalid delivery status"));
+            throw new ValidationError("Invalid delivery status");
         }
 
         const existingOrder = await prisma.orders.findUnique({
@@ -534,7 +534,7 @@ export const updateDeliveryStatus = async(
         });
 
         if(!existingOrder) {
-            return next(new NotFoundError("Order not found"));
+            throw new NotFoundError("Order not found");
         }
 
         const updatedOrder = await prisma.orders.update({

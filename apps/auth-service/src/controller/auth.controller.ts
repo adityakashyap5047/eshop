@@ -20,7 +20,7 @@ export const userRegisteration = async (req: Request, res: Response, next: NextF
         const existingUser = await prisma.users.findUnique({where: { email }})
     
         if (existingUser) {
-            return next(new ValidationError("User already exists with this email!"));
+            throw new ValidationError("User already exists with this email!");
         }
     
         await checkOtpRestrictions(email, next);
@@ -40,13 +40,13 @@ export const verifyUser = async (req: Request, res: Response, next: NextFunction
     try {
         const {email, otp, password, name} = req.body;
         if (!email || !otp || !password || !name) {
-            return next(new ValidationError("All fields are required!"));
+            throw new ValidationError("All fields are required!");
         }
 
         const existingUser = await prisma.users.findUnique({where: { email }})
 
         if (existingUser) {
-            return next(new ValidationError("User already exists with this email!"));
+            throw new ValidationError("User already exists with this email!");
         }
 
         await verifyOtp(email, otp, next);
@@ -76,20 +76,20 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         const {email, password} = req.body;
 
         if (!email || !password) {
-            return next(new ValidationError("Emai and Password are required!"));
+            throw new ValidationError("Email and Password are required!");
         }
 
         const user = await prisma.users.findUnique({where: { email }});
 
         if (!user) {
-            return next(new AuthError("User doesn't exist!"));
+            throw new AuthError("User doesn't exist!");
         }
 
         // Verify Password
         const isMatch = await bcrypt.compare(password, user.password!);
 
         if (!isMatch) {
-            return next(new AuthError("Invalid email or password!"));
+            throw new AuthError("Invalid email or password!");
         }
 
         res.clearCookie("seller-refresh-token");
@@ -209,19 +209,19 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
         const { email, newPassword } = req.body;
 
         if (!email || !newPassword) {
-            return next(new ValidationError("Email and new password are required!"));
+            throw new ValidationError("Email and new password are required!");
         }
 
         const user = await prisma.users.findUnique({ where: { email } });
 
         if (!user) {
-            return next(new ValidationError("User not found!"));
+            throw new ValidationError("User not found!");
         }
 
         // compare new password with old password
         const isSamePassword = await bcrypt.compare(newPassword, user.password!);
         if (isSamePassword) {
-            return next(new ValidationError("New password must be different from the old password!"));
+            throw new ValidationError("New password must be different from the old password!");
         }
 
         // Hash the new password
@@ -267,13 +267,13 @@ export const verifySeller = async (req: Request, res: Response, next: NextFuncti
     try {
         const {email, otp, password, name, phone_number, country} = req.body;
         if (!email || !otp || !password || !name || !phone_number || !country) {
-            return next(new ValidationError("All fields are required!"));
+            throw new ValidationError("All fields are required!");
         }
 
         const existingSeller = await prisma.sellers.findUnique({where: { email }})
 
         if (existingSeller) {
-            return next(new ValidationError("Seller already exists with this email!"));
+            throw new ValidationError("Seller already exists with this email!");
         }
 
         await verifyOtp(email, otp, next);
@@ -305,7 +305,7 @@ export const createShop = async(req: any, res: Response, next: NextFunction) => 
         const {name, bio, address, opening_hours, website, category, sellerId} = req.body;
 
         if (!name || !bio || !address || !sellerId || !opening_hours || !category) {
-            return next(new ValidationError("All fields are required!"));
+            throw new ValidationError("All fields are required!");
         }
 
         const shopData: any = {
@@ -351,7 +351,7 @@ export const createStripeConnectLink = async(
         const {sellerId} = req.body;
 
         if (!sellerId) {
-            return next(new ValidationError("Seller ID is required"));
+            throw new ValidationError("Seller ID is required");
         }
 
         const seller = await prisma.sellers.findUnique({
@@ -359,7 +359,7 @@ export const createStripeConnectLink = async(
         })
 
         if (!seller) {
-            return next(new ValidationError("Seller is not available with this ID"));
+            throw new ValidationError("Seller is not available with this ID");
         }
 
         const account = await stripe.accounts.create({
@@ -398,19 +398,19 @@ export const loginSeller = async (req: Request, res: Response, next: NextFunctio
         const {email, password} = req.body;
 
         if (!email || !password) {
-            return next(new ValidationError("Emai and Password are required!"));
+            throw new ValidationError("Email and Password are required!");
         }
 
         const seller = await prisma.sellers.findUnique({where: { email }});
 
         if (!seller) {
-            return next(new ValidationError("Seller doesn't exist!"));
+            throw new ValidationError("Seller doesn't exist!");
         }
 
         // Verify Password
         const isMatch = await bcrypt.compare(password, seller.password!);
         if (!isMatch) {
-            return next(new AuthError("Invalid email or password!"));
+            throw new AuthError("Invalid email or password!");
         }
 
         res.clearCookie("refresh_token");
@@ -461,7 +461,7 @@ export const addUserAddress = async(req: any, res: Response, next: NextFunction)
         const {label, name, street, city, zip, country, isDefault} = req.body;
 
         if(!label || !name || !street || !city || !zip || !country){
-            return next(new ValidationError("All fields are required"));
+            throw new ValidationError("All fields are required");
         }
 
         if(isDefault){
@@ -504,7 +504,7 @@ export const deleteUserAddress = async(req: any, res: Response, next: NextFuncti
         const {addressId} = req.params;
 
         if(!addressId){
-            return next(new ValidationError("Address ID is required"));
+            throw new ValidationError("Address ID is required");
         }
 
         const existingAddress = await prisma.address.findFirst({
@@ -515,7 +515,7 @@ export const deleteUserAddress = async(req: any, res: Response, next: NextFuncti
         });
 
         if(!existingAddress){
-            return next(new NotFoundError("Address not found or unauthorized"));
+            throw new NotFoundError("Address not found or unauthorized");
         }
 
         await prisma.address.delete({
