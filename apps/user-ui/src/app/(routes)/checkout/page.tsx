@@ -2,14 +2,16 @@
 import { loadStripe, Appearance } from '@stripe/stripe-js'; 
 import { Elements } from '@stripe/react-stripe-js';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
-import { XCircle } from 'lucide-react';
+import { XCircle, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import CheckoutForm from 'apps/user-ui/src/shared/components/checkout/CheckoutForm';
+import useRequiredAuth from 'apps/user-ui/src/hooks/useRequiredAuth';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 const Page = () => {
+    const { user, isLoading: authLoading } = useRequiredAuth();
     const [clientSecret, setClientSecret] = useState("");
     const [cartItems, setCartItems] = useState<any[]>([]);
     const [coupon, setCoupon] = useState();
@@ -45,7 +47,8 @@ const Page = () => {
 
                 setCartItems(cart);
                 setCoupon(coupon);
-                const sellersStripeAccountId = sellers[0].stripeAccountId;
+                const sellersStripeAccountId = sellers[0].stripeId;
+
                 const intentRes = await axiosInstance.post(
                     "/order/api/create-payment-intent", {
                         amount: coupon?.discountAmount ? totalAmount - coupon?.discountAmount : totalAmount,
@@ -69,6 +72,18 @@ const Page = () => {
     const appearance: Appearance = {
         theme: "stripe"
     };
+
+    if (authLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Loader2 className="animate-spin w-8 h-8" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
 
     if(loading) {
         return (
@@ -116,7 +131,7 @@ const Page = () => {
                 />
             </Elements>
         )
-    )
+    );
 }
 
-export default Page
+export default Page;

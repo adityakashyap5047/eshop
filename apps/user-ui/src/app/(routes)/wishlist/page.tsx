@@ -2,20 +2,32 @@
 
 import useDeviceInfo from 'apps/user-ui/src/hooks/useDeviceInfo';
 import useLocation from 'apps/user-ui/src/hooks/useLocation';
-import useUser from 'apps/user-ui/src/hooks/useUser'
+import useRequiredAuth from 'apps/user-ui/src/hooks/useRequiredAuth';
 import { useStore } from 'apps/user-ui/src/store';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const WishListPage = () => {
 
-    const { user } = useUser();
+    const { user, isLoading } = useRequiredAuth();
     const location = useLocation();
     const deviceInfo = useDeviceInfo();
     const addToCart = useStore((state: any) => state.addToCart)
     const removeFromWishList = useStore((state: any) => state.removeFromWhishList)
     const wishList = useStore((state: any) => state.whishList);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Loader2 className="animate-spin w-8 h-8" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
 
     const decreasingQuantity = (id: string) => {
         useStore.setState((state: any) => ({

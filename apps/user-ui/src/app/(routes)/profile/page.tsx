@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import useUser from "apps/user-ui/src/hooks/useUser";
+import useRequiredAuth from "apps/user-ui/src/hooks/useRequiredAuth";
 import QuickActionCard from "apps/user-ui/src/shared/components/cards/quick-action-card";
 import StatCard from "apps/user-ui/src/shared/components/cards/stat-card";
 import ShippingAddressSection from "apps/user-ui/src/shared/components/shippingAddress";
@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const page = () => {
-    const {user, isLoading} = useUser();
+    const {user, isLoading} = useRequiredAuth();
 
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -20,6 +20,19 @@ const page = () => {
     
     const queryTab = searchParams.get("active") || "Profile";
     const [activeTab, setActiveTab] = useState(queryTab);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Loader2 className="animate-spin w-8 h-8" />
+            </div>
+        );
+    }
+
+    // Don't render anything if user is not authenticated (will be redirected)
+    if (!user) {
+        return null;
+    }
 
     useEffect(() => {
         if(activeTab !== queryTab){

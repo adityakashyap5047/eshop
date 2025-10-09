@@ -4,12 +4,26 @@ import { useStore } from 'apps/user-ui/src/store';
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import { CheckCircle, Truck } from 'lucide-react';
+import { CheckCircle, Truck, Loader2 } from 'lucide-react';
+import useRequiredAuth from 'apps/user-ui/src/hooks/useRequiredAuth';
 
 const PaymentSuccessPage = () => {
+    const { user, isLoading } = useRequiredAuth();
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('sessionId');
     const router = useRouter();
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Loader2 className="animate-spin w-8 h-8" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return null;
+    }
 
     useEffect(() => {
         useStore.setState({cart: []});

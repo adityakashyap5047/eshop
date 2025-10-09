@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import useDeviceInfo from "apps/user-ui/src/hooks/useDeviceInfo";
 import useLocation from "apps/user-ui/src/hooks/useLocation";
-import useUser from "apps/user-ui/src/hooks/useUser";
+import useRequiredAuth from "apps/user-ui/src/hooks/useRequiredAuth";
 import { useStore } from "apps/user-ui/src/store";
 import axiosInstance from "apps/user-ui/src/utils/axiosInstance";
 import { Loader2, Trash2 } from "lucide-react";
@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 
 const Page = () => {
     const router = useRouter();
-    const {user} = useUser();
+    const {user, isLoading} = useRequiredAuth();
     const location = useLocation();
     const deviceInfo = useDeviceInfo();
     const cart = useStore((state: any) => state.cart);
@@ -88,6 +88,20 @@ const Page = () => {
             }
         }
     }, [addresses, selectedAddressId]);
+
+    // Show loading while checking authentication
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Loader2 className="animate-spin w-8 h-8" />
+            </div>
+        );
+    }
+
+    // Don't render anything if user is not authenticated (will be redirected)
+    if (!user) {
+        return null;
+    }
 
   return (
     <div className="w-full bg-white">
