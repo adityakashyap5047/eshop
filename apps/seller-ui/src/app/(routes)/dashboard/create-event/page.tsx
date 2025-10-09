@@ -210,7 +210,6 @@ const CreateEventPage = () => {
     // Implementation for saving draft
   }
 
-  // Get current date in YYYY-MM-DDTHH:MM format for datetime-local input
   const getCurrentDateTime = () => {
     const now = new Date();
     return now.toISOString().slice(0, 16);
@@ -225,7 +224,6 @@ const CreateEventPage = () => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <h2 className="text-2xl py-2 font-semibold font-Poppins text-white flex items-center gap-2">
-        <Calendar className="w-6 h-6 text-blue-500" />
         Create Event
       </h2>
       <div className="flex items-center">
@@ -462,7 +460,6 @@ const CreateEventPage = () => {
                 {errors.subCategory && <p className="text-red-500 text-sm mt-1">{errors.subCategory.message as string}</p>}
               </div>
 
-              {/* Event Date Section with Enhanced Styling */}
               <div className="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-600">
                 <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-blue-400" />
