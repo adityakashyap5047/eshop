@@ -46,13 +46,13 @@ const page = () => {
             await axiosInstance.get("/api/logout-user");
             
             logout();
-            router.push("/");
             queryClient.clear();
+            window.location.href = "/";
         } catch (error) {
             console.error("Logout error:", error);
             logout();
-            router.push("/");
             queryClient.clear();
+            window.location.href = "/";
         }
     };
 
