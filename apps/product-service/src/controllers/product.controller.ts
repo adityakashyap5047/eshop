@@ -54,7 +54,7 @@ export const createDiscountCode = async(req: any, res: Response, next: NextFunct
 
         return res.status(201).json({ success: true, discount_code });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 }
 
@@ -96,7 +96,7 @@ export const deleteDiscountCode = async(req: any, res: Response, next: NextFunct
 
         return res.status(200).json({ success: true, message: 'Discount code deleted successfully!' });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 }
 

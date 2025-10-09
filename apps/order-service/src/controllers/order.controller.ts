@@ -142,7 +142,7 @@ export const createPaymentSession = async(
 
         return res.status(201).json({sessionId});
     } catch (error) {
-        next(error);
+        return next(error);
     }
 }
 
@@ -544,6 +544,6 @@ export const updateDeliveryStatus = async(
 
         return res.status(200).json({success: true, order: updatedOrder, message: "Delivery status updated successfully"});
     } catch (error) {
-        next(error);
+        return next(error);
     }
 }
