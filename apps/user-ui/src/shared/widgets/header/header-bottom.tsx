@@ -44,25 +44,33 @@ const HeaderBottom = () => {
   return (
     <div className={`w-full transition-all duration-300 ${isSticky ? "fixed top-0 left-0 z-[100] bg-white shadow-lg" : "relative"}`}>
         <div className={`w-[80%] relative m-auto flex items-center justify-between ${isSticky ? 'pt-3' : 'py-0'}`}>
-            {/* All Dropdown  */}
+            {/* All Dropdown Container */}
             <div 
-                className={`w-[260px] ${isSticky && "-mb-2"} cursor-pointer flex items-center justify-between px-5 h-[50px] bg-[#3489ff]`}
+                className="relative"
                 onMouseEnter={() => setShow(true)}
                 onMouseLeave={() => setShow(false)}
             >
-                <div className="flex items-center gap-2">
-                    <AlignLeft color="#fff" />
-                    <span className="text-white font-medium">All Departments</span>
+                {/* Dropdown Trigger */}
+                <div 
+                    className={`w-[260px] ${isSticky && "-mb-2"} cursor-pointer flex items-center justify-between px-5 h-[50px] bg-[#3489ff]`}
+                >
+                    <div className="flex items-center gap-2">
+                        <AlignLeft color="#fff" />
+                        <span className="text-white font-medium">All Departments</span>
+                    </div>
+                    {!show ? <ChevronDown color="#fff" /> : <ChevronUp color="#fff" />}
                 </div>
-                {!show ? <ChevronDown color="#fff" /> : <ChevronUp color="#fff" />}
+
+                {/* Dropdown Menu  */}
+                {show && (
+                    <div className={`absolute left-0 ${isSticky ? "top-[50px]" : "top-[50px]"} w-[260px] h-[400px] bg-[#f5f5f5] shadow-lg border border-gray-200 z-50`}>
+                        {/* Add your dropdown content here */}
+                        <div className="p-4">
+                            <p className="text-gray-600">Dropdown menu content goes here</p>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {/* Dropdown Menu  */}
-            {show && (
-                <div className={`absolute left-0 ${isSticky ? "top-[70px]" : "top-[50px]"} w-[260px] h-[400px] bg-[#f5f5f5]`}>
-
-                </div>
-            )}
 
             {/* Navigation Links */}
             <div className="flex items-center">
