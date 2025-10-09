@@ -7,15 +7,24 @@ import { useEffect, useState } from "react";
 import useUser from 'apps/user-ui/src/hooks/useUser';
 import { useStore } from "apps/user-ui/src/store";
 
+interface UserType {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+    createdAt: string;
+    points?: number;
+}
+
 const HeaderBottom = () => {
 
     const [show, setShow] = useState(false);
     const [isSticky, setIsSticky] = useState(false);
-    const { user, isLoading } = useUser();
+    const { user: rawUser, isLoading } = useUser();
     const wishList = useStore((state: any) => state.whishList);
     const cart = useStore((state: any) => state.cart);
+    const user = rawUser as UserType;
 
-    //Track scroll position
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 100) {

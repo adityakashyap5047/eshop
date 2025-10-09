@@ -7,11 +7,21 @@ import HeaderBottom from './header-bottom'
 import useUser from 'apps/user-ui/src/hooks/useUser';
 import { useStore } from 'apps/user-ui/src/store';
 
+interface UserType {
+    id: string;
+    name: string;
+    email: string;
+    avatar?: string;
+    createdAt: string;
+    points?: number;
+}
+
 const Header = () => {
 
-    const { user, isLoading } = useUser();
+    const { user: rawUser, isLoading } = useUser();
     const wishList = useStore((state: any) => state.whishList);
     const cart = useStore((state: any) => state.cart);
+    const user = rawUser as UserType;
 
   return (
     <div className='w-full bg-white'>
