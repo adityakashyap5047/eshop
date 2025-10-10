@@ -512,7 +512,6 @@ export const updateDeliveryStatus = async(
     try {
         const { orderId } = req.params;
         const { deliveryStatus } = req.body;
-        console.log(orderId, deliveryStatus);
         if(!orderId || !deliveryStatus) {
             return res.status(400).json({error: "Order ID and delivery status are required"});
         }

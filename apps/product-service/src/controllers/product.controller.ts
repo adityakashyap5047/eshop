@@ -537,9 +537,10 @@ export const getFilteredEvents = async(req: Request, res: Response, next: NextFu
                 gte: parsedPriceRange[0],
                 lte: parsedPriceRange[1],
             },
-            NOT: {
-                starting_date: null,
-            }
+            AND: [
+                { starting_date: { not: null } },
+                { ending_date: { not: null } }
+            ]
         };
 
         if (categories && (categories as string[]).length > 0) {
@@ -570,6 +571,9 @@ export const getFilteredEvents = async(req: Request, res: Response, next: NextFu
                 include: {
                     images: true,
                     Shop: true,
+                },
+                orderBy: {
+                    totalSales: 'desc'
                 },
             }),
             prisma.products.count({ where: filters })

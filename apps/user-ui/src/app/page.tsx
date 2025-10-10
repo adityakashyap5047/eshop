@@ -46,7 +46,6 @@ const Page = () => {
     staleTime: 1000 * 60 * 2,
   });
 
-  console.log("offers", offers);
   return (
     <div className='bg-[#f5f5f5]'>
       <Hero />
