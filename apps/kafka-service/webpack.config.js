@@ -11,6 +11,7 @@ module.exports = {
   resolve: {
     alias: {
       "@packages": resolve(__dirname, '../../packages/'),
+      "packages": resolve(__dirname, '../../packages'),
     },
     extensions: ['.ts', '.js'],
   },
