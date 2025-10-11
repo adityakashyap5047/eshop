@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 
 const Page = () => {
     const router = useRouter();
@@ -52,17 +52,20 @@ const Page = () => {
                 setDiscountPercent(res.data.discount);
                 setDiscountedProductId(res.data.productId);
                 setCouponCode("");
+                toast.success("Coupon applied successfully!");
             } else {
                 setDiscountAmount(0);
                 setDiscountPercent(0);
                 setDiscountedProductId("");
                 setError(res.data.message || "Coupon is not valid for the items in the cart.");
+                toast.error(res.data.message || "Coupon is not valid for the items in the cart.");
             }
         } catch (error: any) {
             setDiscountAmount(0);
             setDiscountPercent(0);
             setDiscountedProductId("");
             setError(error?.response?.data.message || "Coupon is not valid for the items in the cart.");
+            toast.error(error?.response?.data.message || "Coupon is not valid for the items in the cart.");
         } finally {
             setIsCouponLoading(false);
         }

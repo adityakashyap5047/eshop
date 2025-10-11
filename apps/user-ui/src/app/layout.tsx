@@ -3,6 +3,7 @@ import './global.css';
 import { Poppins, Roboto, Oregano } from "next/font/google";
 import Providers from './providers';
 import Footer from '../shared/widgets/footer/footer';
+import { Toaster } from 'sonner';
 
 export const metadata = {
   title: 'Eshop',
@@ -39,6 +40,7 @@ export default function RootLayout({
           <Header />
           <main className='flex-1'>
             {children}
+            <Toaster richColors />
           </main>
           <Footer />
         </Providers>
