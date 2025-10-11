@@ -13,6 +13,16 @@ const PaymentSuccessPage = () => {
     const sessionId = searchParams.get('sessionId');
     const router = useRouter();
 
+    useEffect(() => {
+        useStore.setState({cart: []});
+
+        confetti({
+            particleCount: 120,
+            spread: 90,
+            origin: { y: 0.6 }
+        })
+    }, []);
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -24,16 +34,6 @@ const PaymentSuccessPage = () => {
     if (!user) {
         return null;
     }
-
-    useEffect(() => {
-        useStore.setState({cart: []});
-
-        confetti({
-            particleCount: 120,
-            spread: 90,
-            origin: { y: 0.6 }
-        })
-    }, []);
 
   return (
     <div className='min-h-[80vh] flex items-center justify-center px-4'>

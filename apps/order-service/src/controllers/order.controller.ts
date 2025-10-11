@@ -19,7 +19,6 @@ export const createPaymentIntent = async(
 ) => {
     try {
         const {amount, sellersStripeAccountId, sessionId} = req.body;
-
         const customerAmount = Math.round(amount * 100);
         const platformFee = Math.floor(customerAmount * 0.1);
 
@@ -542,6 +541,60 @@ export const updateDeliveryStatus = async(
         });
 
         return res.status(200).json({success: true, order: updatedOrder, message: "Delivery status updated successfully"});
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const verifyCouponCode = async(
+    req: any,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {couponCode, cart} = req.body;
+
+        if(!couponCode || !cart || cart.length === 0) {
+            throw new ValidationError("Coupon code and cart are required");
+        }
+
+        const discount = await prisma.discount_codes.findUnique({
+            where: {discountCode: couponCode}
+        })
+
+        if(!discount) {
+            throw new NotFoundError("Invalid coupon code");
+        }
+
+        const matchingProduct = cart.find((item: any) => item.discount_codes?.some((d: any) => d === discount.id));
+
+        if(!matchingProduct) {
+            return res.status(200).json({
+                valid: false,
+                discount: 0,
+                discountAmount: 0,
+                message: "No matching products are found in cart for this coupon"
+            })
+        }
+
+        let discountAmount = 0;
+        const price = matchingProduct.sale_price * matchingProduct.quantity;
+
+        if(discount.discountType === "percentage") {
+            discountAmount = (price * discount.discountValue) / 100;
+        } else if (discount.discountType === "flat") {
+            discountAmount = discount.discountValue;
+        }
+
+        discountAmount = Math.min(discountAmount, price);
+
+        return res.status(200).json({
+            valid: true,
+            discount: discount.discountValue,
+            discountAmount: discountAmount.toFixed(2),
+            discountedProductId: matchingProduct.id,
+            message: "Coupon applied successfully"
+        })
     } catch (error) {
         return next(error);
     }

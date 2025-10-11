@@ -36,7 +36,6 @@ const Page = () => {
                 );
 
                 const {totalAmount, sellers, cart, coupon} = verifyRes.data.session;
-
                 if(!sellers || 
                     sellers.length === 0 ||
                     totalAmount === undefined ||
@@ -47,8 +46,7 @@ const Page = () => {
 
                 setCartItems(cart);
                 setCoupon(coupon);
-                const sellersStripeAccountId = sellers[0].stripeId;
-
+                const sellersStripeAccountId = sellers[0].stripeAccountId;
                 const intentRes = await axiosInstance.post(
                     "/order/api/create-payment-intent", {
                         amount: coupon?.discountAmount ? totalAmount - coupon?.discountAmount : totalAmount,

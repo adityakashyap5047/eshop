@@ -22,11 +22,52 @@ const Page = () => {
     const removeFromCart = useStore((state: any) => state.removeFromCart);
 
     const [discountedProductId, setDiscountedProductId] = useState("");
-    const [discountPercet, setDiscountPercent] = useState(0);
+    const [discountPercent, setDiscountPercent] = useState(0);
     const [discountAmount, setDiscountAmount] = useState(0);
     const [couponCode, setCouponCode] = useState("");
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [storedCouponCode, setStoredCouponCode] = useState("");
+    const [isCouponLoading, setIsCouponLoading] = useState(false);
+
+    const couponCodeApplyHandler = async() => {
+        setError("");
+        setIsCouponLoading(true);
+        if(couponCode.trim() === "") {
+            setError("Please enter a coupon code.");
+            setIsCouponLoading(false);
+            return;
+        }
+
+        try {
+            const res = await axiosInstance.put("/order/api/verify-coupon", {
+                couponCode: couponCode.trim(),
+                cart
+            });
+
+            if(res.data.valid){
+                setStoredCouponCode(couponCode.trim());
+                setDiscountAmount(parseFloat(res.data.discountAmount));
+                setDiscountPercent(res.data.discount);
+                setDiscountedProductId(res.data.productId);
+                setCouponCode("");
+            } else {
+                setDiscountAmount(0);
+                setDiscountPercent(0);
+                setDiscountedProductId("");
+                setError(res.data.message || "Coupon is not valid for the items in the cart.");
+            }
+        } catch (error: any) {
+            setDiscountAmount(0);
+            setDiscountPercent(0);
+            setDiscountedProductId("");
+            setError(error?.response?.data.message || "Coupon is not valid for the items in the cart.");
+        } finally {
+            setIsCouponLoading(false);
+        }
+    }
+
     const createPaymentSession = async() => {
         if(!selectedAddressId) {
             toast.error("Please select a shipping address before proceeding.");
@@ -38,7 +79,12 @@ const Page = () => {
             const res = await axiosInstance.post("/order/api/create-payment-session", {
                 cart,
                 selectedAddressId,
-                coupon: {}
+                coupon: {
+                    code: storedCouponCode,
+                    discountAmount,
+                    discountPercent,
+                    discountedProductId,
+                },
             })
             const sessionId = res.data.sessionId;
             router.push(`/checkout?sessionId=${sessionId}`);
@@ -89,7 +135,6 @@ const Page = () => {
         }
     }, [addresses, selectedAddressId]);
 
-    // Show loading while checking authentication
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -98,7 +143,6 @@ const Page = () => {
         );
     }
 
-    // Don't render anything if user is not authenticated (will be redirected)
     if (!user) {
         return null;
     }
@@ -170,7 +214,7 @@ const Page = () => {
                                                         ${item.sale_price.toFixed(2)}
                                                     </span>{" "}
                                                     <span className="text-green-600 font-semibold">
-                                                        ${((item.sale_price * (100 - discountPercet)) / 100).toFixed(2)}
+                                                        ${((item.sale_price * (100 - discountPercent)) / 100).toFixed(2)}
                                                     </span>
                                                     <span className="text-xs text-green-700 bg-white">
                                                         Discount Applied
@@ -211,17 +255,18 @@ const Page = () => {
                         </table>
 
                         <div className="p-6 shadow-md w-full lg:w-[30%] bg-[#f9f9f9] rounded-lg">
-                            {discountAmount > 0 && (
-                                <div className="flex justify-between items-center text-[#010f1c] text-base font-medium pb-1">
-                                    <span className="font-jost">Discount ({discountPercet} % )</span>
-                                    <span className="text-green-600">- ${discountAmount.toFixed(2)}</span>
-                                </div>
-                            )}
+
 
                             <div className="flex justify-between items-center text-[#010f1c] text-[20px] font-[550] pb-3">
                                 <span className="font-jost">Subtotal</span>
-                                <span>${(subTotal - discountAmount).toFixed(2)}</span>
+                                <span>${subTotal.toFixed(2)}</span>
                             </div>
+                            {discountAmount > 0 && (
+                                <div className="flex justify-between items-center text-[#010f1c] text-base font-medium pb-1">
+                                    <span className="font-jost">Discount ({discountPercent}%)</span>
+                                    <span className="text-green-600">- ${discountAmount.toFixed(2)}</span>
+                                </div>
+                            )}
                             <hr className="my-4 text-slate-200"/>
                             <div className="mb-4">
                                 <h4 className="mb-[7px] font-[500] text-[15px]">
@@ -234,15 +279,16 @@ const Page = () => {
                                         className="w-full p-2 border border-gray-200 rounded-md focus:outline-none focus:border-blue-500"
                                     />
                                     <button
-                                        className="bg-blue-500 cursor-pointer text-white px-4 rounded-md hover:bg-blue-600 transition-all"
-                                        // onClick={}
+                                        disabled={isCouponLoading}
+                                        className={`bg-blue-500 text-white px-4 rounded-md hover:bg-blue-600 transition-all ${isCouponLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                                        onClick={() => couponCodeApplyHandler()}
                                     >
                                         Apply
                                     </button>
-                                    {/* {error && (
-                                        <p className="text-sm pt-2 text-red-500">{error}</p>
-                                    )} */}
                                 </div>
+                                {error && (
+                                    <p className="text-sm pt-2 text-red-500">{error}</p>
+                                )}
 
                                 <hr className="my-4 text-slate-200"/>
 

@@ -13,7 +13,6 @@ const CheckoutForm = ({
     coupon: any;
     sessionId: string | null;
 }) => {
-
   const stripe = useStripe();
   const elements = useElements();
 
@@ -68,9 +67,8 @@ const CheckoutForm = ({
               <span>${(item.quantity * item.sale_price).toFixed(2)}</span>
             </div>
           ))}
-
           <div className="flex justify-between font-semibold pt-2 border-t">
-            {coupon?.discountAmount && (
+            {coupon?.discountAmount > 0 && coupon?.discountAmount && (
               <>
                 <span>Discount</span>
                 <span className="text-green-600">
