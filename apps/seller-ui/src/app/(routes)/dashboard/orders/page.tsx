@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from "@tanstack/react-table";
 import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
-import { ChevronRightIcon, Eye, Search } from "lucide-react";
+import { ChevronRightIcon, Eye, Search, ShoppingCart, Clock, CheckCircle, DollarSign } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
@@ -20,6 +20,17 @@ const OrdersTable = () => {
         queryFn: fetchOrders,
         staleTime: 1000 * 60 * 5, 
     })
+
+    // Order statistics
+    const orderStats = useMemo(() => {
+        const total = orders.length;
+        const pending = orders.filter((order: any) => order.status === 'pending').length;
+        const completed = orders.filter((order: any) => order.status === 'delivered' || order.status === 'completed').length;
+        const cancelled = orders.filter((order: any) => order.status === 'cancelled').length;
+        const totalRevenue = orders.reduce((sum: number, order: any) => sum + order.total, 0);
+
+        return { total, pending, completed, cancelled, totalRevenue };
+    }, [orders]);
 
     const columns = useMemo(() => [
         {
@@ -95,6 +106,46 @@ const OrdersTable = () => {
                 </Link>
                 <ChevronRightIcon className="text-gray-200" size={20} />
                 <span className="text-white">All Orders</span>
+            </div>
+
+            {/* Order Statistics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Total Orders</p>
+                            <p className="text-white text-2xl font-bold">{orderStats.total}</p>
+                        </div>
+                        <ShoppingCart className="w-8 h-8 text-blue-400" />
+                    </div>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Pending Orders</p>
+                            <p className="text-yellow-400 text-2xl font-bold">{orderStats.pending}</p>
+                        </div>
+                        <Clock className="w-8 h-8 text-yellow-400" />
+                    </div>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Completed Orders</p>
+                            <p className="text-green-400 text-2xl font-bold">{orderStats.completed}</p>
+                        </div>
+                        <CheckCircle className="w-8 h-8 text-green-400" />
+                    </div>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Total Revenue</p>
+                            <p className="text-purple-400 text-2xl font-bold">${orderStats.totalRevenue.toLocaleString()}</p>
+                        </div>
+                        <DollarSign className="w-8 h-8 text-purple-400" />
+                    </div>
+                </div>
             </div>
 
             <div className="my-4 flex items-center bg-gray-900 p-2 rounded-md flex-1">

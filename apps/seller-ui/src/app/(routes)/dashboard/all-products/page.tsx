@@ -5,7 +5,7 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart, ChevronRightIcon, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
+import { BarChart, ChevronRightIcon, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2, Package, AlertTriangle, TrendingUp, ShoppingBag } from "lucide-react";
 import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete-confirmation-modal";
 
 const fetchProducts = async () => {
@@ -35,6 +35,17 @@ const ProductList = () => {
         queryFn: fetchProducts,
         staleTime: 5 * 60 * 1000,
     });
+
+    // Product statistics
+    const productStats = useMemo(() => {
+        const total = products.length;
+        const inStock = products.filter((product: any) => product.stock > 0).length;
+        const lowStock = products.filter((product: any) => product.stock > 0 && product.stock < 10).length;
+        const outOfStock = products.filter((product: any) => product.stock === 0).length;
+        const totalValue = products.reduce((sum: number, product: any) => sum + (product.sale_price * product.stock), 0);
+
+        return { total, inStock, lowStock, outOfStock, totalValue };
+    }, [products]);
 
     const columns = useMemo(() => [
         {
@@ -176,6 +187,46 @@ const ProductList = () => {
             </Link>
             <ChevronRightIcon className="text-gray-200" size={20} />
             <span className="text-white">All Products</span>
+        </div>
+
+        {/* Product Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-400 text-sm">Total Products</p>
+                        <p className="text-white text-2xl font-bold">{productStats.total}</p>
+                    </div>
+                    <Package className="w-8 h-8 text-blue-400" />
+                </div>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-400 text-sm">In Stock</p>
+                        <p className="text-green-400 text-2xl font-bold">{productStats.inStock}</p>
+                    </div>
+                    <ShoppingBag className="w-8 h-8 text-green-400" />
+                </div>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-400 text-sm">Low Stock</p>
+                        <p className="text-yellow-400 text-2xl font-bold">{productStats.lowStock}</p>
+                    </div>
+                    <AlertTriangle className="w-8 h-8 text-yellow-400" />
+                </div>
+            </div>
+            <div className="bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <p className="text-gray-400 text-sm">Total Value</p>
+                        <p className="text-purple-400 text-2xl font-bold">${productStats.totalValue.toLocaleString()}</p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-purple-400" />
+                </div>
+            </div>
         </div>
 
         <div className="mb-4 flex items-center bg-gray-900 p-2 rounded-md flex-1">

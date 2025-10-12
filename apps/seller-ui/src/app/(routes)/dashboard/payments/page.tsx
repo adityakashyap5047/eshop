@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table';
 import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
-import { ChevronRightIcon, Eye, Search } from 'lucide-react';
+import { ChevronRightIcon, Eye, Search, DollarSign, TrendingUp, Wallet, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import React, { useMemo, useState } from 'react'
 
@@ -20,6 +20,17 @@ const SellerPayments = () => {
         queryFn: fetchOrders,
         staleTime: 1000 * 60 * 5, 
     })
+
+    // Payment statistics
+    const paymentStats = useMemo(() => {
+        const totalOrders = orders.length;
+        const totalEarnings = orders.reduce((sum: number, order: any) => sum + (order.total * 0.9), 0); // 90% seller share
+        const totalRevenue = orders.reduce((sum: number, order: any) => sum + order.total, 0);
+        const paidOrders = orders.filter((order: any) => order.status === "Paid" || order.status === "delivered").length;
+        const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+        return { totalOrders, totalEarnings, totalRevenue, paidOrders, averageOrderValue };
+    }, [orders]);
 
     const columns = useMemo(() => [
         {
@@ -108,6 +119,46 @@ const SellerPayments = () => {
                 </Link>
                 <ChevronRightIcon className="text-gray-200" size={20} />
                 <span className="text-white">Payments</span>
+            </div>
+
+            {/* Payment Statistics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Total Earnings</p>
+                            <p className="text-green-400 text-2xl font-bold">${paymentStats.totalEarnings.toLocaleString()}</p>
+                        </div>
+                        <Wallet className="w-8 h-8 text-green-400" />
+                    </div>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Total Revenue</p>
+                            <p className="text-blue-400 text-2xl font-bold">${paymentStats.totalRevenue.toLocaleString()}</p>
+                        </div>
+                        <DollarSign className="w-8 h-8 text-blue-400" />
+                    </div>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Paid Orders</p>
+                            <p className="text-purple-400 text-2xl font-bold">{paymentStats.paidOrders}</p>
+                        </div>
+                        <CreditCard className="w-8 h-8 text-purple-400" />
+                    </div>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-gray-400 text-sm">Avg. Order Value</p>
+                            <p className="text-yellow-400 text-2xl font-bold">${paymentStats.averageOrderValue.toFixed(0)}</p>
+                        </div>
+                        <TrendingUp className="w-8 h-8 text-yellow-400" />
+                    </div>
+                </div>
             </div>
 
             <div className="my-4 flex items-center bg-gray-900 p-2 rounded-md flex-1">
