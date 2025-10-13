@@ -19,26 +19,22 @@ const OrdersTable = () => {
         {
             accessorKey: "id",
             header: "Order ID",
-            cell: ({info}: any) => info.getValue()?.slice(-6),
+            cell: ({row}: any) => row.original.id?.slice(-6),
         },
         {
             accessorKey: "status",
             header: "Status",
-        },
-        {
-            accessorKey: "total",
-            header: "Total",
-            cell: ({row}: any) => <span>${row.original.total}</span>
+            cell: ({row}: any) => row.original.status,
         },
         {
             accessorKey: "total",
             header: "Total ($)",
-            cell: ({info}: any) => `$${info.getValue()?.toFixed(2)}`
+            cell: ({row}: any) => `$${row.original.total?.toFixed(2)}`
         },
         {
             accessorKey: "createdAt",
             header: "Date",
-            cell: ({info}: any) => new Date(info.getValue()).toLocaleDateString()
+            cell: ({row}: any) => new Date(row.original.createdAt).toLocaleDateString('en-GB')
         },
         {
             id: "actions",
