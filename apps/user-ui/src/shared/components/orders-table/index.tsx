@@ -66,22 +66,16 @@ const OrdersTable = () => {
 
     return (
         <div className="overflow-x-auto">
-            {data?.length === 0 && (
-                <p className="text-center h-[30vh] items-center flex justify-center">
-                    No Orders available yet!
-                </p>
-            )}
-
             <table className="w-full text-sm border-collapse">
                 <thead>
-                    {table.getHeaderGroups().map(headerGroup => (
+                    {table.getHeaderGroups().map((headerGroup, idx) => (
                         <tr
-                            key={headerGroup.id}
+                            key={idx}
                             className="border-b border-b-gray-200 text-left"
                         >
-                            {headerGroup.headers.map(header => (
+                            {headerGroup.headers.map((header, idx) => (
                                 <th
-                                    key={header.id}
+                                    key={idx}
                                     className="py-2 px-3 font-semibold text-gray-700"
                                 >
                                     {flexRender(
@@ -95,14 +89,14 @@ const OrdersTable = () => {
                 </thead>
 
                 <tbody>
-                    {table.getRowModel().rows.map(row => (
+                    {table.getRowModel().rows.map((row, rowIdx) => (
                         <tr
-                            key={row.id}
+                            key={rowIdx}
                             className="border-b border-b-gray-200 hover:bg-gray-50 cursor-pointer"
                         >
-                            {row.getVisibleCells().map(cell => (
+                            {row.getVisibleCells().map((cell, idx) => (
                                 <td
-                                    key={cell.id}
+                                    key={idx}
                                     className="py-2 px-3 text-gray-600"
                                 >
                                     {flexRender(
@@ -115,6 +109,12 @@ const OrdersTable = () => {
                     ))}
                 </tbody>
             </table>
+
+            {data?.length === 0 && (
+                <p className="text-center h-[30vh] items-center flex justify-center">
+                    No Orders available yet!
+                </p>
+            )}
         </div>
     )
 }
