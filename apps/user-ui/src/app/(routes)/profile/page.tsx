@@ -11,6 +11,7 @@ import { BadgeCheck, Bell, CheckCircle, Clock, Gift, Inbox, Loader2, Lock, LogOu
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import OrdersTable from "apps/user-ui/src/shared/components/orders-table";
 
 interface UserType {
     id: string;
@@ -184,6 +185,8 @@ const page = () => {
                             </div>
                         ) : activeTab === "Shipping Address" ? (
                             <ShippingAddressSection />
+                        ) : activeTab === "My Orders" ? (
+                            <OrdersTable />
                         ) : (
                             <div>
                                 <p>Welcome to Eshop</p>
