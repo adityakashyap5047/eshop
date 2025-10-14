@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useRequiredAuth from "apps/user-ui/src/hooks/useRequiredAuth";
 import { useAuthStore } from "apps/user-ui/src/store/authStore";
 import QuickActionCard from "apps/user-ui/src/shared/components/cards/quick-action-card";
@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import OrdersTable from "apps/user-ui/src/shared/components/orders-table";
+import ChangePassword from "apps/user-ui/src/shared/components/change-password";
 
 interface UserType {
     id: string;
@@ -57,6 +58,18 @@ const page = () => {
         }
     };
 
+    const {data: orders = []} = useQuery({
+        queryKey: ["user-orders"],
+        queryFn: async() => {
+            const res = await axiosInstance.get("/order/api/get-user-orders");
+            return res.data.orders;
+        }
+    })
+
+    const totalOrders = orders.length;
+    const processingOrders = orders.filter((order: any) => order?.deliveryStatus !== "Delivered" && order?.deliveryStatus !== "Cancelled").length;
+    const completedOrders = orders.filter((order: any) => order?.deliveryStatus === "Delivered").length; 
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-screen">
@@ -89,17 +102,17 @@ const page = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     <StatCard
                         title="Total Orders"
-                        count={10}
+                        count={totalOrders}
                         Icon={Clock}
                     />
                     <StatCard
                         title="Processing Orders"
-                        count={4}
+                        count={processingOrders}
                         Icon={Truck}
                     />
                     <StatCard
                         title="Completed Orders"
-                        count={3}
+                        count={completedOrders}
                         Icon={CheckCircle}
                     />
                 </div>
@@ -187,6 +200,8 @@ const page = () => {
                             <ShippingAddressSection />
                         ) : activeTab === "My Orders" ? (
                             <OrdersTable />
+                            ) : activeTab === "Change Password" ? (
+                                <ChangePassword />
                         ) : (
                             <div>
                                 <p>Welcome to Eshop</p>
