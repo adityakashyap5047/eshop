@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getSeller, getUser, getUserAddresses, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getSeller, getUser, getUserAddresses, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import { isSeller } from "@packages/middleware/authorizeRoles";
 
@@ -28,6 +28,9 @@ router.post("/forgot-password-user", forgotPassword)
 
 // Reset password
 router.post("/reset-password-user", resetPassword)
+
+// Change password
+router.post("/change-password", isAuthenticated, updateUserPassword);
 
 // Verify forgot password otp
 router.post("/verify-forgot-password-user", verifyUserForgotPassword)

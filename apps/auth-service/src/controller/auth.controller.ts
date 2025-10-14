@@ -238,6 +238,52 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     }
 }
 
+export const updateUserPassword = async(
+    req: any,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const userId = req.user?.id;
+        const {currentPassword, newPassword, confirmPassword} = req.body;
+
+        if(!currentPassword || !newPassword || !confirmPassword){
+            throw new ValidationError("All fields are required");
+        }
+
+        if(newPassword !== confirmPassword){
+            throw new ValidationError("New password and confirm password must be same");
+        }
+
+        if(currentPassword === newPassword){
+            throw new ValidationError("New password must be different from current password");
+        }
+
+        const user = await prisma.users.findUnique({where: {id: userId}});
+
+        if(!user || !user.password){
+            throw new NotFoundError("User not found");
+        }
+
+        const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+
+        if(!isPasswordCorrect){
+            throw new ValidationError("Current password is incorrect");
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+        await prisma.users.update({
+            where: {id: userId},
+            data: {password: hashedPassword}
+        });
+
+        res.status(200).json({message: "Password updated successfully!"});
+    } catch (error) {
+        next(error);
+    }
+}
+
 // Register a new seller
 export const registerSeller = async(req: Request, res: Response, next: NextFunction) => {
     try {
