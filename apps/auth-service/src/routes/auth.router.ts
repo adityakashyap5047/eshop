@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getSeller, getUser, getUserAddresses, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import { isSeller } from "@packages/middleware/authorizeRoles";
 
@@ -47,6 +47,9 @@ router.post("/create-stripe-link", createStripeConnectLink);
 router.post("/login-seller", loginSeller);
 
 router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
+
+// Admin Service Routes
+router.post("/login-admin", loginAdmin);
 
 // User Service ---> Handling Address
 router.post("/add-address", isAuthenticated, addUserAddress);

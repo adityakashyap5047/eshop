@@ -84,7 +84,7 @@ const Page = () => {
               className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors ${loginMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {loginMutation.isPending ? (
-                <div className="h-6 w-6 border-2 border-gray-100 border-t-transparent rounded-full animate-spin" />
+                <div className="h-6 w-6 border-2 border-gray-100 border-t-transparent rounded-full animate-spin mx-auto" />
               ) : 'Login'}
             </button>
           </div>

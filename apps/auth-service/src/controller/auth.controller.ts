@@ -499,6 +499,66 @@ export const getSeller = async(req: any, res: Response, next: NextFunction) => {
     }
 }
 
+// Login Admin
+export const loginAdmin = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {email, password} = req.body;
+
+        if(!email || !password){
+            throw new ValidationError("Email and Password are required");
+        }
+
+        const user = await prisma.users.findUnique({
+            where: { email }
+        });
+
+        if(!user) return next(new AuthError("User's not found"));
+
+        // verify password
+        const isMatch = await bcrypt.compare(password, user.password!);
+        if(!isMatch){
+            throw new AuthError("Invalid email or password");
+        }
+
+        const isAdmin = user.role === "admin";
+
+        if(!isAdmin){
+            throw new AuthError("Unauthorized! Not an admin");
+        }
+
+        res.clearCookie("seller-access-token");
+        res.clearCookie("seller-refresh-token");
+        res.clearCookie("access_token");
+        res.clearCookie("refresh_token");
+
+        const accessToken = jwt.sign(
+            { id: user.id, role: "admin" },
+            process.env.ACCESS_TOKEN_SECRET as string,
+            { expiresIn: '15m' }
+        );
+
+        const refreshToken = jwt.sign(
+            { id: user.id, role: "admin" },
+            process.env.REFRESH_TOKEN_SECRET as string,
+            { expiresIn: '7d' }
+        );
+
+        setCookie(res, "refresh_token", refreshToken);
+        setCookie(res, "access_token", accessToken);
+
+        res.status(200).json({
+            message: "Admin login successful",
+            user: { id: user.id, email: user.email, name: user.name },
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
 // User - Service 
 // Add New Address
 export const addUserAddress = async(req: any, res: Response, next: NextFunction) => {
