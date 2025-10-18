@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery } from '@tanstack/react-query';
 import { flexRender, getCoreRowModel, getFilteredRowModel, useReactTable } from '@tanstack/react-table';
 import axiosInstance from 'apps/admin-ui/src/utils/axiosInstance'
