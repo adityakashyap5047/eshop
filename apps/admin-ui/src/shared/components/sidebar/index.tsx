@@ -10,15 +10,15 @@ import useSidebar from "apps/admin-ui/src/hooks/useSidebar";
 import useAdmin from "apps/admin-ui/src/hooks/useAdmin";
 import Box from "../box";
 import { Sidebar } from "./sidebar.styles";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
-import { AxiosError } from "axios";
 
 const SidebarWrapper = () => {
 
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
   const { admin } = useAdmin();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setActiveSidebar(pathName);
@@ -34,10 +34,13 @@ const SidebarWrapper = () => {
       return response.data;
     },
     onSuccess: () => {
+      queryClient.clear();
+      queryClient.removeQueries({ queryKey: ["admin"] });
       window.location.href = "/";
     },
-    onError: (error: AxiosError) => {
-      console.error("Logout failed:", error);
+    onError: () => {
+      queryClient.clear();
+      window.location.href = "/";
     }
   });
 
