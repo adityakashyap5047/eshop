@@ -21,7 +21,6 @@ const OrdersTable = () => {
         staleTime: 1000 * 60 * 5, 
     })
 
-    // Order statistics
     const orderStats = useMemo(() => {
         const total = orders.length;
         const pending = orders.filter((order: any) => order.status === 'pending').length;
