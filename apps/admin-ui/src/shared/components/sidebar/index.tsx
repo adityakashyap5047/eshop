@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { BadgeDollarSign, BellPlus, BellRing, FileClock, LayoutDashboard, List, LogOut, PackageSearch, PencilRuler, Settings, Store, Table2, Users } from "lucide-react";
+import { BadgeDollarSign, BellPlus, BellRing, FileClock, LayoutDashboard, List, Loader2, LogOut, PackageSearch, PencilRuler, Settings, Store, Table2, Users } from "lucide-react";
 import SidebarItem from "./sidebar.item";
 import SidebarMenu from "./sidebar.menu";
 import useSidebar from "apps/admin-ui/src/hooks/useSidebar";
@@ -17,7 +17,7 @@ const SidebarWrapper = () => {
 
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
-  const { admin } = useAdmin();
+  const { admin, isLoading } = useAdmin();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -46,6 +46,24 @@ const SidebarWrapper = () => {
 
   const handleLogout = () => {
     logoutMutation.mutate();
+  }
+
+  if(isLoading || !admin){
+    return <Box 
+      css={{
+        height: "100vh",
+        zIndex: 202,
+        position: "sticky",
+        padding: "8px",
+        top: "0",
+        overflowY: "scroll",
+        scrollbarWidth: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      className="sidebar-wrapper"
+    ><Loader2 className="animate-spin w-6 h-6" /></Box>
   }
 
   return (
