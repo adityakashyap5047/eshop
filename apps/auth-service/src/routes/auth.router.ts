@@ -1,7 +1,7 @@
 import express, { Router } from "express";
-import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getAdmin, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutAdmin, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
-import { isSeller } from "@packages/middleware/authorizeRoles";
+import { isAdmin, isSeller } from "@packages/middleware/authorizeRoles";
 
 const router: Router = express.Router();
 
@@ -50,6 +50,8 @@ router.get("/logged-in-seller", isAuthenticated, isSeller, getSeller);
 
 // Admin Service Routes
 router.post("/login-admin", loginAdmin);
+router.get("/logged-in-admin", isAuthenticated, isAdmin, getAdmin);
+router.get("/logout-admin", isAuthenticated, isAdmin, logOutAdmin);
 
 // User Service ---> Handling Address
 router.post("/add-address", isAuthenticated, addUserAddress);

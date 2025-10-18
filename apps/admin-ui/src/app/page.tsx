@@ -19,13 +19,13 @@ const Page = () => {
 
   const loginMutation = useMutation({
     mutationFn: async(data: FormData) => {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/login-admin`, 
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-admin`, 
         data,
         { withCredentials: true }
       );
       return response.data;
     },
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       setServerError(null);
       router.push('/dashboard');
     },

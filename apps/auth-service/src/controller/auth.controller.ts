@@ -559,6 +559,27 @@ export const loginAdmin = async(
     }
 }
 
+export const getAdmin = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const admin = req.admin;
+        res.status(201).json({
+            success: true,
+            admin,
+        })
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const logOutAdmin = async(req: any, res: Response) => {
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+
+    res.status(201).json({
+        success: true
+    })
+}
+
 // User - Service 
 // Add New Address
 export const addUserAddress = async(req: any, res: Response, next: NextFunction) => {
