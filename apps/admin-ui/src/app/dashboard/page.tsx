@@ -3,6 +3,7 @@
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import GeographicalMap from "../../shared/chars/geograhicalMap";
+import SalesChart from "../../shared/chars/sales-chart";
 
 
 const deviceData = [
@@ -115,6 +116,7 @@ const DashboardPage = () => {
               Last 6 months performance
             </span>
           </h2>
+          <SalesChart />
           </div>
         </div>
         <div className="w-[35%] rounded-2xl shadow-xl">
