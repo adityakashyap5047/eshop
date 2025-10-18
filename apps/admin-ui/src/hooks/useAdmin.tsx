@@ -25,7 +25,6 @@ const useAdmin = () => {
         queryFn: fetchAdmin,
         staleTime: 5 * 60 * 1000,
         retry: (failureCount, error) => {
-            // Don't retry on authentication errors
             if (error instanceof AxiosError && (error.response?.status === 401 || error.response?.status === 403)) {
                 return false;
             }
