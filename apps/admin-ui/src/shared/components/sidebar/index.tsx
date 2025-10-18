@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { BadgeDollarSign, BellPlus, BellRing, CalendarPlus, LayoutDashboard, List, LogOut, Mail, PackageSearch, Settings, SquarePlus, Table2, TicketPercent } from "lucide-react";
+import { BadgeDollarSign, BellPlus, BellRing, FileClock, LayoutDashboard, List, LogOut, PackageSearch, PencilRuler, Settings, Store, Table2, Users } from "lucide-react";
 import SidebarItem from "./sidebar.item";
 import SidebarMenu from "./sidebar.menu";
 import useSidebar from "apps/admin-ui/src/hooks/useSidebar";
@@ -63,10 +63,10 @@ const SidebarWrapper = () => {
     >
       <Sidebar.Header>
         <Box>
-          <Link href={"/"} className="flex justify-center text-center gap-2">
+          <Link href={"/"} className="flex justify-center items-center text-center gap-2">
             <Table2 size={28} />
             <Box>
-              <h3 className="text-xl font-medium text-[#ecedee]">{admin?.name}</h3>
+              <h3 className="text-xl text-left pl-2 font-medium text-[#ecedee]">{admin?.name}</h3>
               <h5 className="font-medium pl-2 text-xs text-[#ecedeecf] whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px]">
                 {admin?.email}
               </h5>
@@ -96,47 +96,43 @@ const SidebarWrapper = () => {
                 href="/dashboard/payments"
                 icon={<BadgeDollarSign size={26} color={getIconColor("/dashboard/payments")} />}
               />
-            </SidebarMenu>
-            <SidebarMenu title="Products">
               <SidebarItem 
-                isActive={activeSidebar === "/dashboard/create-product"}
-                title="Create Product"
-                href="/dashboard/create-product"
-                icon={<SquarePlus size={24} color={getIconColor("/dashboard/create-product")} />}
-              />
-              <SidebarItem 
-                isActive={activeSidebar === "/dashboard/all-products"}
-                title="All Products"
-                href="/dashboard/all-products"
-                icon={<PackageSearch size={22} color={getIconColor("/dashboard/all-products")} />}
-              />
-            </SidebarMenu>
-            <SidebarMenu title="Events">
-              <SidebarItem
-                isActive={activeSidebar === "/dashboard/create-event"}
-                title="Create Event"
-                href="/dashboard/create-event"
-                icon={<CalendarPlus size={24} color={getIconColor("/dashboard/create-event")} />}
+                isActive={activeSidebar === "/dashboard/products"}
+                title="Products"
+                href="/dashboard/products"
+                icon={<PackageSearch size={26} color={getIconColor("/dashboard/products")} />}
               />
               <SidebarItem
-                isActive={activeSidebar === "/dashboard/all-events"}
-                title="All Events"
-                href="/dashboard/all-events"
-                icon={<BellPlus size={24} color={getIconColor("/dashboard/all-events")} />}
+                isActive={activeSidebar === "/dashboard/events"}
+                title="Events"
+                href="/dashboard/events"
+                icon={<BellPlus size={24} color={getIconColor("/dashboard/events")} />}
+              />
+              <SidebarItem
+                isActive={activeSidebar === "/dashboard/users"}
+                title="Users"
+                href="/dashboard/users"
+                icon={<Users size={24} color={getIconColor("/dashboard/users")} />}
+              />
+              <SidebarItem
+                isActive={activeSidebar === "/dashboard/sellers"}
+                title="Sellers"
+                href="/dashboard/sellers"
+                icon={<Store size={24} color={getIconColor("/dashboard/sellers")} />}
               />
             </SidebarMenu>
             <SidebarMenu title="Controllers">
               <SidebarItem 
-                isActive={activeSidebar === "/dashboard/inbox"}
-                title="Inbox"
-                href="/dashboard/inbox"
-                icon={<Mail size={20} color={getIconColor("/dashboard/inbox")} />}
+                isActive={activeSidebar === "/dashboard/loggers"}
+                title="Loggers"
+                href="/dashboard/loggers"
+                icon={<FileClock size={20} color={getIconColor("/dashboard/loggers")} />}
               />
               <SidebarItem 
-                isActive={activeSidebar === "/dashboard/settings"}
-                title="Settings"
-                href="/dashboard/settings"
-                icon={<Settings size={22} color={getIconColor("/dashboard/settings")} />}
+                isActive={activeSidebar === "/dashboard/management"}
+                title="Management"
+                href="/dashboard/management"
+                icon={<Settings size={22} color={getIconColor("/dashboard/management")} />}
               />
               <SidebarItem 
                 isActive={activeSidebar === "/dashboard/notifications"}
@@ -145,18 +141,20 @@ const SidebarWrapper = () => {
                 icon={<BellRing size={24} color={getIconColor("/dashboard/notifications")} />}  
               />
             </SidebarMenu>
-            <SidebarMenu title="Extras">
+            <SidebarMenu title="Customization">
               <SidebarItem
-                isActive={activeSidebar === "/dashboard/discount-codes"}
-                title="Discount Codes"
-                href="/dashboard/discount-codes"
+                isActive={activeSidebar === "/dashboard/customizations"}
+                title="Customizations"
+                href="/dashboard/customizations"
                 icon={
-                  <TicketPercent
+                  <PencilRuler
                     size={22}
-                    color={getIconColor("/dashboard/discount-codes")}
+                    color={getIconColor("/dashboard/customizations")}
                   />
                 }
               />
+            </SidebarMenu>
+            <SidebarMenu title="Extras">
               <button onClick={handleLogout} className='my-1 block w-full'>
                 <div className={`flex gap-2 w-full min-h-12 h-full items-center px-[13px] rounded-lg cursor-pointer transition hover:bg-[#2b2f31]`}>
                   {<LogOut size={20} color={getIconColor("/logout")} />}
