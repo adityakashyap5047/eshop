@@ -266,7 +266,7 @@ const EventList = () => {
             <Search size={18} className="text-gray-400 mr-2" />
             <input
                 type="text"
-                placeholder="Search products..."
+                placeholder="Search Events..."
                 className="bg-transparent outline-none flex-1 text-white placeholder-gray-500"
                 value={globalFilter}
                 onChange={(e) => setGlobalFilter(e.target.value)}
@@ -275,7 +275,7 @@ const EventList = () => {
 
         <div className="overflow-x-auto bg-gray-900 rounded-lg p-4">
             {isLoading ? (
-                <p className="text-center text-white">Loading products...</p>
+                <p className="text-center text-white">Loading Events...</p>
             ) : (
                 <table className="w-full text-white">
                     <thead>
