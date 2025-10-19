@@ -77,7 +77,7 @@ const OrdersTable = () => {
       accessorKey: "createdAt",
       header: "Date",
       cell: ({row}: any) => {
-          const date = new Date(row.original.createdAt).toLocaleDateString();
+        const date = new Date(row.original.createdAt).toLocaleDateString('en-GB');
           return <span className="text-white text-sm">{date}</span>;
       }
     },

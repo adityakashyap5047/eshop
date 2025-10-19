@@ -4,11 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useDeferredValue, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRightIcon, Eye, Search, Star, Package, AlertTriangle, TrendingUp, ShoppingBag, Download } from "lucide-react";
+import { ChevronRightIcon, Eye, Search, Star, Download, Calendar, Clock } from "lucide-react";
 import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
 import { saveAs } from "file-saver"
 
-const ProductList = () => {
+const EventList = () => {
 
     const [globalFilter, setGlobalFilter] = useState("");
     const diferredFilter = useDeferredValue(globalFilter);
@@ -16,10 +16,10 @@ const ProductList = () => {
     const limit = 10;
 
     const {data, isLoading} = useQuery({
-      queryKey: ["all-products", page],
+      queryKey: ["all-events", page],
       queryFn: async() => {
         const res = await axiosInstance.get(
-          `/admin/api/get-all-products?page=${page}&limit=${limit}`
+          `/admin/api/get-all-events?page=${page}&limit=${limit}`
         );
         return res.data;
       },
@@ -39,17 +39,17 @@ const ProductList = () => {
     }, [products, diferredFilter]);
 
     const totalPages = Math.ceil((data?.meta?.totalProducts ?? 0) / limit);
-    
-    // Product statistics
-    const productStats = useMemo(() => {
-      const total = filteredProducts.length;
-      const inStock = filteredProducts.filter((product: any) => product.stock > 0).length;
-      const lowStock = filteredProducts.filter((product: any) => product.stock > 0 && product.stock < 10).length;
-      const outOfStock = filteredProducts.filter((product: any) => product.stock === 0).length;
-      const totalValue = filteredProducts.reduce((sum: number, product: any) => sum + (product.sale_price * product.stock), 0);
 
-      return { total, inStock, lowStock, outOfStock, totalValue };
-    }, [filteredProducts]);
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
     const columns = useMemo(() => [
         {
@@ -122,13 +122,20 @@ const ProductList = () => {
           )
         },
         {
-          accessorKey: "createdAt",
-          header: "CreatedAt",
-          cell: ({row}: any) => (
-              <div className="flex items-center">
-                  <span className="text-white">{new Date(row.original?.createdAt).toLocaleDateString('en-GB')}</span>
-              </div>
-          )
+            accessorKey: "dates",
+            header: "Event Period",
+            cell: ({row}: any) => (
+                <div className="flex flex-col text-sm">
+                    <div className="flex items-center gap-1 text-green-400">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatDate(row.original?.starting_date)}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-red-400">
+                        <Clock className="w-3 h-3" />
+                        <span>{formatDate(row.original?.ending_date)}</span>
+                    </div>
+                </div>
+            )
         },
         {
             header: "Actions",
@@ -156,6 +163,34 @@ const ProductList = () => {
       onGlobalFilterChange: setGlobalFilter,
     });
 
+    const getEventStatus = (startDate: string, endDate: string) => {
+        const now = new Date();
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        if (now < start) {
+            return { status: 'upcoming', color: 'text-blue-400', text: 'Upcoming' };
+        } else if (now >= start && now <= end) {
+            return { status: 'active', color: 'text-green-400', text: 'Active' };
+        } else {
+            return { status: 'ended', color: 'text-red-400', text: 'Ended' };
+        }
+    };
+
+    const eventStats = useMemo(() => {
+        const upcoming = filteredProducts.filter((event: any) => 
+            getEventStatus(event.starting_date, event.ending_date).status === 'upcoming'
+        ).length;
+        const active = filteredProducts.filter((event: any) => 
+            getEventStatus(event.starting_date, event.ending_date).status === 'active'
+        ).length;
+        const ended = filteredProducts.filter((event: any) => 
+            getEventStatus(event.starting_date, event.ending_date).status === 'ended'
+        ).length;
+
+        return { upcoming, active, ended, total: filteredProducts.length };
+    }, [filteredProducts]);
+
     const exportCSV = () => {
       const csvData = filteredProducts.map(
         (p: any) => 
@@ -165,13 +200,13 @@ const ProductList = () => {
         [`Title,Price,Stock,Category,Rating,Shop\n${csvData.join("\n")}`],
         {type: "text/csv;charset=utf-8"}
       );
-      saveAs(blob, `products-page-${page}.csv`);
+      saveAs(blob, `event-page-${page}.csv`);
     };
 
   return (
     <div className="w-full min-h-screen p-8">
         <div className="flex justify-between items-center mb-1">
-            <h2 className="text-2xl text-white font-semibold">All Products</h2>
+            <h2 className="text-2xl text-white font-semibold">Events</h2>
             <button
               onClick={exportCSV}
               className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md flex justify-center items-center gap-4"
@@ -185,45 +220,44 @@ const ProductList = () => {
                 Dashboard            
             </Link>
             <ChevronRightIcon className="text-gray-200" size={20} />
-            <span className="text-white">Products</span>
+            <span className="text-white">Events</span>
         </div>
 
-        {/* Product Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-gray-800 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-gray-400 text-sm">Total Products</p>
-                        <p className="text-white text-2xl font-bold">{productStats.total}</p>
+                        <p className="text-gray-400 text-sm">Total Events</p>
+                        <p className="text-white text-2xl font-bold">{eventStats.total}</p>
                     </div>
-                    <Package className="w-8 h-8 text-blue-400" />
+                    <Calendar className="w-8 h-8 text-blue-400" />
                 </div>
             </div>
             <div className="bg-gray-800 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-gray-400 text-sm">In Stock</p>
-                        <p className="text-green-400 text-2xl font-bold">{productStats.inStock}</p>
+                        <p className="text-gray-400 text-sm">Active Events</p>
+                        <p className="text-green-400 text-2xl font-bold">{eventStats.active}</p>
                     </div>
-                    <ShoppingBag className="w-8 h-8 text-green-400" />
+                    <Clock className="w-8 h-8 text-green-400" />
                 </div>
             </div>
             <div className="bg-gray-800 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-gray-400 text-sm">Low Stock</p>
-                        <p className="text-yellow-400 text-2xl font-bold">{productStats.lowStock}</p>
+                        <p className="text-gray-400 text-sm">Upcoming Events</p>
+                        <p className="text-blue-400 text-2xl font-bold">{eventStats.upcoming}</p>
                     </div>
-                    <AlertTriangle className="w-8 h-8 text-yellow-400" />
+                    <Calendar className="w-8 h-8 text-blue-400" />
                 </div>
             </div>
             <div className="bg-gray-800 p-4 rounded-lg">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-gray-400 text-sm">Total Value</p>
-                        <p className="text-purple-400 text-2xl font-bold">${productStats.totalValue.toLocaleString()}</p>
+                        <p className="text-gray-400 text-sm">Ended Events</p>
+                        <p className="text-red-400 text-2xl font-bold">{eventStats.ended}</p>
                     </div>
-                    <TrendingUp className="w-8 h-8 text-purple-400" />
+                    <Clock className="w-8 h-8 text-red-400" />
                 </div>
             </div>
         </div>
@@ -296,4 +330,4 @@ const ProductList = () => {
   )
 }
 
-export default ProductList
+export default EventList
