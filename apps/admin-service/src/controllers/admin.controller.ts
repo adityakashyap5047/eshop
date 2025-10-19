@@ -1,3 +1,4 @@
+import { ValidationError } from "@packages/error-handler";
 import prisma from "@packages/libs/prisma";
 import { Request, Response, NextFunction } from "express";
 
@@ -122,6 +123,54 @@ export const getAllEvents = async (req: Request, res: Response, next: NextFuncti
         
     } catch (error) {
         return next(error);
+    }
+}
+
+export const getAllAdmins = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const admins = await prisma.users.findMany({
+            where: {role: "admin"}
+        })
+
+        res.status(200).json({
+            success: true,
+            admins
+        });
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const addNewAdmin = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const {email, role} = req.body;
+
+        const isUser = await prisma.users.findUnique({where: {email}});
+        if(!isUser) {
+            throw new ValidationError("Unauthorized");
+        }
+
+        const newAdmin = await prisma.users.update({
+            where: { email },
+            data: {
+                role,
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            newAdmin
+        });
+    } catch (error) {
+        next(error);
     }
 }
 
