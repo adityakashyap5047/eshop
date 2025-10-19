@@ -129,10 +129,10 @@ const UsersPage = () => {
             `${p.title},${p.sale_price},${p.stock},${p.category},${p.ratings},${p.Shop.name},${p.createdAt.split("T")[0]}`
         );
         const blob = new Blob(
-        [`Title,Price,Stock,Category,Rating,Shop\n${csvData.join("\n")}`],
+        [`Name,Email,Role,Joined\n${csvData.join("\n")}`],
         {type: "text/csv;charset=utf-8"}
         );
-        saveAs(blob, `event-page-${page}.csv`);
+        saveAs(blob, `user-page-${page}.csv`);
     };
 
     return (
