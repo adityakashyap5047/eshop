@@ -24,10 +24,10 @@ const SellerPayments = () => {
     // Payment statistics
     const paymentStats = useMemo(() => {
         const totalOrders = orders.length;
-        const totalEarnings = orders.reduce((sum: number, order: any) => sum + (order.total * 0.9), 0); // 90% seller share
+        const totalEarnings = orders.reduce((sum: number, order: any) => sum + (order.total * 0.1), 0);
         const totalRevenue = orders.reduce((sum: number, order: any) => sum + order.total, 0);
         const paidOrders = orders.filter((order: any) => order.status === "Paid" || order.status === "delivered").length;
-        const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+        const averageOrderValue = totalOrders > 0 ? totalEarnings / totalOrders : 0;
 
         return { totalOrders, totalEarnings, totalRevenue, paidOrders, averageOrderValue };
     }, [orders]);
