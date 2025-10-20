@@ -12,7 +12,7 @@ const fetchOrders = async() => {
     return res.data.orders;
 }
 
-const SellerPayments = () => {
+const PaymentsTable = () => {
     const [globalFilter, setGlobalFilter] = useState("");
     
     const { data: orders = [], isLoading } = useQuery({
@@ -222,4 +222,4 @@ const SellerPayments = () => {
     )
 }
 
-export default SellerPayments
+export default PaymentsTable

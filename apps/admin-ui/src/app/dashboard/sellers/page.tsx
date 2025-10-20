@@ -30,7 +30,7 @@ type SellersResponse = {
     }
 }
 
-const UsersPage = () => {
+const SellersPage = () => {
     const [globalFilter, setGlobalFilter] = useState("");
     const [page, setPage] = useState(1);
     const diferredGlobalFilter = useDeferredValue(globalFilter);
@@ -216,4 +216,4 @@ const UsersPage = () => {
     )
 }
 
-export default UsersPage
+export default SellersPage
