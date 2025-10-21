@@ -193,9 +193,9 @@ const DashboardPage = () => {
     <div className="w-full flex gap-8 mt-8">
       <div className="w-[60%]">
         <h2 className="text-white text-xl font-semibold mt-6">
-          Sales Distribution 
+          Visitors Distribution 
           <span className="block text-sm text-slate-400 font-normal">
-            Visual breakdown of global sales
+            Visual breakdown of global visitors activity.
           </span>
         </h2>
         <GeographicalMap />
