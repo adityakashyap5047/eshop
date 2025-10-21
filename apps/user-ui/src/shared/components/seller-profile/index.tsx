@@ -160,9 +160,9 @@ const SellerProfile = ({shop, followersCount}: any) => {
 
                         <button
                             className={`px-6 py-2 h-[40px] rounded-lg font-semibold flex justify-center gap-4 items-center
-                                ${isFollowing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}`}
+                                ${isFollowing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"} disabled:bg-blue-900 disabled:text-gray-400`}
                             onClick={() => toggleFollowingMutation.mutate()}
-                            disabled={toggleFollowingMutation.isPending}
+                            disabled={true || toggleFollowingMutation.isPending}
                         >
                             <Heart size={18} />
                             {isFollowing ? "Unfollow" : "Follow"}

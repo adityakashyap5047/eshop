@@ -384,8 +384,8 @@ export const getAllEvents = async(req: Request, res: Response, next: NextFunctio
         const skip = (page - 1) * limit;
         const baseFilter = {
             AND: [
-                { starting_date: { not: null } },
-                { ending_date: { not: null } }
+                { starting_date: { not: null, lte: new Date() } },
+                { ending_date: { not: null, gte: new Date() } }
             ]
         }
 

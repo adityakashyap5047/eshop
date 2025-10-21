@@ -732,16 +732,16 @@ export const getSellerEvents = async(req: any, res: Response, next: NextFunction
         const {id} = req.params;
         const events = await prisma.products.findMany({
             where: {
-                Shop: {
-                    id: id
-                },
-                AND: [
-                    { starting_date: { not: null }  },
-                    { ending_date: { not: null }  }
-                ]
+            Shop: {
+                id: id
+            },
+            AND: [
+                { starting_date: { not: null, lte: new Date() } },
+                { ending_date: { not: null, gte: new Date() } }
+            ]
             },
             include: {
-                images: true,
+            images: true,
             }
         });
 
