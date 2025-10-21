@@ -244,8 +244,8 @@ const SellerProfile = ({shop, followersCount}: any) => {
                         </div>
                     )}
 
-                    {activeTab === "Offers" && (
-                        <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {activeTab === "Offers" && <>
+                        {events?.length > 0 && <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             {isEventLoading && (
                                 <>
                                     {Array.from({length: 10}).map((_, index) => (
@@ -256,14 +256,14 @@ const SellerProfile = ({shop, followersCount}: any) => {
                             {events?.map((product: any) => (
                                 <ProductCard key={product.id} isEvent={true} product={product} />
                             ))}
-                            {events?.length === 0 && (
-                                <p className="py-2">No offers available yet!</p>
-                            )}
-                        </div>
-                    )}
+                        </div>}
+                        {events?.length === 0 && (
+                            <p className="text-center py-4">No offers available yet!</p>
+                        )}
+                    </>}
                     {activeTab === "Reviews" && (
                         <div>
-                            <p className="text-center py-5">No Reviews available yet!</p>
+                            <p className="text-center py-4">No Reviews available yet!</p>
                         </div>
                     )}
                 </div>
