@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getAdmin, getSeller, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutAdmin, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getAdmin, getSeller, getSellerEvents, getSellerFromId, getSellerProducts, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutAdmin, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import { isAdmin, isSeller } from "@packages/middleware/authorizeRoles";
 
@@ -57,5 +57,10 @@ router.get("/logout-admin", isAuthenticated, isAdmin, logOutAdmin);
 router.post("/add-address", isAuthenticated, addUserAddress);
 router.get("/shipping-addresses", isAuthenticated, getUserAddresses);
 router.delete("/delete-address/:addressId", isAuthenticated, deleteUserAddress);
+
+// Seller Servie 
+router.get("/get-seller/:id", getSellerFromId);
+router.get("/get-seller-products/:id", getSellerProducts);
+router.get("/get-seller-events/:id", getSellerEvents);
 
 export default router;

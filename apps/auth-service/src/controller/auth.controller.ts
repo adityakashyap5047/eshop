@@ -681,3 +681,75 @@ export const getUserAddresses = async(req: any, res: Response, next: NextFunctio
         return next(error);
     }
 }
+
+// Seller - Service
+export const getSellerFromId = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const shop = await prisma.shops.findUnique({
+            where: {
+                id
+            },
+        });
+
+        res.status(200).json({
+            success: true,
+            data: shop
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const getSellerProducts = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const {id} = req.params;
+        const products = await prisma.products.findMany({
+            where: {
+                Shop: {
+                    id: id
+                },
+                AND: [
+                    { starting_date: null  },
+                    { ending_date: null  }
+                ]
+            },
+            include: {
+                images: true,
+            }
+        });
+        res.status(200).json({
+            success: true,
+            products
+        });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const getSellerEvents = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const {id} = req.params;
+        const events = await prisma.products.findMany({
+            where: {
+                Shop: {
+                    id: id
+                },
+                AND: [
+                    { starting_date: { not: null }  },
+                    { ending_date: { not: null }  }
+                ]
+            },
+            include: {
+                images: true,
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            events
+        });
+    } catch (error) {
+        return next(error);
+    }
+}

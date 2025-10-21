@@ -13,33 +13,33 @@ export async function generateMetadata ({
     params: Promise<{ id: string }>;
 }) : Promise<Metadata> {
     const data = await fetchSellerDetails((await params).id);
-
+    const shop = data.data;
     return {
-        title: `${data?.shop?.name} | Eshop Marketplace`,
-        description: data?.shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
+        title: `${shop?.name} | Eshop Marketplace`,
+        description: shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
         openGraph: {
-            title: `${data?.shop?.name} | Eshop Marketplace`,
-            description: data?.shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
+            title: `${shop?.name} | Eshop Marketplace`,
+            description: shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
             type: "website",
             images: [
                 {
-                    url: data?.shop?.avatar || "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520",
+                    url: shop?.avatar || "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520",
                     width: 800,
                     height: 600,
-                    alt: data?.shop?.name || "Shop Logo",
+                    alt: shop?.name || "Shop Logo",
                 }
             ]
         },
         twitter: {
             card: "summary_large_image",
-            title: `${data?.shop?.name} | Eshop Marketplace`,
-            description: data?.shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
+            title: `${shop?.name} | Eshop Marketplace`,
+            description: shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
             images: [
                 {
-                    url: data?.shop?.avatar || "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520",
+                    url: shop?.avatar || "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520",
                     width: 800,
                     height: 600,
-                    alt: data?.shop?.name || "Shop Logo",
+                    alt: shop?.name || "Shop Logo",
                 }
             ]
         }
@@ -48,9 +48,9 @@ export async function generateMetadata ({
 
 const Page = async ({params}: {params: Promise<{id: string}>}) => {
     const data = await fetchSellerDetails((await params).id);
-
+    const shop = data.data;
     return (
-        <SellerProfile shop={data?.shop} followersCount={data?.followersCount || 0} />
+        <SellerProfile shop={shop} followersCount={shop?.followersCount || 0} />
     )
 }
 

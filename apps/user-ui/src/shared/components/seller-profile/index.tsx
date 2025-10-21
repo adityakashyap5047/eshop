@@ -39,7 +39,6 @@ const SellerProfile = ({shop, followersCount}: any) => {
 
         fetchFollowStatus();
     }, [shop?.id]);
-
     const {data: products, isLoading: isProductLoading} = useQuery({
         queryKey: ["seller-products"],
         queryFn: async() => {
@@ -57,7 +56,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
             const res = await axiosInstance.get(
                 `/api/get-seller-events/${shop?.id}?page=1&limit-10`
             );
-            return res.data.products;
+            return res.data.events;
         },
         staleTime: 1000 * 60 * 5
     });
@@ -160,7 +159,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                         </div>
 
                         <button
-                            className={`px-6 py-2 h-[40px] rounded-lg font-semibold flex items-center
+                            className={`px-6 py-2 h-[40px] rounded-lg font-semibold flex justify-center gap-4 items-center
                                 ${isFollowing ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}`}
                             onClick={() => toggleFollowingMutation.mutate()}
                             disabled={toggleFollowingMutation.isPending}
@@ -182,7 +181,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                     </div>
 
                     {shop?.website && (
-                        <div className="flex items-center gap-3 mt-3 to-sky-700">
+                        <div className="flex items-center gap-3 mt-3 text-sky-700">
                             <Globe size={18} />
                             <Link
                                 href={shop?.website}
@@ -205,7 +204,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                                         rel="noopener noreferrer"
                                         className="opacity-[.9]"
                                     >
-                                        {link.type === "x" ? <XIcon /> : <Globe />}
+                                        {link.type === "x" ? <XIcon /> : <Globe />} 
                                     </a>
                                 ))}
                             </div>
