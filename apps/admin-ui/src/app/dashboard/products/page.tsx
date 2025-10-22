@@ -72,13 +72,11 @@ const ProductList = () => {
           cell: ({row}: any) => {
               const truncatedTitle = row.original.title.length > 25 ? `${row.original.title.substring(0, 25)}...` : row.original.title;
               return (
-                  <Link 
-                      href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                      className="text-blue-600 hover:underline"
-                      title={row.original.title}
-                  >
-                      {truncatedTitle}
-                  </Link>
+                <span 
+                    title={row.original.title}
+                >
+                    {truncatedTitle}
+                </span>
               )
           }
         },

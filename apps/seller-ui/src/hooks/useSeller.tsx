@@ -35,7 +35,6 @@ const useSeller = () => {
     const router = useRouter();
 
     useEffect(() => {
-        console.log('useSeller useEffect:', { seller, isLoading, isError });
         
         // Redirect if not loading and no seller data (including explicit null from auth errors)
         if (!isLoading && (seller === null || seller === undefined || (isError && !seller))) {

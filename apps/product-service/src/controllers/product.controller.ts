@@ -246,7 +246,11 @@ export const getShopProducts = async(req: any, res: Response, next: NextFunction
     try {
         const products = await prisma.products.findMany({
             where: {
-                shopId: req?.seller?.shop?.id
+                shopId: req?.seller?.shop?.id,
+                AND: [
+                    { starting_date: null },
+                    { ending_date: null },
+                ]
             }, 
             include: {
                 images: true,
@@ -744,6 +748,100 @@ export const topShops = async(
         const top10Shops = enrichedShops.sort((a, b) => (b.totalSales || 0) - (a.totalSales || 0)).slice(0, 10);
         
         return res.status(200).json({ shops: top10Shops });
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const updateProduct = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const { productId } = req.params;
+        const {
+            title,
+            description,
+            detailed_description,
+            warranty,
+            custom_specifications,
+            tags,
+            cashOnDelivery,
+            brand,
+            video_url,
+            category,
+            colors = [],
+            sizes = [],
+            stock,
+            sale_price,
+            regular_price,
+            subCategory,
+            custom_properties,
+            images = [],
+        } = req.body;
+
+        if(!req.seller?.id) {
+            throw new AuthError("Only seller can update products");
+        }
+
+        if(!req.seller?.shop?.id) {
+            throw new AuthError("Seller must have a shop to update products");
+        }
+
+        // Check if productId is a valid ObjectID (24 character hex string)
+        const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(productId);
+        
+        // Find the product by ID or slug and verify ownership
+        const existingProduct = await prisma.products.findFirst({
+            where: isValidObjectId 
+                ? { id: productId }
+                : { slug: productId },
+            include: { images: true }
+        });
+
+        if(!existingProduct) {
+            throw new NotFoundError("Product not found");
+        }
+
+        if(existingProduct.shopId !== req.seller.shop.id) {
+            throw new AuthError("You can only update your own products");
+        }
+
+        // Update the product
+        const updatedProduct = await prisma.products.update({
+            where: { id: existingProduct.id },
+            data: {
+                title,
+                description,
+                detailed_description,
+                warranty,
+                cashOnDelivery,
+                tags: Array.isArray(tags) ? tags : tags?.split(',') || [],
+                brand,
+                video_url,
+                category,
+                subCategory,
+                colors: colors || [],
+                sizes: sizes || [],
+                stock: stock ? parseInt(stock) : existingProduct.stock,
+                sale_price: sale_price ? parseFloat(sale_price) : existingProduct.sale_price,
+                regular_price: regular_price ? parseFloat(regular_price) : existingProduct.regular_price,
+                custom_specifications: custom_specifications || existingProduct.custom_specifications,
+                custom_properties: custom_properties || existingProduct.custom_properties,
+                // Handle images update if provided
+                ...(images && images.length > 0 && {
+                    images: {
+                        deleteMany: {},
+                        create: images.filter((img: any) => img && img.fileId && img.file_url)?.map((image: any) => ({
+                            file_id: image.fileId,
+                            url: image.file_url,
+                        }))
+                    }
+                })
+            },
+            include: {
+                images: true,
+            }
+        });
+
+        return res.status(200).json({ success: true, product: updatedProduct });
     } catch (error) {
         return next(error);
     }

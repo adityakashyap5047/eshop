@@ -140,24 +140,24 @@ const SidebarWrapper = () => {
               />
             </SidebarMenu>
             <SidebarMenu title="Controllers">
-              <SidebarItem 
+              {/* <SidebarItem 
                 isActive={activeSidebar === "/dashboard/loggers"}
                 title="Loggers"
                 href="/dashboard/loggers"
                 icon={<FileClock size={20} color={getIconColor("/dashboard/loggers")} />}
-              />
+              /> */}
               <SidebarItem 
                 isActive={activeSidebar === "/dashboard/management"}
                 title="Management"
                 href="/dashboard/management"
                 icon={<Settings size={22} color={getIconColor("/dashboard/management")} />}
               />
-              <SidebarItem 
+              {/* <SidebarItem 
                 isActive={activeSidebar === "/dashboard/notifications"}
                 title="Notifications"
                 href="/dashboard/notifications"
                 icon={<BellRing size={24} color={getIconColor("/dashboard/notifications")} />}  
-              />
+              /> */}
             </SidebarMenu>
             <SidebarMenu title="Customization">
               <SidebarItem

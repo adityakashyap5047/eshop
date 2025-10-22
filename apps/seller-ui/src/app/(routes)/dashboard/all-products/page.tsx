@@ -36,7 +36,6 @@ const ProductList = () => {
         staleTime: 5 * 60 * 1000,
     });
 
-    // Product statistics
     const productStats = useMemo(() => {
         const total = products.length;
         const inStock = products.filter((product: any) => product.stock > 0).length;
@@ -118,7 +117,7 @@ const ProductList = () => {
                         <Eye size={18} />
                     </Link>
                     <Link
-                        href={`/product/edit/${row.original.id}`}
+                        href={`/product/edit/${row.original.slug}`}
                         className="text-yellow-400 hover:text-yellow-300 transition"
                     >
                         <Pencil size={18} />

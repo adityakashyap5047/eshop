@@ -1,10 +1,11 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "../components/Input";
 import { useMutation } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
+import useAdmin from "../hooks/useAdmin";
 
 type FormData = {
   email: string;
@@ -16,6 +17,11 @@ const Page = () => {
   const { register, handleSubmit } = useForm<FormData>();
   const [serverError, setServerError] = useState<string | null>(null);
   const router = useRouter();
+  const { admin } = useAdmin();
+
+  useEffect(() => {
+    if(admin && admin?.email) return router.push("/dashboard");
+  }, [admin]);
 
   const loginMutation = useMutation({
     mutationFn: async(data: FormData) => {
