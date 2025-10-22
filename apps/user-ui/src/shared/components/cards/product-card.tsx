@@ -79,7 +79,7 @@ const ProductCard = ({product, isEvent = false}: {product: any, isEvent?: boolea
         </Link>
 
         <Link
-            href={`/product/${product?.Shop?.id}`}
+            href={`/shop/${product?.Shop?.id}`}
             className='block text-blue-500 text-sm font-medium my-2 px-2'
         >
             {product?.Shop?.name}

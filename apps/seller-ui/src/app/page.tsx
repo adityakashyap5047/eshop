@@ -13,7 +13,6 @@ import toast from "react-hot-toast";
 
 const TABS = ["Products", "Offers", "Reviews"];
 
-// Helper function to get social media icons
 const getSocialIcon = (type: string, size: number = 20) => {
     const iconProps = { size, className: "text-white" };
     
@@ -34,26 +33,23 @@ const getSocialIcon = (type: string, size: number = 20) => {
     }
 };
 
-// Helper function to get social media URLs
 const getSocialUrl = (type: string, username: string) => {
     const baseUrls: { [key: string]: string } = {
-        facebook: 'https://facebook.com/',
-        instagram: 'https://instagram.com/',
+        facebook: 'https://www.facebook.com/',
+        instagram: 'https://www.instagram.com/',
         twitter: 'https://twitter.com/',
         x: 'https://x.com/',
-        youtube: 'https://youtube.com/',
-        linkedin: 'https://linkedin.com/in/'
+        youtube: 'https://www.youtube.com/@',
+        linkedin: 'https://www.linkedin.com/in/'
     };
     
     const baseUrl = baseUrls[type.toLowerCase()];
     if (!baseUrl) return `https://${username}`;
     
-    // Remove @ symbol if present
     const cleanUsername = username.replace('@', '');
     return `${baseUrl}${cleanUsername}`;
 };
 
-// Helper function to get social media platform colors
 const getSocialColor = (type: string) => {
     const colors: { [key: string]: string } = {
         facebook: 'bg-blue-600 hover:bg-blue-700',
