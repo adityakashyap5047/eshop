@@ -32,7 +32,7 @@ export async function generateMetadata ({
         },
         twitter: {
             card: "summary_large_image",
-            title: `${shop?.name} | Eshop Marketplace`,
+            title: `${shop?.name || "Eshop Marketplace"}`,
             description: shop?.bio || "Explore products and services from trusted sellers on Ehsop.",
             images: [
                 {

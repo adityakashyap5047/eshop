@@ -62,7 +62,8 @@ model shops {
   name          String
   bio           String?
   category      String
-  coverBanner   String?
+  coverBanner   String?         @default("https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/Banner_Image.png?updatedAt=1758872731741")
+  avatar        String?         @default("https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520")
   address       String
   opening_hours String?
   website       String?

@@ -127,6 +127,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                                 alt="Seller Avatar"
                                 layout="fill"
                                 objectFit="cover"
+                                className="rounded-full"
                             />
                         </div>
                         <div className="flex-1 w-full">

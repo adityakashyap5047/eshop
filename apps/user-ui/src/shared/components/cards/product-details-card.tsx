@@ -161,16 +161,16 @@ const ProductDetailsCard = ({data, setOpen}: {data: any, setOpen: (open: boolean
                                 </div>
                             )}
 
-                            <div className="mt-5 flex items-center gap-4">
-                                <h3 className="text-2xl font-semibold text-gray-900">
-                                    ${data?.sale_price}
-                                </h3>
-                                {data?.regular_price && (
-                                    <div className="text-lg text-red-600 line-through">
-                                        ${data?.regular_price}
-                                    </div>
-                                )}
-                            </div>
+                        </div>
+                        <div className="mt-5 flex items-center gap-4">
+                            <h3 className="text-2xl font-semibold text-gray-900">
+                                ${data?.sale_price}
+                            </h3>
+                            {data?.regular_price && (
+                                <div className="text-lg text-red-600 line-through">
+                                    ${data?.regular_price}
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex items-end gap-6">

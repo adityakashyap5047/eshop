@@ -730,6 +730,7 @@ export const getSellerProducts = async(req: any, res: Response, next: NextFuncti
 export const getSellerEvents = async(req: any, res: Response, next: NextFunction) => {
     try {
         const {id} = req.params;
+        
         const events = await prisma.products.findMany({
             where: {
             Shop: {
@@ -751,5 +752,21 @@ export const getSellerEvents = async(req: any, res: Response, next: NextFunction
         });
     } catch (error) {
         return next(error);
+    }
+}
+
+export const changeSellerAvatar = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        
+    } catch (error) {
+        
+    }
+}
+
+export const changeSellerCoverBanner = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        
+    } catch (error) {
+        
     }
 }

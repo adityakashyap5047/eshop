@@ -1,13 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, Globe, MapPin, Star, Users, XIcon } from "lucide-react";
+import { Calendar, Clock, Globe, MapPin, Pencil, Star, Users, XIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import useSeller from "../hooks/useSeller";
 import ProductCard from "../shared/components/product-card";
+import { useRouter } from "next/navigation";
 
 const TABS = ["Products", "Offers", "Reviews"];
 
@@ -16,6 +17,8 @@ const SellerProfile = () => {
 
     const { seller } = useSeller();
     const shop = seller?.shop;
+
+    const router = useRouter();
 
     const {data: products, isLoading: isProductLoading} = useQuery({
         queryKey: ["seller-products"],
@@ -52,6 +55,8 @@ const SellerProfile = () => {
                     width={1200}
                     height={300}
                 />
+                <input type="file" hidden name="seller_cover" id="seller_cover" />
+                {seller?.id && <button className="absolute top-4 right-4 flex gap-2 bg-slate-900 text-gray-200 justify-center items-center px-2 py-1 rounded-md"><label htmlFor="seller_cover" className="flex gap-2 cursor-pointer justify-center items-center"><Pencil size={16}/>Edit Cover</label></button>}
             </div>
 
             <div className="w-[85%] lg:w-[70%] mt-[-50px] mx-auto relative z-20 flex gap-6 flex-col lg:flex-row">
@@ -65,11 +70,18 @@ const SellerProfile = () => {
                                 objectFit="cover"
                                 className="rounded-full"
                             />
+                            <input type="file" hidden name="seller_avatar" id="seller_avatar" />
+                            {seller?.id && <button className="absolute bottom-2 right-2 p-1 bg-gray-400 text-white rounded-full shadow-lg">
+                                <label htmlFor="seller_avatar" className="flex gap-2 cursor-pointer justify-center items-center"><Pencil size={16}/></label>
+                            </button>}
                         </div>
                         <div className="flex-1 w-full">
-                            <h1 className="text-2xl font-semibold text-slate-900">
-                                {shop?.name}
-                            </h1>
+                            <div className="flex justify-between">
+                                <h1 className="text-2xl font-semibold text-slate-900 cursor-pointer hover:underline" onClick={() => router.push("/dashboard")}>
+                                    {shop?.name || "Eshop Seller"}
+                                </h1>
+                                {seller?.id && <button className="flex gap-2 bg-slate-900 text-gray-200 justify-center items-center px-2 py-1 rounded-md"><Pencil size={18} />Edit Profile</button>}
+                            </div>
                             <p className="text-slate-800 text-sm mt-1">
                                 {shop?.bio || "No bio available."}
                             </p>
@@ -77,7 +89,7 @@ const SellerProfile = () => {
                             <div className="flex items-center gap-4 mt-2">
                                 <div className="flex items-center text-blue-400 gap-1">
                                     <Star fill="#60a5fa" size={18} />{" "}
-                                    <span>{shop?.ratings || "N/A"}</span>
+                                    <span>{shop?.ratings}</span>
                                 </div>
                                 <div className="flex items-center text-slate-700 gap-1">
                                     <Users size={18} /> <span>{shop?.followersCount || 0} Followers</span>
