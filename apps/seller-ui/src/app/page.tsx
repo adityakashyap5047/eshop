@@ -1,16 +1,21 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, Globe, Heart, MapPin, Star, Users, XIcon } from "lucide-react";
+import { Calendar, Clock, Globe, MapPin, Star, Users, XIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
+import useSeller from "../hooks/useSeller";
+import ProductCard from "../shared/components/product-card";
 
 const TABS = ["Products", "Offers", "Reviews"];
 
-const SellerProfile = ({shop, followersCount}: any) => {
+const SellerProfile = () => {
     const [activeTab, setActiveTab] = useState("Products");
+
+    const { seller } = useSeller();
+    const shop = seller?.shop;
 
     const {data: products, isLoading: isProductLoading} = useQuery({
         queryKey: ["seller-products"],
@@ -50,14 +55,15 @@ const SellerProfile = ({shop, followersCount}: any) => {
             </div>
 
             <div className="w-[85%] lg:w-[70%] mt-[-50px] mx-auto relative z-20 flex gap-6 flex-col lg:flex-row">
-                <div className="bg-gray-200 p-6 rounded-lg shadow-lg flex-1">
+                <div className="bg-gray-500 p-6 rounded-lg shadow-lg flex-1">
                     <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-                        <div className="relative w-[100px] h-[100px] rounded-full border-4 border-white">
+                        <div className="relative w-[100px] h-[100px] rounded-full border-4 border-gray-400">
                             <Image
                                 src={shop?.avatar || "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520"}
                                 alt="Seller Avatar"
                                 layout="fill"
                                 objectFit="cover"
+                                className="rounded-full"
                             />
                         </div>
                         <div className="flex-1 w-full">
@@ -74,7 +80,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                                     <span>{shop?.ratings || "N/A"}</span>
                                 </div>
                                 <div className="flex items-center text-slate-700 gap-1">
-                                    <Users size={18} /> <span>{followersCount || 0} Followers</span>
+                                    <Users size={18} /> <span>{shop?.followersCount || 0} Followers</span>
                                 </div>
                             </div>
 
@@ -91,7 +97,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                     </div>
                 </div>
 
-                <div className="bg-gray-200 p-6 rounded-lg shadow-lg w-full lg:w-[30%]">
+                <div className="bg-gray-500 p-6 rounded-lg shadow-lg w-full lg:w-[30%]">
                     <h2 className="text-xl font-semibold text-slate-900">Shop Details</h2>
 
                     <div className="flex items-center gap-3 mt-3 to-sky-700">
@@ -141,7 +147,7 @@ const SellerProfile = ({shop, followersCount}: any) => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`py-3 px-6 text-lg font-semibold ${
-                                activeTab === tab ? "text-slate-800 border-b-2 border-blue-600" : "text-sky-600"
+                                activeTab === tab ? "text-blue-400 border-b-2 border-blue-600" : "text-gray-200"
                             } transition`}
                         >
                             {tab}
@@ -149,38 +155,45 @@ const SellerProfile = ({shop, followersCount}: any) => {
                     ))}
                 </div>
 
-                <div className="bg-gray-200 rounded-lg my-4 to-sky-700">
-                    {activeTab === "Products" && (
-                        <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div className="bg-gray-400 rounded-lg my-4 to-sky-700">
+                    {activeTab === "Products" && <>
+                        {isProductLoading && <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             {isProductLoading && (
                                 <>
                                     {Array.from({length: 10}).map((_, index) => (
-                                        <div className="h-[250px] bg-gray-300 animate-pluse rounded-xl" key={index} />
+                                        <div className="h-[250px] bg-gray-500 animate-pluse rounded-xl" key={index} />
                                     ))}
                                 </>
                             )}
-                            {/* {products?.map((product: any) => (
+                        </div>}
+                        {!isProductLoading && (!products || products?.length === 0) && (
+                            <p className="text-center py-4">No products available yet!</p>
+                        )}
+                        {!isProductLoading && products && products.length > 0 && <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {products?.map((product: any) => (
                                 <ProductCard key={product.id} product={product} />
-                            ))} */}
-                        </div>
-                    )}
+                            ))}
+                        </div>}
+                    </>}
 
                     {activeTab === "Offers" && <>
-                        {events?.length > 0 && <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {isEventLoading && <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             {isEventLoading && (
                                 <>
                                     {Array.from({length: 10}).map((_, index) => (
-                                        <div className="h-[250px] bg-gray-300 animate-pluse rounded-xl" key={index} />
+                                        <div className="h-[250px] bg-gray-500 animate-pluse rounded-xl" key={index} />
                                     ))}
                                 </>
                             )}
-                            {/* {events?.map((product: any) => (
-                                <ProductCard key={product.id} isEvent={true} product={product} />
-                            ))} */}
                         </div>}
-                        {events?.length === 0 && (
+                        {!isEventLoading && (!events || events?.length === 0) && (
                             <p className="text-center py-4">No offers available yet!</p>
                         )}
+                        {!isEventLoading && events && events?.length > 0 && <div className="m-auto grid grid-cols-1 p-4 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {events?.map((product: any) => (
+                                <ProductCard key={product.id} isEvent={true} product={product} />
+                            ))}
+                        </div>}
                     </>}
                     {activeTab === "Reviews" && (
                         <div>
