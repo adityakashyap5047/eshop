@@ -17,7 +17,7 @@ const SellerProfile = () => {
     const [activeTab, setActiveTab] = useState("Products");
     const [uploading, setUploading] = useState({ avatar: false, banner: false });
 
-    const { seller } = useSeller();
+    const { seller, isLoading } = useSeller();
     const shop = seller?.shop;
     const queryClient = useQueryClient();
 
@@ -125,26 +125,50 @@ const SellerProfile = () => {
     };
 
     const {data: products, isLoading: isProductLoading} = useQuery({
-        queryKey: ["seller-products"],
+        queryKey: ["seller-products", shop?.id],
         queryFn: async() => {
+            if (!shop?.id) {
+                throw new Error("Shop ID not available");
+            }
             const res = await axiosInstance.get(
-                `/api/get-seller-products/${shop?.id}?page=1&limit-10`
+                `/api/get-seller-products/${shop.id}?page=1&limit-10`
             );
             return res.data.products;
         },
+        enabled: !!shop?.id && !isLoading, 
         staleTime: 1000 * 60 * 5
     });
 
     const {data: events, isLoading: isEventLoading} = useQuery({
-        queryKey: ["seller-events"],
+        queryKey: ["seller-events", shop?.id],
         queryFn: async() => {
+            if (!shop?.id) {
+                throw new Error("Shop ID not available");
+            }
             const res = await axiosInstance.get(
-                `/api/get-seller-events/${shop?.id}?page=1&limit-10`
+                `/api/get-seller-events/${shop.id}?page=1&limit-10`
             );
             return res.data.events;
         },
+        enabled: !!shop?.id && !isLoading, 
         staleTime: 1000 * 60 * 5
     });
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-900">
+                <div className="flex flex-col items-center text-white">
+                    <Loader2 size={40} className="animate-spin mb-4"/>
+                    <p className="text-lg">Loading seller profile...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Don't render anything if seller is not authenticated (will redirect in useSeller hook)
+    if (!seller) {
+        return null;
+    }
 
     return (
         <div>
