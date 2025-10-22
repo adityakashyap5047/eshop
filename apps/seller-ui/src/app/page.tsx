@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, Globe, MapPin, Pencil, Star, Users, XIcon } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Calendar, Clock, Globe, MapPin, Pencil, Star, Users, XIcon, Upload, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -9,16 +9,120 @@ import axiosInstance from "../utils/axiosInstance";
 import useSeller from "../hooks/useSeller";
 import ProductCard from "../shared/components/product-card";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const TABS = ["Products", "Offers", "Reviews"];
 
 const SellerProfile = () => {
     const [activeTab, setActiveTab] = useState("Products");
+    const [uploading, setUploading] = useState({ avatar: false, banner: false });
 
     const { seller } = useSeller();
     const shop = seller?.shop;
+    const queryClient = useQueryClient();
 
     const router = useRouter();
+
+    const convertToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+        });
+    };
+
+    const uploadAvatar = async (file: File) => {
+        if (!seller?.id) {
+            toast.error("Seller ID not found");
+            return;
+        }
+
+        setUploading(prev => ({ ...prev, avatar: true }));
+        
+        try {
+            const base64Image = await convertToBase64(file);
+            
+            const response = await axiosInstance.put(`/api/change-shop-avatar/${seller.id}`, {
+                fileName: base64Image
+            });
+            
+            if (response.data.success) {
+                toast.success("Avatar updated successfully!");
+                queryClient.invalidateQueries({ queryKey: ["seller"] });
+            } else {
+                toast.error(response.data.message || "Failed to update avatar");
+            }
+        } catch (error: any) {
+            console.error('Error uploading avatar:', error);
+            toast.error(error.response?.data?.message || "Failed to upload avatar");
+        } finally {
+            setUploading(prev => ({ ...prev, avatar: false }));
+        }
+    };
+
+    const uploadCoverBanner = async (file: File) => {
+        if (!seller?.id) {
+            toast.error("Seller ID not found");
+            return;
+        }
+
+        setUploading(prev => ({ ...prev, banner: true }));
+        
+        try {
+            const base64Image = await convertToBase64(file);
+            
+            const response = await axiosInstance.put(`/api/change-shop-banner/${seller.id}`, {
+                fileName: base64Image
+            });
+            
+            if (response.data.success) {
+                toast.success("Cover banner updated successfully!");
+                queryClient.invalidateQueries({ queryKey: ["seller"] });
+            } else {
+                toast.error(response.data.message || "Failed to update cover banner");
+            }
+        } catch (error: any) {
+            console.error('Error uploading cover banner:', error);
+            toast.error(error.response?.data?.message || "Failed to upload cover banner");
+        } finally {
+            setUploading(prev => ({ ...prev, banner: false }));
+        }
+    };
+
+    const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("File size should be less than 5MB");
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                toast.error("Please select a valid image file");
+                return;
+            }
+            
+            uploadAvatar(file);
+        }
+    };
+
+    const handleBannerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("File size should be less than 5MB");
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                toast.error("Please select a valid image file");
+                return;
+            }
+            
+            uploadCoverBanner(file);
+        }
+    };
 
     const {data: products, isLoading: isProductLoading} = useQuery({
         queryKey: ["seller-products"],
@@ -51,12 +155,47 @@ const SellerProfile = () => {
                             "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/Banner_Image.png?updatedAt=1758872731741"   
                     }
                     alt={"Seller Cover"}
-                    className="w-full h-[400px] object-cover"
+                    className={`w-full h-[400px] object-cover ${uploading.banner ? 'opacity-70' : ''}`}
                     width={1200}
                     height={300}
                 />
-                <input type="file" hidden name="seller_cover" id="seller_cover" />
-                {seller?.id && <button className="absolute top-4 right-4 flex gap-2 bg-slate-900 text-gray-200 justify-center items-center px-2 py-1 rounded-md"><label htmlFor="seller_cover" className="flex gap-2 cursor-pointer justify-center items-center"><Pencil size={16}/>Edit Cover</label></button>}
+                {uploading.banner && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="flex flex-col items-center text-white">
+                            <Loader2 size={32} className="animate-spin mb-2"/>
+                            <p>Uploading banner...</p>
+                        </div>
+                    </div>
+                )}
+                <input 
+                    type="file" 
+                    hidden 
+                    name="seller_cover" 
+                    id="seller_cover" 
+                    accept="image/*"
+                    onChange={handleBannerChange}
+                    disabled={uploading.banner}
+                />
+                {seller?.id && (
+                    <button 
+                        className="absolute top-4 right-4 flex gap-2 bg-slate-900 text-gray-200 justify-center items-center px-2 py-1 rounded-md disabled:opacity-50"
+                        disabled={uploading.banner}
+                    >
+                        <label htmlFor="seller_cover" className="flex gap-2 cursor-pointer justify-center items-center">
+                            {uploading.banner ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin"/>
+                                    Uploading...
+                                </>
+                            ) : (
+                                <>
+                                    <Pencil size={16}/>
+                                    Edit Cover
+                                </>
+                            )}
+                        </label>
+                    </button>
+                )}
             </div>
 
             <div className="w-[85%] lg:w-[70%] mt-[-50px] mx-auto relative z-20 flex gap-6 flex-col lg:flex-row">
@@ -68,12 +207,36 @@ const SellerProfile = () => {
                                 alt="Seller Avatar"
                                 layout="fill"
                                 objectFit="cover"
-                                className="rounded-full"
+                                className={`rounded-full ${uploading.avatar ? 'opacity-70' : ''}`}
                             />
-                            <input type="file" hidden name="seller_avatar" id="seller_avatar" />
-                            {seller?.id && <button className="absolute bottom-2 right-2 p-1 bg-gray-400 text-white rounded-full shadow-lg">
-                                <label htmlFor="seller_avatar" className="flex gap-2 cursor-pointer justify-center items-center"><Pencil size={16}/></label>
-                            </button>}
+                            {uploading.avatar && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                                    <Loader2 size={20} className="animate-spin text-white"/>
+                                </div>
+                            )}
+                            <input 
+                                type="file" 
+                                hidden 
+                                name="seller_avatar" 
+                                id="seller_avatar" 
+                                accept="image/*"
+                                onChange={handleAvatarChange}
+                                disabled={uploading.avatar}
+                            />
+                            {seller?.id && (
+                                <button 
+                                    className="absolute bottom-2 right-2 p-1 bg-gray-400 text-white rounded-full shadow-lg disabled:opacity-50"
+                                    disabled={uploading.avatar}
+                                >
+                                    <label htmlFor="seller_avatar" className="flex gap-2 cursor-pointer justify-center items-center">
+                                        {uploading.avatar ? (
+                                            <Loader2 size={16} className="animate-spin"/>
+                                        ) : (
+                                            <Pencil size={16}/>
+                                        )}
+                                    </label>
+                                </button>
+                            )}
                         </div>
                         <div className="flex-1 w-full">
                             <div className="flex justify-between">

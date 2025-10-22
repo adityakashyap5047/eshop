@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { setCookie } from "../utils/cookies/setCookie";
 import Stripe from "stripe";
+import { imagekit } from "@packages/libs/imagekit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-08-27.basil"
@@ -730,7 +731,6 @@ export const getSellerProducts = async(req: any, res: Response, next: NextFuncti
 export const getSellerEvents = async(req: any, res: Response, next: NextFunction) => {
     try {
         const {id} = req.params;
-        
         const events = await prisma.products.findMany({
             where: {
             Shop: {
@@ -757,16 +757,153 @@ export const getSellerEvents = async(req: any, res: Response, next: NextFunction
 
 export const changeSellerAvatar = async(req: any, res: Response, next: NextFunction) => {
     try {
+        const { sellerId } = req.params;
+        const { fileName } = req.body;
+
+        if (!sellerId || sellerId === 'undefined' || sellerId.length !== 24) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid seller ID provided"
+            });
+        }
+
+        if (!fileName) {
+            return res.status(400).json({
+                success: false,
+                message: "No image data provided"
+            });
+        }
+
+        const seller = await prisma.sellers.findUnique({
+            where: { id: sellerId },
+            include: { shop: true }
+        });
+
+        if (!seller) {
+            throw new NotFoundError("Seller not found");
+        }
+
+        if (!seller.shop) {
+            return res.status(400).json({
+                success: false,
+                message: "Seller doesn't have a shop"
+            });
+        }
+
+        const avatarFileName = `shop-avatar-${sellerId}-${Date.now()}.jpg`;
         
+        const uploadResponse = await imagekit.upload({
+            file: fileName,
+            fileName: avatarFileName,
+            folder: "/Eshop/Shop/Avatar/",
+        });
+
+        const defaultAvatar = "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/image.png?updatedAt=1758872565520";
+        if (seller.shop.avatar && seller.shop.avatar !== defaultAvatar) {
+            try {
+                const urlParts = seller.shop.avatar.split('/');
+                const fileIdPart = urlParts[urlParts.length - 1];
+                const fileId = fileIdPart.split('?')[0].replace(/\.[^/.]+$/, "");
+                if (fileId && fileId.length > 10) {
+                    await imagekit.deleteFile(fileId);
+                }
+            } catch (deleteError) {
+                console.log("Could not delete old avatar:", deleteError);
+            }
+        }
+
+        const updatedShop = await prisma.shops.update({
+            where: { id: seller.shop.id },
+            data: { avatar: uploadResponse.url },
+            include: { sellers: true }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Shop avatar updated successfully",
+            shop: updatedShop,
+            avatar_url: uploadResponse.url
+        });
+
     } catch (error) {
-        
+        console.error('Avatar upload error:', error);
+        return next(error);
     }
 }
 
 export const changeSellerCoverBanner = async(req: any, res: Response, next: NextFunction) => {
     try {
+        const { sellerId } = req.params;
+        const { fileName } = req.body;
+
+        // Validate input
+        if (!sellerId || sellerId === 'undefined' || sellerId.length !== 24) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid seller ID provided"
+            });
+        }
+
+        if (!fileName) {
+            return res.status(400).json({
+                success: false,
+                message: "No image data provided"
+            });
+        }
+
+        const seller = await prisma.sellers.findUnique({
+            where: { id: sellerId },
+            include: { shop: true }
+        });
+
+        if (!seller) {
+            throw new NotFoundError("Seller not found");
+        }
+
+        if (!seller.shop) {
+            return res.status(400).json({
+                success: false,
+                message: "Seller doesn't have a shop"
+            });
+        }
+
+        const bannerFileName = `shop-banner-${sellerId}-${Date.now()}.jpg`;
         
+        const uploadResponse = await imagekit.upload({
+            file: fileName,
+            fileName: bannerFileName,
+            folder: "/Eshop/Shop/Banner/",
+        });
+
+        const defaultBanner = "https://ik.imagekit.io/adityakashyap5047/Eshop/Cover%20Picture/Banner_Image.png?updatedAt=1758872731741";
+        if (seller.shop.coverBanner && seller.shop.coverBanner !== defaultBanner) {
+            try {
+                const urlParts = seller.shop.coverBanner.split('/');
+                const fileIdPart = urlParts[urlParts.length - 1];
+                const fileId = fileIdPart.split('?')[0].replace(/\.[^/.]+$/, "");
+                if (fileId && fileId.length > 10) {
+                    await imagekit.deleteFile(fileId);
+                }
+            } catch (deleteError) {
+                console.log("Could not delete old cover banner:", deleteError);
+            }
+        }
+
+        const updatedShop = await prisma.shops.update({
+            where: { id: seller.shop.id },
+            data: { coverBanner: uploadResponse.url },
+            include: { sellers: true }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Shop cover banner updated successfully",
+            shop: updatedShop,
+            cover_banner_url: uploadResponse.url
+        });
+
     } catch (error) {
-        
+        console.error('Cover banner upload error:', error);
+        return next(error);
     }
 }
