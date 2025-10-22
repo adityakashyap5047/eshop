@@ -26,6 +26,21 @@ model users {
   name        String
   email       String          @unique
   role        String          @default("user")
+  isOwner     Boolean         @default(false)
+  password    String?
+  following   String[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  reviews     shopReviews[]
+  followings  followers[]
+  orders      orders[]
+}
+
+model banned {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String          @unique
+  role        String          @default("user")
   password    String?
   following   String[]
   createdAt   DateTime        @default(now())
@@ -39,6 +54,8 @@ model shopReviews {
   id        String      @id @default(auto()) @map("_id") @db.ObjectId
   userId    String      @db.ObjectId
   user      users       @relation(fields: [userId], references: [id])
+  banned      banned?       @relation(fields: [bannedId], references: [id])
+  bannedId  String?      @db.ObjectId
   rating    Float
   reviews   String?
   createdAt DateTime    @default(now())
@@ -50,8 +67,10 @@ model shopReviews {
 model followers {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   userId    String   @db.ObjectId
+  bannedId  String?  @db.ObjectId
   shopsId   String   @db.ObjectId
   user      users    @relation(fields: [userId], references: [id])
+  banned    banned?  @relation(fields: [bannedId], references: [id])
   shops     shops?   @relation(fields: [shopsId], references: [id])
 
   @@unique([userId, shopsId]) // One user can follow the same shop only once
@@ -213,6 +232,8 @@ model orders {
   id                  String          @id @default(auto()) @map("_id") @db.ObjectId
   userId              String          @db.ObjectId
   user                users           @relation(fields: [userId], references: [id])
+  bannedId            String?         @db.ObjectId
+  banned              banned?        @relation(fields: [bannedId], references: [id])
   shopId              String          @db.ObjectId
   shop                shops           @relation(fields: [shopId], references: [id])
   total               Float
