@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Clock, Globe, MapPin, Pencil, Star, Users, XIcon, Upload, Loader2 } from "lucide-react";
+import { Calendar, Clock, Globe, MapPin, Pencil, Star, Users, Loader2, Instagram, Facebook, Youtube, Linkedin, Twitter } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,6 +12,60 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 const TABS = ["Products", "Offers", "Reviews"];
+
+// Helper function to get social media icons
+const getSocialIcon = (type: string, size: number = 20) => {
+    const iconProps = { size, className: "text-white" };
+    
+    switch (type.toLowerCase()) {
+        case 'facebook':
+            return <Facebook {...iconProps} />;
+        case 'instagram':
+            return <Instagram {...iconProps} />;
+        case 'twitter':
+        case 'x':
+            return <Twitter {...iconProps} />;
+        case 'youtube':
+            return <Youtube {...iconProps} />;
+        case 'linkedin':
+            return <Linkedin {...iconProps} />;
+        default:
+            return <Globe {...iconProps} />;
+    }
+};
+
+// Helper function to get social media URLs
+const getSocialUrl = (type: string, username: string) => {
+    const baseUrls: { [key: string]: string } = {
+        facebook: 'https://facebook.com/',
+        instagram: 'https://instagram.com/',
+        twitter: 'https://twitter.com/',
+        x: 'https://x.com/',
+        youtube: 'https://youtube.com/',
+        linkedin: 'https://linkedin.com/in/'
+    };
+    
+    const baseUrl = baseUrls[type.toLowerCase()];
+    if (!baseUrl) return `https://${username}`;
+    
+    // Remove @ symbol if present
+    const cleanUsername = username.replace('@', '');
+    return `${baseUrl}${cleanUsername}`;
+};
+
+// Helper function to get social media platform colors
+const getSocialColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+        facebook: 'bg-blue-600 hover:bg-blue-700',
+        instagram: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
+        twitter: 'bg-blue-400 hover:bg-blue-500',
+        x: 'bg-black hover:bg-gray-800',
+        youtube: 'bg-red-600 hover:bg-red-700',
+        linkedin: 'bg-blue-700 hover:bg-blue-800'
+    };
+    
+    return colors[type.toLowerCase()] || 'bg-gray-600 hover:bg-gray-700';
+};
 
 const SellerProfile = () => {
     const [activeTab, setActiveTab] = useState("Products");
@@ -267,7 +321,7 @@ const SellerProfile = () => {
                                 <h1 className="text-2xl font-semibold text-slate-900 cursor-pointer hover:underline" onClick={() => router.push("/dashboard")}>
                                     {shop?.name || "Eshop Seller"}
                                 </h1>
-                                {seller?.id && <button className="flex gap-2 bg-slate-900 text-gray-200 justify-center items-center px-2 py-1 rounded-md"><Pencil size={18} />Edit Profile</button>}
+                                {seller?.id && <button onClick={() => router.push('/edit-profile')} className="flex gap-2 bg-slate-900 text-gray-200 justify-center items-center px-2 py-1 rounded-md"><Pencil size={18} />Edit Profile</button>}
                             </div>
                             <p className="text-slate-800 text-sm mt-1">
                                 {shop?.bio || "No bio available."}
@@ -325,12 +379,13 @@ const SellerProfile = () => {
                                 {shop?.socialLinks?.map((link: any, index: number) => (
                                     <a
                                         key={index}
-                                        href={link.url}
+                                        href={getSocialUrl(link.type, link.username)}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="opacity-[.9]"
+                                        className={`p-2 rounded-full transition-all duration-200 ${getSocialColor(link.type)}`}
+                                        title={`Follow us on ${link.type}`}
                                     >
-                                        {link.type === "x" ? <XIcon /> : <Globe />} 
+                                        {getSocialIcon(link.type, 18)}
                                     </a>
                                 ))}
                             </div>

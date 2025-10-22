@@ -907,3 +907,95 @@ export const changeSellerCoverBanner = async(req: any, res: Response, next: Next
         return next(error);
     }
 }
+
+// Update seller profile
+export const updateSellerProfile = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const { sellerId } = req.params;
+        const { 
+            shopName, 
+            shopBio, 
+            openingHours, 
+            address, 
+            website, 
+            socialLinks 
+        } = req.body;
+
+        // Validate seller ID
+        if (!sellerId || sellerId === 'undefined' || sellerId.length !== 24) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid seller ID provided"
+            });
+        }
+
+        // Check if seller exists
+        const seller = await prisma.sellers.findUnique({
+            where: { id: sellerId },
+            include: { shop: true }
+        });
+
+        if (!seller) {
+            throw new NotFoundError("Seller not found");
+        }
+
+        if (!seller.shop) {
+            return res.status(400).json({
+                success: false,
+                message: "Seller doesn't have a shop"
+            });
+        }
+
+        // Prepare update data
+        const updateData: any = {};
+        
+        if (shopName !== undefined) updateData.name = shopName;
+        if (shopBio !== undefined) updateData.bio = shopBio;
+        if (openingHours !== undefined) updateData.opening_hours = openingHours;
+        if (address !== undefined) updateData.address = address;
+        if (website !== undefined) updateData.website = website;
+        if (socialLinks !== undefined) updateData.socialLinks = socialLinks;
+
+        // Update shop in database
+        const updatedShop = await prisma.shops.update({
+            where: { id: seller.shop.id },
+            data: updateData,
+            include: { 
+                sellers: true,
+                reviews: true,
+                followers: true
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Shop profile updated successfully",
+            shop: updatedShop
+        });
+
+    } catch (error) {
+        console.error('Profile update error:', error);
+        return next(error);
+    }
+}
+
+export const getSocialLinkTypes = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const socialTypes = [
+            { value: 'facebook', label: 'Facebook' },
+            { value: 'x', label: 'X (Twitter)' },
+            { value: 'youtube', label: 'YouTube' },
+            { value: 'instagram', label: 'Instagram' },
+            { value: 'linkedin', label: 'LinkedIn' },
+            { value: 'website', label: 'Website' }
+        ];
+
+        res.status(200).json({
+            success: true,
+            socialTypes
+        });
+
+    } catch (error) {
+        return next(error);
+    }
+}

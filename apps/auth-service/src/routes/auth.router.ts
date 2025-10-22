@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { addUserAddress, changeSellerAvatar, changeSellerCoverBanner, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getAdmin, getSeller, getSellerEvents, getSellerFromId, getSellerProducts, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutAdmin, logOutUser, refreshToken, registerSeller, resetPassword, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
+import { addUserAddress, changeSellerAvatar, changeSellerCoverBanner, createShop, createStripeConnectLink, deleteUserAddress, forgotPassword, getAdmin, getSeller, getSellerEvents, getSellerFromId, getSellerProducts, getSocialLinkTypes, getUser, getUserAddresses, loginAdmin, loginSeller, loginUser, logOutAdmin, logOutUser, refreshToken, registerSeller, resetPassword, updateSellerProfile, updateUserPassword, userRegisteration, verifySeller, verifyUser, verifyUserForgotPassword } from "../controller/auth.controller";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import { isAdmin, isSeller } from "@packages/middleware/authorizeRoles";
 
@@ -64,5 +64,7 @@ router.get("/get-seller-products/:id", getSellerProducts);
 router.get("/get-seller-events/:id", getSellerEvents);
 router.put("/change-shop-avatar/:sellerId", isAuthenticated, isSeller, changeSellerAvatar);
 router.put("/change-shop-banner/:sellerId", isAuthenticated, isSeller, changeSellerCoverBanner);
+router.put("/update-seller-profile/:sellerId", isAuthenticated, isSeller, updateSellerProfile);
+router.get("/social-link-types", getSocialLinkTypes);
 
 export default router;
