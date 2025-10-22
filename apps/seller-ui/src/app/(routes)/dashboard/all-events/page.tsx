@@ -5,14 +5,12 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart, Calendar, ChevronRightIcon, Clock, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
+import { Calendar, ChevronRightIcon, Clock, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2 } from "lucide-react";
 import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete-confirmation-modal";
 
 const fetchEvents = async () => {
-    const res = await axiosInstance.get("/product/api/get-shop-products");
-    const events = res?.data?.products?.filter((product: any) => 
-        product.starting_date && product.ending_date
-    );
+    const res = await axiosInstance.get("/product/api/get-shop-events");
+    const events = res?.data?.events
     return events || [];
 }
 
@@ -83,13 +81,11 @@ const EventList = () => {
             cell: ({row}: any) => {
                 const truncatedTitle = row.original.title.length > 25 ? `${row.original.title.substring(0, 25)}...` : row.original.title;
                 return (
-                    <Link 
-                        href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                        className="text-blue-600 hover:underline"
+                    <span 
                         title={row.original.title}
                     >
                         {truncatedTitle}
-                    </Link>
+                    </span>
                 )
             }
         },
@@ -160,7 +156,7 @@ const EventList = () => {
             cell: ({row}: any) => (
                 <div className="flex gap-3">
                     <Link
-                        href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.id}`}
+                        href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
                         className="text-blue-400 hover:text-blue-300 transition"
                         title="View Event"
                     >

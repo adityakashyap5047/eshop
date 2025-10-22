@@ -33,6 +33,7 @@ const Page = () => {
     },
     onSuccess: () => {
       setServerError(null);
+      router.refresh();
       router.push('/dashboard');
     },
     onError: (error: AxiosError) => {

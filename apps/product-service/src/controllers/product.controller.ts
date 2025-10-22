@@ -263,6 +263,27 @@ export const getShopProducts = async(req: any, res: Response, next: NextFunction
     }
 }
 
+export const getShopOffers = async(req: any, res: Response, next: NextFunction) => {
+    try {
+        const events = await prisma.products.findMany({
+            where: {
+                shopId: req?.seller?.shop?.id,
+                AND: [
+                    { starting_date: { not: null } },
+                    { ending_date: { not: null } },
+                ]
+            }, 
+            include: {
+                images: true,
+            }
+        });
+
+        return res.status(200).json({ success: true, events });
+    } catch (error) {
+        return next(error);
+    }
+}
+
 export const deleteProduct = async(req: any, res: Response, next: NextFunction) => {
     try {
         const {productId} = req.params;
