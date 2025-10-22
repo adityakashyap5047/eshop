@@ -37,7 +37,7 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
     const wishList = useStore((state: any) => state.whishList);
     const isWishListed = wishList?.some((item: any) => item.id === productDetails?.id);
 
-    const { user, isLoading } = useUser();
+    const { user } = useUser();
     const location = useLocation();
     const deviceInfo = useDeviceInfo();
 
@@ -362,7 +362,8 @@ const ProductDetails = ({productDetails}: {productDetails: any}) => {
 
                         <div className="text-center mt-4 border-t border-t-gray-200 pt-2">
                             <Link
-                                href={`/shops/${productDetails?.Shop?.id}`}
+                                href={`/shop/${productDetails?.Shop?.id}`}
+                                target="_blank"
                                 className="text-blue-500 font-medium text-sm hover:underline"
                             >
                                 GO TO STORE

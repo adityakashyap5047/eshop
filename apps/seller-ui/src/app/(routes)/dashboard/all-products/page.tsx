@@ -5,7 +5,7 @@ import axiosInstance from "apps/seller-ui/src/utils/axiosInstance";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart, ChevronRightIcon, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2, Package, AlertTriangle, TrendingUp, ShoppingBag } from "lucide-react";
+import { ChevronRightIcon, Eye, FileAxis3D, Pencil, Plus, Search, Star, Trash2, Package, AlertTriangle, TrendingUp, ShoppingBag } from "lucide-react";
 import DeleteConfirmationModal from "apps/seller-ui/src/shared/components/modals/delete-confirmation-modal";
 
 const fetchProducts = async () => {
@@ -68,13 +68,11 @@ const ProductList = () => {
             cell: ({row}: any) => {
                 const truncatedTitle = row.original.title.length > 25 ? `${row.original.title.substring(0, 25)}...` : row.original.title;
                 return (
-                    <Link 
-                        href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
-                        className="text-blue-600 hover:underline"
+                    <span 
                         title={row.original.title}
                     >
                         {truncatedTitle}
-                    </Link>
+                    </span>
                 )
             }
         },
@@ -113,7 +111,8 @@ const ProductList = () => {
             cell: ({row}: any) => (
                 <div className="flex gap-3">
                     <Link
-                        href={`/product/${row.original.id}`}
+                        href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
+                        target="_blank"
                         className="text-blue-400 hover:text-blue-300 transition"
                     >
                         <Eye size={18} />
@@ -124,11 +123,6 @@ const ProductList = () => {
                     >
                         <Pencil size={18} />
                     </Link>
-                    <button
-                        className="text-green-400 hover:text-green-300 transition"
-                    >
-                        <BarChart size={18} />
-                    </button>
                     <button
                         className={`${!row.original.isDeleted ? "text-red-400 hover:text-red-300 transition" : "text-cyan-400 hover:text-cyan-300 transition"}`}
                         onClick={() => {

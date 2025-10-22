@@ -100,7 +100,7 @@ const SidebarWrapper = () => {
                 icon={<BellPlus size={24} color={getIconColor("/dashboard/all-events")} />}
               />
             </SidebarMenu>
-            <SidebarMenu title="Controllers">
+            {/* <SidebarMenu title="Controllers">
               <SidebarItem 
                 isActive={activeSidebar === "/dashboard/inbox"}
                 title="Inbox"
@@ -119,7 +119,7 @@ const SidebarWrapper = () => {
                 href="/dashboard/notifications"
                 icon={<BellRing size={24} color={getIconColor("/dashboard/notifications")} />}  
               />
-            </SidebarMenu>
+            </SidebarMenu> */}
             <SidebarMenu title="Extras">
               <SidebarItem
                 isActive={activeSidebar === "/dashboard/discount-codes"}

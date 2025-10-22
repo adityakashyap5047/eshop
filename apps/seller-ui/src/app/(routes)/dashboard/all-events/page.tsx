@@ -160,7 +160,7 @@ const EventList = () => {
             cell: ({row}: any) => (
                 <div className="flex gap-3">
                     <Link
-                        href={`/product/${row.original.id}`}
+                        href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.id}`}
                         className="text-blue-400 hover:text-blue-300 transition"
                         title="View Event"
                     >
@@ -173,12 +173,6 @@ const EventList = () => {
                     >
                         <Pencil size={18} />
                     </Link>
-                    <button
-                        className="text-green-400 hover:text-green-300 transition"
-                        title="View Analytics"
-                    >
-                        <BarChart size={18} />
-                    </button>
                     <button
                         className={`${!row.original.isDeleted ? "text-red-400 hover:text-red-300 transition" : "text-cyan-400 hover:text-cyan-300 transition"}`}
                         onClick={() => {
