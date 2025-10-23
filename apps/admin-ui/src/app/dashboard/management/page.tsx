@@ -5,7 +5,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
 import { ChevronRightIcon, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react"
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const columns = [
     {accessorKey: "name", header: "Name"},
@@ -30,12 +31,39 @@ const Management = () => {
 
     const {mutate: updateRole, isPending: isUpdating} = useMutation({
         mutationFn: async() => {
-            return await axiosInstance.put("/admin/api/add-new-admin", {
+            return await axiosInstance.put("/admin/api/add-new-role", {
                 email: search,
                 role: selectedRole,
             });
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
+            const data = response.data;
+            
+            if (data.passwordGenerated) {
+                toast.success(
+                    `New ${selectedRole} created successfully! ${data.emailSent ? 'Password sent to email.' : 'Please contact user for password.'}`,
+                    { 
+                        duration: 6000,
+                        style: {
+                            background: '#10B981',
+                            color: 'white',
+                            maxWidth: '500px',
+                        }
+                    }
+                );
+            } else {
+                toast.success(
+                    `User role updated to '${selectedRole}' successfully!`,
+                    { 
+                        duration: 4000,
+                        style: {
+                            background: '#059669',
+                            color: 'white',
+                        }
+                    }
+                );
+            }
+            
             queryClient.invalidateQueries({queryKey: ["admins"]});
             queryClient.invalidateQueries({queryKey: ["users-list"]});
             setOpen(false);
@@ -44,6 +72,19 @@ const Management = () => {
         },
         onError: (error: any) => {
             console.error("Error updating role:", error.response?.data || error.message);
+            
+            const errorMessage = error.response?.data?.message || 'Failed to update user role';
+            toast.error(
+                `${errorMessage}`,
+                {
+                    duration: 5000,
+                    style: {
+                        background: '#DC2626',
+                        color: 'white',
+                        maxWidth: '400px',
+                    }
+                }
+            );
         }
     });
 
@@ -55,14 +96,58 @@ const Management = () => {
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
-        updateRole();
+        
+        // Validation
+        if (!search.trim()) {
+            toast.error('Please enter an email address');
+            return;
+        }
+        
+        if (!selectedRole) {
+            toast.error('Please select a role');
+            return;
+        }
+
+        // Show loading toast
+        const loadingToast = toast.loading(
+            `🔄 ${search.includes('@') ? 'Updating user role' : 'Processing request'}...`,
+            {
+                style: {
+                    background: '#1F2937',
+                    color: '#F9FAFB',
+                    border: '1px solid #374151',
+                }
+            }
+        );
+        
+        updateRole(undefined, {
+            onSuccess: () => {
+                toast.dismiss(loadingToast);
+            },
+            onError: () => {
+                toast.dismiss(loadingToast);
+            }
+        });
     }
 
     return (
         <div className="w-full min-h-screen p-8 bg-black text-white text-sm">
             <div className="flex justify-between items-center mb-3">
                 <h2 className="text-xl font-bold tracking-wide">Team Management</h2>
-                <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                <button 
+                    onClick={() => {
+                        setOpen(true);
+                        toast('Tip: Enter an email to create a new user or update existing user role', {
+                            icon: '💡',
+                            duration: 3000,
+                            style: {
+                                background: '#1E40AF',
+                                color: 'white',
+                            }
+                        });
+                    }} 
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
                     Update Role 
                 </button>
             </div>
@@ -125,7 +210,16 @@ const Management = () => {
             {open && (
                 <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg relative">
-                        <button onClick={() => setOpen(false)} className="absolute top-3 right-4 text-gray-400 hover:text-white"><X size={22} /></button>
+                        <button 
+                            onClick={() => {
+                                setOpen(false);
+                                setSearch("");
+                                setSelectedRole("user");
+                            }} 
+                            className="absolute top-3 right-4 text-gray-400 hover:text-white"
+                        >
+                            <X size={22} />
+                        </button>
 
                         <h3 className="text-lg font-semibold mb-4">Add New Admin / User</h3>
                         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -154,7 +248,15 @@ const Management = () => {
                             <div className="flex gap-8 pt-2">
                                 <button
                                     type="button"
-                                    onClick={() => setOpen(false)}
+                                    onClick={() => {
+                                        setOpen(false);
+                                        setSearch("");
+                                        setSelectedRole("user");
+                                        toast('Form cancelled', {
+                                            icon: '📝',
+                                            duration: 2000,
+                                        });
+                                    }}
                                     className="w-full bg-slate-700 text-white px-4 py-2 !rounded hover:bg-slate-900"
                                 >
                                     Cancel
