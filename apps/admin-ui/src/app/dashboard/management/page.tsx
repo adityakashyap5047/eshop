@@ -37,6 +37,7 @@ const Management = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ["admins"]});
+            queryClient.invalidateQueries({queryKey: ["users-list"]});
             setOpen(false);
             setSearch("");
             setSelectedRole("user");
@@ -62,7 +63,7 @@ const Management = () => {
             <div className="flex justify-between items-center mb-3">
                 <h2 className="text-xl font-bold tracking-wide">Team Management</h2>
                 <button onClick={() => setOpen(true)} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Add Admin 
+                    Update Role 
                 </button>
             </div>
 
@@ -126,7 +127,7 @@ const Management = () => {
                     <div className="bg-gray-800 p-6 rounded-lg w-[450px] shadow-lg relative">
                         <button onClick={() => setOpen(false)} className="absolute top-3 right-4 text-gray-400 hover:text-white"><X size={22} /></button>
 
-                        <h3 className="text-lg font-semibold mb-4">Add New Admin</h3>
+                        <h3 className="text-lg font-semibold mb-4">Add New Admin / User</h3>
                         <form className="space-y-4" onSubmit={handleSubmit}>
                             <div>
                                 <label className="block mb-1">Email</label>
@@ -135,7 +136,8 @@ const Management = () => {
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     placeholder="support@eshop.com"
-                                    className="w-full px-3 py-2 outline-none bg-transparent border-2 border-slate-600 text-white rounded-sm"
+                                    required
+                                    className="w-full px-3 py-2 outline-none bg-slate-900 border-2 border-slate-600 text-white rounded-sm"
                                 />
                             </div>
                             <div>
@@ -143,7 +145,7 @@ const Management = () => {
                                 <select
                                     value={selectedRole}
                                     onChange={(e) => setSelectedRole(e.target.value)}
-                                    className="w-full px-3 py-2 cursor-pointer text-black outline-none bg-transparent border-2 border-slate-600 rounded-sm"
+                                    className="w-full text-white px-3 py-2 cursor-pointer outline-none bg-slate-900 border-2 border-slate-600 rounded-sm"
                                 >
                                     <option value="user">User</option>
                                     <option value="admin">Admin</option>
@@ -162,7 +164,7 @@ const Management = () => {
                                     onClick={() => updateRole()}
                                     className="w-full bg-blue-700 text-white px-4 py-2 !rounded hover:bg-blue-900"
                                 >
-                                    {isUpdating ? "Updating ..." : "Add Admin"}
+                                    {isUpdating ? "Updating ..." : "Update Role"}
                                 </button>
                             </div>
                         </form>
