@@ -466,3 +466,247 @@ export const getAllSellers = async(
         next(error);
     }
 }
+
+export const banUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { userId, reason } = req.body;
+        
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+        
+        const user = await prisma.users.findUnique({
+            where: { id: userId }
+        });
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        
+        if (user.isOwner) {
+            return res.status(403).json({
+                success: false,
+                message: "Cannot ban the owner admin"
+            });
+        }
+        
+        const existingBan = await prisma.banned.findUnique({
+            where: { email: user.email }
+        });
+        
+        if (existingBan) {
+            return res.status(400).json({
+                success: false,
+                message: "User is already banned"
+            });
+        }
+        
+        const result = await prisma.$transaction(async (tx) => {
+            const bannedUser = await tx.banned.create({
+                data: {
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                    password: user.password,
+                    following: user.following,
+                    createdAt: user.createdAt,
+                    updatedAt: new Date()
+                }
+            });
+            
+            await tx.users.delete({
+                where: { id: userId }
+            });
+            
+            return bannedUser;
+        });
+        
+        return res.status(200).json({
+            success: true,
+            message: `User ${user.email} has been banned successfully`,
+            bannedUser: {
+                id: result.id,
+                email: result.email,
+                name: result.name,
+                role: result.role,
+                bannedAt: result.updatedAt
+            },
+            reason: reason || "No reason provided"
+        });
+        
+    } catch (error: any) {
+        console.error("Error in banUser:", error);
+        
+        if (error.code === 'P2025') {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        
+        if (error.code === 'P2002') {
+            return res.status(400).json({
+                success: false,
+                message: "User is already banned"
+            });
+        }
+        
+        return next(error);
+    }
+};
+
+export const unbanUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const { userId } = req.body;
+        
+        // Input validation
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required"
+            });
+        }
+        
+        console.log(`Processing unban request for banned user ID: ${userId}`);
+        
+        // Find the banned user
+        const bannedUser = await prisma.banned.findUnique({
+            where: { id: userId }
+        });
+        
+        if (!bannedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "Banned user not found"
+            });
+        }
+        
+        // Check if user already exists in users collection
+        const existingUser = await prisma.users.findUnique({
+            where: { email: bannedUser.email }
+        });
+        
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "User is already active"
+            });
+        }
+        
+        // Use a transaction to ensure data consistency
+        const result = await prisma.$transaction(async (tx) => {
+            // Move banned user back to users collection
+            const restoredUser = await tx.users.create({
+                data: {
+                    name: bannedUser.name,
+                    email: bannedUser.email,
+                    role: bannedUser.role,
+                    isOwner: false, // Reset owner status for security
+                    password: bannedUser.password,
+                    following: bannedUser.following,
+                    createdAt: bannedUser.createdAt,
+                    updatedAt: new Date()
+                }
+            });
+            
+            // Remove user from banned collection
+            await tx.banned.delete({
+                where: { id: userId }
+            });
+            
+            return restoredUser;
+        });
+        
+        console.log(`User ${bannedUser.email} unbanned successfully`);
+        
+        return res.status(200).json({
+            success: true,
+            message: `User ${bannedUser.email} has been unbanned successfully`,
+            restoredUser: {
+                id: result.id,
+                email: result.email,
+                name: result.name,
+                role: result.role,
+                unbannedAt: result.updatedAt
+            }
+        });
+        
+    } catch (error: any) {
+        console.error("Error in unbanUser:", error);
+        
+        // Handle specific Prisma errors
+        if (error.code === 'P2025') {
+            return res.status(404).json({
+                success: false,
+                message: "Banned user not found"
+            });
+        }
+        
+        if (error.code === 'P2002') {
+            return res.status(400).json({
+                success: false,
+                message: "User is already active"
+            });
+        }
+        
+        return next(error);
+    }
+};
+
+export const getAllBannedUsers = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+
+        const [bannedUsers, totalBannedUsers] = await Promise.all([
+            prisma.banned.findMany({
+                skip,
+                take: limit,
+                orderBy: { updatedAt: "desc" },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    createdAt: true,
+                    updatedAt: true
+                }
+            }),
+            prisma.banned.count(),
+        ]);
+
+        const totalPages = Math.ceil(totalBannedUsers / limit);
+
+        return res.status(200).json({
+            success: true,
+            data: bannedUsers,
+            meta: {
+                totalBannedUsers,
+                currentPage: page,
+                totalPages
+            }
+        });
+    } catch (error) {
+        console.error("Error in getAllBannedUsers:", error);
+        return next(error);
+    }
+};

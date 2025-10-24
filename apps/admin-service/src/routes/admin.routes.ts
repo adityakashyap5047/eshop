@@ -1,7 +1,18 @@
 import { isAdmin } from "@packages/middleware/authorizeRoles";
 import isAuthenticated from "@packages/middleware/isAuthenticated";
 import express, { Router } from "express";
-import { addNewRole, getAllAdmins, getAllCustomizations, getAllEvents, getAllProducts, getAllSellers, getAllUsers } from "../controllers/admin.controller";
+import { 
+    addNewRole, 
+    banUser, 
+    unbanUser,
+    getAllAdmins, 
+    getAllBannedUsers,
+    getAllCustomizations, 
+    getAllEvents, 
+    getAllProducts, 
+    getAllSellers, 
+    getAllUsers 
+} from "../controllers/admin.controller";
 
 const router: Router = express.Router();
 
@@ -11,6 +22,9 @@ router.get("/get-all-admins", isAuthenticated, isAdmin, getAllAdmins);
 router.get("/get-all", getAllCustomizations);
 router.get("/get-all-users", isAuthenticated, isAdmin, getAllUsers);
 router.get("/get-all-sellers", isAuthenticated, isAdmin, getAllSellers);
+router.get("/get-all-banned-users", isAuthenticated, isAdmin, getAllBannedUsers);
 router.put("/add-new-role", isAuthenticated, isAdmin, addNewRole);
+router.put("/ban-user", isAuthenticated, isAdmin, banUser);
+router.put("/unban-user", isAuthenticated, isAdmin, unbanUser);
 
 export default router;
