@@ -106,7 +106,6 @@ const sendUnbanEmail = async (email: string, userName: string): Promise<boolean>
         };
 
         await transporter.sendMail(mailOptions);
-        console.log(`Unban notification email sent successfully to ${email}`);
         return true;
     } catch (error) {
         console.error(`Failed to send unban email to ${email}:`, error);
@@ -307,7 +306,6 @@ export const addNewRole = async(
 ) => {
     try {
         const {email, role} = req.body;
-        console.log(`Processing role change request: email=${email}, role=${role}`);
 
         if (!email || !role) {
             return res.status(400).json({
@@ -361,7 +359,6 @@ export const addNewRole = async(
                 }
             } catch (createError: any) {
                 if (createError.code === 'P2002') {
-                    console.log(`User ${email} was created by another request, fetching existing user`);
                     user = await prisma.users.findUnique({
                         where: { email: email.toLowerCase().trim() }
                     });
@@ -609,6 +606,34 @@ export const banUser = async (
                     }
                 });
 
+                // Migrate all related orders to the banned user
+                await tx.orders.updateMany({
+                    where: { userId: userId },
+                    data: { 
+                        userId: bannedUser.id,
+                        bannedId: bannedUser.id 
+                    }
+                });
+
+                // Migrate all reviews to the banned user
+                await tx.shopReviews.updateMany({
+                    where: { userId: userId },
+                    data: { 
+                        userId: bannedUser.id,
+                        bannedId: bannedUser.id 
+                    }
+                });
+
+                // Migrate all follower relationships
+                await tx.followers.updateMany({
+                    where: { userId: userId },
+                    data: { 
+                        userId: bannedUser.id,
+                        bannedId: bannedUser.id 
+                    }
+                });
+
+                // Now safe to delete the user after all relations are migrated
                 await tx.users.delete({
                     where: { id: userId }
                 });
@@ -658,6 +683,36 @@ export const banUser = async (
                         } else {
                             throw createErr;
                         }
+                    }
+
+                    // Migrate all related data to banned user
+                    if (bannedUser) {
+                        // Migrate orders
+                        await prisma.orders.updateMany({
+                            where: { userId: userId },
+                            data: { 
+                                userId: bannedUser.id,
+                                bannedId: bannedUser.id 
+                            }
+                        });
+
+                        // Migrate reviews
+                        await prisma.shopReviews.updateMany({
+                            where: { userId: userId },
+                            data: { 
+                                userId: bannedUser.id,
+                                bannedId: bannedUser.id 
+                            }
+                        });
+
+                        // Migrate followers
+                        await prisma.followers.updateMany({
+                            where: { userId: userId },
+                            data: { 
+                                userId: bannedUser.id,
+                                bannedId: bannedUser.id 
+                            }
+                        });
                     }
 
                     // Delete original user if still exists
@@ -735,9 +790,7 @@ export const unbanUser = async (
                 message: "User ID is required"
             });
         }
-        
-        console.log(`Processing unban request for banned user ID: ${userId}`);
-        
+                
         // Find the banned user
         const bannedUser = await prisma.banned.findUnique({
             where: { id: userId }
@@ -779,6 +832,33 @@ export const unbanUser = async (
                     }
                 });
 
+                // Migrate all related orders back to the restored user
+                await tx.orders.updateMany({
+                    where: { bannedId: userId },
+                    data: { 
+                        userId: restoredUser.id,
+                        bannedId: null 
+                    }
+                });
+
+                // Migrate all reviews back to the restored user
+                await tx.shopReviews.updateMany({
+                    where: { bannedId: userId },
+                    data: { 
+                        userId: restoredUser.id,
+                        bannedId: null 
+                    }
+                });
+
+                // Migrate all follower relationships back
+                await tx.followers.updateMany({
+                    where: { bannedId: userId },
+                    data: { 
+                        userId: restoredUser.id,
+                        bannedId: null 
+                    }
+                });
+
                 // Remove user from banned collection
                 await tx.banned.delete({
                     where: { id: userId }
@@ -786,8 +866,6 @@ export const unbanUser = async (
 
                 return restoredUser;
             }, { timeout: 20000, maxWait: 10000 });
-
-            console.log(`User ${bannedUser.email} unbanned successfully`);
             
             // Send unban notification email
             const emailSent = await sendUnbanEmail(bannedUser.email, bannedUser.name);
@@ -831,6 +909,36 @@ export const unbanUser = async (
                         } else {
                             throw createErr;
                         }
+                    }
+
+                    // Migrate all related data back to restored user
+                    if (restoredUser) {
+                        // Migrate orders back
+                        await prisma.orders.updateMany({
+                            where: { bannedId: userId },
+                            data: { 
+                                userId: restoredUser.id,
+                                bannedId: null 
+                            }
+                        });
+
+                        // Migrate reviews back
+                        await prisma.shopReviews.updateMany({
+                            where: { bannedId: userId },
+                            data: { 
+                                userId: restoredUser.id,
+                                bannedId: null 
+                            }
+                        });
+
+                        // Migrate followers back
+                        await prisma.followers.updateMany({
+                            where: { bannedId: userId },
+                            data: { 
+                                userId: restoredUser.id,
+                                bannedId: null 
+                            }
+                        });
                     }
 
                     // Delete from banned collection if still exists
