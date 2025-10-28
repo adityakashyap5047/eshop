@@ -30,6 +30,90 @@ const generateStrongPassword = (): string => {
     return password.split('').sort(() => Math.random() - 0.5).join('');
 };
 
+const sendBanEmail = async (email: string, userName: string, reason?: string): Promise<boolean> => {
+    try {
+        const mailOptions = {
+            from: `Admin Panel <${process.env.SMTP_USER}>`,
+            to: `${email}`,
+            subject: `Account Suspended - E-Shop`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                    <h2 style="color: #d32f2f; text-align: center;">Account Suspended</h2>
+                    <p style="color: #555; font-size: 16px;">Hello ${userName},</p>
+                    <p style="color: #555; font-size: 16px;">
+                        We regret to inform you that your account has been suspended by our administration team.
+                    </p>
+                    ${reason ? `
+                    <div style="background-color: #ffebee; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #d32f2f;">
+                        <h3 style="color: #d32f2f; margin-top: 0;">Reason for Suspension:</h3>
+                        <p style="color: #555; margin: 10px 0;">${reason}</p>
+                    </div>
+                    ` : ''}
+                    <p style="color: #555; font-size: 16px;">
+                        If you believe this action was taken in error or would like to appeal this decision, 
+                        please contact our support team at <a href="mailto:${process.env.SMTP_USER}">${process.env.SMTP_USER}</a>.
+                    </p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+                    <p style="color: #999; font-size: 12px; text-align: center;">
+                        This is an automated message from E-Shop Admin Panel. Please do not reply to this email.
+                    </p>
+                </div>
+            `
+        };
+        await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+const sendUnbanEmail = async (email: string, userName: string): Promise<boolean> => {
+    try {
+        const mailOptions = {
+            from: `Admin Panel <${process.env.SMTP_USER}>`,
+            to: `${email}`,
+            subject: `Account Restored - E-Shop`,
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                    <h2 style="color: #388e3c; text-align: center;">Account Restored</h2>
+                    <p style="color: #555; font-size: 16px;">Hello ${userName},</p>
+                    <p style="color: #555; font-size: 16px;">
+                        Good news! Your account has been restored and you now have full access to E-Shop.
+                    </p>
+                    <div style="background-color: #e8f5e9; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #388e3c;">
+                        <h3 style="color: #388e3c; margin-top: 0;">You can now:</h3>
+                        <ul style="color: #555;">
+                            <li>Log in to your account</li>
+                            <li>Access all platform features</li>
+                            <li>Continue your activities on E-Shop</li>
+                        </ul>
+                    </div>
+                    <p style="color: #555; font-size: 16px;">
+                        We appreciate your understanding and look forward to seeing you back on the platform.
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.CLIENT_URL || 'http://localhost:3000'}" 
+                           style="background-color: #388e3c; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                            Login to Your Account
+                        </a>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;" />
+                    <p style="color: #999; font-size: 12px; text-align: center;">
+                        This is an automated message from E-Shop Admin Panel. Please do not reply to this email.
+                    </p>
+                </div>
+            `
+        };
+
+        await transporter.sendMail(mailOptions);
+        console.log(`Unban notification email sent successfully to ${email}`);
+        return true;
+    } catch (error) {
+        console.error(`Failed to send unban email to ${email}:`, error);
+        return false;
+    }
+};
+
 const sendPasswordEmail = async (email: string, password: string, role: string): Promise<boolean> => {
     try {
         const mailOptions = {
@@ -511,7 +595,6 @@ export const banUser = async (
             });
         }
         
-        // Use an interactive transaction with extended timeout to avoid P2028 transaction timeout
         try {
             const result = await prisma.$transaction(async (tx) => {
                 const bannedUser = await tx.banned.create({
@@ -531,8 +614,10 @@ export const banUser = async (
                 });
 
                 return bannedUser;
-            }, { timeout: 20000, maxWait: 10000 }); // increase transaction timeout and connection wait
+            }, { timeout: 20000, maxWait: 10000 });
 
+            const emailSent = await sendBanEmail(user.email, user.name, reason);
+            
             return res.status(200).json({
                 success: true,
                 message: `User ${user.email} has been banned successfully`,
@@ -543,7 +628,8 @@ export const banUser = async (
                     role: result.role,
                     bannedAt: result.updatedAt
                 },
-                reason: reason || "No reason provided"
+                reason: reason || "No reason provided",
+                emailSent: emailSent
             });
         } catch (txError: any) {
             console.error("Transaction error in banUser:", txError);
@@ -584,6 +670,8 @@ export const banUser = async (
                         }
                     }
 
+                    const emailSent = await sendBanEmail(user.email, user.name, reason);
+
                     return res.status(200).json({
                         success: true,
                         message: `User ${user.email} has been banned successfully (fallback)`,
@@ -595,6 +683,7 @@ export const banUser = async (
                             bannedAt: bannedUser?.updatedAt
                         },
                         reason: reason || "No reason provided",
+                        emailSent: emailSent,
                         note: "Operation completed using fallback (non-transactional) path due to transaction timeout"
                     });
                 } catch (fallbackErr) {
@@ -699,6 +788,9 @@ export const unbanUser = async (
             }, { timeout: 20000, maxWait: 10000 });
 
             console.log(`User ${bannedUser.email} unbanned successfully`);
+            
+            // Send unban notification email
+            const emailSent = await sendUnbanEmail(bannedUser.email, bannedUser.name);
 
             return res.status(200).json({
                 success: true,
@@ -709,7 +801,8 @@ export const unbanUser = async (
                     name: result.name,
                     role: result.role,
                     unbannedAt: result.updatedAt
-                }
+                },
+                emailSent: emailSent
             });
         } catch (txError: any) {
             console.error("Transaction error in unbanUser:", txError);
@@ -749,6 +842,9 @@ export const unbanUser = async (
                         }
                     }
 
+                    // Send unban notification email
+                    const emailSent = await sendUnbanEmail(bannedUser.email, bannedUser.name);
+
                     return res.status(200).json({
                         success: true,
                         message: `User ${bannedUser.email} has been unbanned successfully (fallback)`,
@@ -759,6 +855,7 @@ export const unbanUser = async (
                             role: restoredUser?.role,
                             unbannedAt: restoredUser?.updatedAt
                         },
+                        emailSent: emailSent,
                         note: "Operation completed using fallback (non-transactional) path due to transaction timeout"
                     });
                 } catch (fallbackErr) {
