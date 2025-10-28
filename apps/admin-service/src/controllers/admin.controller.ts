@@ -511,38 +511,104 @@ export const banUser = async (
             });
         }
         
-        const result = await prisma.$transaction(async (tx) => {
-            const bannedUser = await tx.banned.create({
-                data: {
-                    name: user.name,
-                    email: user.email,
-                    role: user.role,
-                    password: user.password,
-                    following: user.following,
-                    createdAt: user.createdAt,
-                    updatedAt: new Date()
+        // Use an interactive transaction with extended timeout to avoid P2028 transaction timeout
+        try {
+            const result = await prisma.$transaction(async (tx) => {
+                const bannedUser = await tx.banned.create({
+                    data: {
+                        name: user.name,
+                        email: user.email,
+                        role: user.role,
+                        password: user.password,
+                        following: user.following,
+                        createdAt: user.createdAt,
+                        updatedAt: new Date()
+                    }
+                });
+
+                await tx.users.delete({
+                    where: { id: userId }
+                });
+
+                return bannedUser;
+            }, { timeout: 20000, maxWait: 10000 }); // increase transaction timeout and connection wait
+
+            return res.status(200).json({
+                success: true,
+                message: `User ${user.email} has been banned successfully`,
+                bannedUser: {
+                    id: result.id,
+                    email: result.email,
+                    name: result.name,
+                    role: result.role,
+                    bannedAt: result.updatedAt
+                },
+                reason: reason || "No reason provided"
+            });
+        } catch (txError: any) {
+            console.error("Transaction error in banUser:", txError);
+
+            // If transaction timed out (P2028), fall back to a safer non-transactional approach
+            if (txError?.code === 'P2028') {
+                try {
+                    // Create banned user (handle unique constraint)
+                    let bannedUser;
+                    try {
+                        bannedUser = await prisma.banned.create({
+                            data: {
+                                name: user.name,
+                                email: user.email,
+                                role: user.role,
+                                password: user.password,
+                                following: user.following,
+                                createdAt: user.createdAt,
+                                updatedAt: new Date()
+                            }
+                        });
+                    } catch (createErr: any) {
+                        if (createErr.code === 'P2002') {
+                            // already exists in banned collection
+                            bannedUser = await prisma.banned.findUnique({ where: { email: user.email } });
+                        } else {
+                            throw createErr;
+                        }
+                    }
+
+                    // Delete original user if still exists
+                    try {
+                        await prisma.users.delete({ where: { id: userId } });
+                    } catch (delErr: any) {
+                        // If user was already deleted by another process, ignore
+                        if (delErr.code !== 'P2025') {
+                            throw delErr;
+                        }
+                    }
+
+                    return res.status(200).json({
+                        success: true,
+                        message: `User ${user.email} has been banned successfully (fallback)`,
+                        bannedUser: {
+                            id: bannedUser?.id,
+                            email: bannedUser?.email,
+                            name: bannedUser?.name,
+                            role: bannedUser?.role,
+                            bannedAt: bannedUser?.updatedAt
+                        },
+                        reason: reason || "No reason provided",
+                        note: "Operation completed using fallback (non-transactional) path due to transaction timeout"
+                    });
+                } catch (fallbackErr) {
+                    console.error("Fallback banUser error:", fallbackErr);
+                    return res.status(500).json({
+                        success: false,
+                        message: "Failed to ban user due to transaction timeout and fallback failure"
+                    });
                 }
-            });
-            
-            await tx.users.delete({
-                where: { id: userId }
-            });
-            
-            return bannedUser;
-        });
+            }
+
+            throw txError; // rethrow other transaction errors to be handled by outer catch
+        }
         
-        return res.status(200).json({
-            success: true,
-            message: `User ${user.email} has been banned successfully`,
-            bannedUser: {
-                id: result.id,
-                email: result.email,
-                name: result.name,
-                role: result.role,
-                bannedAt: result.updatedAt
-            },
-            reason: reason || "No reason provided"
-        });
         
     } catch (error: any) {
         console.error("Error in banUser:", error);
@@ -607,43 +673,105 @@ export const unbanUser = async (
             });
         }
         
-        // Use a transaction to ensure data consistency
-        const result = await prisma.$transaction(async (tx) => {
-            // Move banned user back to users collection
-            const restoredUser = await tx.users.create({
-                data: {
-                    name: bannedUser.name,
-                    email: bannedUser.email,
-                    role: bannedUser.role,
-                    isOwner: false, // Reset owner status for security
-                    password: bannedUser.password,
-                    following: bannedUser.following,
-                    createdAt: bannedUser.createdAt,
-                    updatedAt: new Date()
+        // Use an interactive transaction with extended timeout, with a fallback on timeout
+        try {
+            const result = await prisma.$transaction(async (tx) => {
+                // Move banned user back to users collection
+                const restoredUser = await tx.users.create({
+                    data: {
+                        name: bannedUser.name,
+                        email: bannedUser.email,
+                        role: bannedUser.role,
+                        isOwner: false, // Reset owner status for security
+                        password: bannedUser.password,
+                        following: bannedUser.following,
+                        createdAt: bannedUser.createdAt,
+                        updatedAt: new Date()
+                    }
+                });
+
+                // Remove user from banned collection
+                await tx.banned.delete({
+                    where: { id: userId }
+                });
+
+                return restoredUser;
+            }, { timeout: 20000, maxWait: 10000 });
+
+            console.log(`User ${bannedUser.email} unbanned successfully`);
+
+            return res.status(200).json({
+                success: true,
+                message: `User ${bannedUser.email} has been unbanned successfully`,
+                restoredUser: {
+                    id: result.id,
+                    email: result.email,
+                    name: result.name,
+                    role: result.role,
+                    unbannedAt: result.updatedAt
                 }
             });
-            
-            // Remove user from banned collection
-            await tx.banned.delete({
-                where: { id: userId }
-            });
-            
-            return restoredUser;
-        });
-        
-        console.log(`User ${bannedUser.email} unbanned successfully`);
-        
-        return res.status(200).json({
-            success: true,
-            message: `User ${bannedUser.email} has been unbanned successfully`,
-            restoredUser: {
-                id: result.id,
-                email: result.email,
-                name: result.name,
-                role: result.role,
-                unbannedAt: result.updatedAt
+        } catch (txError: any) {
+            console.error("Transaction error in unbanUser:", txError);
+
+            if (txError?.code === 'P2028') {
+                // fallback: create user then delete from banned
+                try {
+                    let restoredUser;
+                    try {
+                        restoredUser = await prisma.users.create({
+                            data: {
+                                name: bannedUser.name,
+                                email: bannedUser.email,
+                                role: bannedUser.role,
+                                isOwner: false,
+                                password: bannedUser.password,
+                                following: bannedUser.following,
+                                createdAt: bannedUser.createdAt,
+                                updatedAt: new Date()
+                            }
+                        });
+                    } catch (createErr: any) {
+                        if (createErr.code === 'P2002') {
+                            // already exists in users collection
+                            restoredUser = await prisma.users.findUnique({ where: { email: bannedUser.email } });
+                        } else {
+                            throw createErr;
+                        }
+                    }
+
+                    // Delete from banned collection if still exists
+                    try {
+                        await prisma.banned.delete({ where: { id: userId } });
+                    } catch (delErr: any) {
+                        if (delErr.code !== 'P2025') {
+                            throw delErr;
+                        }
+                    }
+
+                    return res.status(200).json({
+                        success: true,
+                        message: `User ${bannedUser.email} has been unbanned successfully (fallback)`,
+                        restoredUser: {
+                            id: restoredUser?.id,
+                            email: restoredUser?.email,
+                            name: restoredUser?.name,
+                            role: restoredUser?.role,
+                            unbannedAt: restoredUser?.updatedAt
+                        },
+                        note: "Operation completed using fallback (non-transactional) path due to transaction timeout"
+                    });
+                } catch (fallbackErr) {
+                    console.error("Fallback unbanUser error:", fallbackErr);
+                    return res.status(500).json({
+                        success: false,
+                        message: "Failed to unban user due to transaction timeout and fallback failure"
+                    });
+                }
             }
-        });
+
+            throw txError;
+        }
         
     } catch (error: any) {
         console.error("Error in unbanUser:", error);

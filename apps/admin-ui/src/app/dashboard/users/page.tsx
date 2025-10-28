@@ -293,7 +293,7 @@ const UsersPage = () => {
             </div>
 
             {/* Tabs */}
-            <div className="flex space-x-1 mb-6">
+            <div className="flex space-x-4 mb-6">
                 <button
                     onClick={() => {setActiveTab('active'); setPage(1);}}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -303,7 +303,7 @@ const UsersPage = () => {
                     }`}
                 >
                     <Users size={18} />
-                    Active Users ({data?.meta?.totalUsers || 0})
+                    Active Users
                 </button>
                 <button
                     onClick={() => {setActiveTab('banned'); setBannedPage(1);}}
@@ -314,48 +314,9 @@ const UsersPage = () => {
                     }`}
                 >
                     <UserX size={18} />
-                    Banned Users ({bannedData?.meta?.totalBannedUsers || 0})
+                    Banned Users
                 </button>
             </div>
-
-            {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gray-800 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Total Events</p>
-                            <p className="text-white text-2xl font-bold">{eventStats.total}</p>
-                        </div>
-                        <Calendar className="w-8 h-8 text-blue-400" />
-                    </div>
-                </div>
-                <div className="bg-gray-800 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Active Events</p>
-                            <p className="text-green-400 text-2xl font-bold">{eventStats.active}</p>
-                        </div>
-                        <Clock className="w-8 h-8 text-green-400" />
-                    </div>
-                </div>
-                <div className="bg-gray-800 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Upcoming Events</p>
-                            <p className="text-blue-400 text-2xl font-bold">{eventStats.upcoming}</p>
-                        </div>
-                        <Calendar className="w-8 h-8 text-blue-400" />
-                    </div>
-                </div>
-                <div className="bg-gray-800 p-4 rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-gray-400 text-sm">Ended Events</p>
-                            <p className="text-red-400 text-2xl font-bold">{eventStats.ended}</p>
-                        </div>
-                        <Clock className="w-8 h-8 text-red-400" />
-                    </div>
-                </div>
-            </div> */}
 
             <div className="mb-4 flex items-center bg-gray-900 p-2 rounded-md flex-1">
                 <Search size={18} className="text-gray-400 mr-2" />
