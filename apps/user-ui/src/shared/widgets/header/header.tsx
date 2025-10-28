@@ -1,11 +1,13 @@
 "use client";
 
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { HeartIcon, Search, ShoppingCartIcon, UserIcon } from 'lucide-react'
 import HeaderBottom from './header-bottom'
 import useUser from 'apps/user-ui/src/hooks/useUser';
 import { useStore } from 'apps/user-ui/src/store';
+import Image from 'next/image';
+import axios from 'axios';
 
 interface UserType {
     id: string;
@@ -22,13 +24,38 @@ const Header = () => {
     const wishList = useStore((state: any) => state.whishList);
     const cart = useStore((state: any) => state.cart);
     const user = rawUser as UserType;
+    const [logo, setLogo] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchLogo = async () => {
+            try {
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/admin/api/get-all`);
+                if (res.data.logo) {
+                    setLogo(res.data.logo);
+                }
+            } catch (error) {
+                console.error("Failed to fetch logo", error);
+            }
+        };
+        fetchLogo();
+    }, []);
 
   return (
     <div className='w-full bg-white'>
         <div className='w-[80%] py-5 m-auto flex items-center justify-between'>
             <div>
-                <Link href={"/"}>
-                    <span className='text-3xl font-[500]'>Eshop</span>
+                <Link href={"/"} className="flex items-center gap-2">
+                    {logo ? (
+                        <Image 
+                            src={logo} 
+                            alt="Eshop Logo" 
+                            width={50} 
+                            height={50}
+                            className="w-auto h-12 object-contain"
+                        />
+                    ) : (
+                        <span className='text-3xl font-[500]'>Eshop</span>
+                    )}
                 </Link>
             </div>
             <div className='w-[50%] relative'>

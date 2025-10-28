@@ -2,6 +2,7 @@ import prisma from "@packages/libs/prisma";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
+import { imagekit } from "@packages/libs/imagekit";
 
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -1040,6 +1041,126 @@ export const getAllBannedUsers = async (
         });
     } catch (error) {
         console.error("Error in getAllBannedUsers:", error);
+        return next(error);
+    }
+};
+
+export const uploadLogo = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        if (!req.body.file) {
+            return res.status(400).json({ error: 'No file provided' });
+        }
+
+        const fileData = req.body.file;
+        const fileName = `logo-${Date.now()}.jpg`;
+
+        // Upload to ImageKit
+        const response = await imagekit.upload({
+            file: fileData,
+            fileName: fileName,
+            folder: "/Eshop/Customizations/",
+        });
+
+        // Update or create site_config with the new logo
+        const existingConfig = await prisma.site_config.findFirst();
+
+        if (existingConfig) {
+            // Delete old logo from ImageKit if it exists
+            if (existingConfig.logo) {
+                try {
+                    const oldFileId = existingConfig.logo.split('/').pop()?.split('?')[0];
+                    if (oldFileId) {
+                        await imagekit.deleteFile(oldFileId);
+                    }
+                } catch (error) {
+                    console.error("Failed to delete old logo:", error);
+                }
+            }
+
+            await prisma.site_config.update({
+                where: { id: existingConfig.id },
+                data: { logo: response.url }
+            });
+        } else {
+            await prisma.site_config.create({
+                data: {
+                    logo: response.url,
+                    categories: [],
+                    subCategories: []
+                }
+            });
+        }
+
+        return res.status(201).json({
+            logo: response.url,
+            fileId: response.fileId
+        });
+    } catch (error) {
+        console.error('Logo upload error:', error);
+        return next(error);
+    }
+};
+
+export const uploadBanner = async(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        if (!req.body.file) {
+            return res.status(400).json({ error: 'No file provided' });
+        }
+
+        const fileData = req.body.file;
+        const fileName = `banner-${Date.now()}.jpg`;
+
+        // Upload to ImageKit
+        const response = await imagekit.upload({
+            file: fileData,
+            fileName: fileName,
+            folder: "/Eshop/Customizations/",
+        });
+
+        // Update or create site_config with the new banner
+        const existingConfig = await prisma.site_config.findFirst();
+
+        if (existingConfig) {
+            // Delete old banner from ImageKit if it exists
+            if (existingConfig.banner) {
+                try {
+                    const oldFileId = existingConfig.banner.split('/').pop()?.split('?')[0];
+                    if (oldFileId) {
+                        await imagekit.deleteFile(oldFileId);
+                    }
+                } catch (error) {
+                    console.error("Failed to delete old banner:", error);
+                }
+            }
+
+            await prisma.site_config.update({
+                where: { id: existingConfig.id },
+                data: { banner: response.url }
+            });
+        } else {
+            await prisma.site_config.create({
+                data: {
+                    banner: response.url,
+                    categories: [],
+                    subCategories: []
+                }
+            });
+        }
+
+        return res.status(201).json({
+            banner: response.url,
+            fileId: response.fileId
+        });
+    } catch (error) {
+        console.error('Banner upload error:', error);
         return next(error);
     }
 };

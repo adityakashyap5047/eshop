@@ -11,7 +11,9 @@ import {
     getAllEvents, 
     getAllProducts, 
     getAllSellers, 
-    getAllUsers 
+    getAllUsers,
+    uploadLogo,
+    uploadBanner
 } from "../controllers/admin.controller";
 
 const router: Router = express.Router();
@@ -26,5 +28,7 @@ router.get("/get-all-banned-users", isAuthenticated, isAdmin, getAllBannedUsers)
 router.put("/add-new-role", isAuthenticated, isAdmin, addNewRole);
 router.put("/ban-user", isAuthenticated, isAdmin, banUser);
 router.put("/unban-user", isAuthenticated, isAdmin, unbanUser);
+router.post("/upload-logo", isAuthenticated, isAdmin, uploadLogo);
+router.post("/upload-banner", isAuthenticated, isAdmin, uploadBanner);
 
 export default router;

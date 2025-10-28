@@ -30,17 +30,35 @@ const Customization = () => {
         }
         
         setLogoUploading(true);
-        const formData = new FormData();
-        formData.append("file", file);
         
         try {
-            const res = await axiosInstance.post("/admin/api/upload-logo", formData);
-            setLogo(res.data.logo);
-            toast.success("Logo uploaded successfully");
+            // Convert file to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            reader.onload = async () => {
+                try {
+                    const base64Data = reader.result as string;
+                    const res = await axiosInstance.post("/admin/api/upload-logo", {
+                        file: base64Data
+                    });
+                    setLogo(res.data.logo);
+                    toast.success("Logo uploaded successfully");
+                } catch (error) {
+                    console.error("Logo upload failed", error);
+                    toast.error("Failed to upload logo");
+                } finally {
+                    setLogoUploading(false);
+                }
+            };
+            
+            reader.onerror = () => {
+                toast.error("Failed to read file");
+                setLogoUploading(false);
+            };
         } catch (error) {
             console.error("Logo upload failed", error);
             toast.error("Failed to upload logo");
-        } finally {
             setLogoUploading(false);
         }
     };
@@ -52,17 +70,35 @@ const Customization = () => {
         }
         
         setBannerUploading(true);
-        const formData = new FormData();
-        formData.append("file", file);
         
         try {
-            const res = await axiosInstance.post("/admin/api/upload-banner", formData);
-            setBanner(res.data.banner);
-            toast.success("Banner uploaded successfully");
+            // Convert file to base64
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            
+            reader.onload = async () => {
+                try {
+                    const base64Data = reader.result as string;
+                    const res = await axiosInstance.post("/admin/api/upload-banner", {
+                        file: base64Data
+                    });
+                    setBanner(res.data.banner);
+                    toast.success("Banner uploaded successfully");
+                } catch (error) {
+                    console.error("Banner upload failed", error);
+                    toast.error("Failed to upload banner");
+                } finally {
+                    setBannerUploading(false);
+                }
+            };
+            
+            reader.onerror = () => {
+                toast.error("Failed to read file");
+                setBannerUploading(false);
+            };
         } catch (error) {
             console.error("Banner upload failed", error);
             toast.error("Failed to upload banner");
-        } finally {
             setBannerUploading(false);
         }
     };
