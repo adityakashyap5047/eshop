@@ -32,7 +32,6 @@ const Customization = () => {
         setLogoUploading(true);
         
         try {
-            // Convert file to base64
             const reader = new FileReader();
             reader.readAsDataURL(file);
             
@@ -348,18 +347,17 @@ const Customization = () => {
                                 Platform Banner
                             </h3>
                             
-                            {/* Current Banner Preview */}
                             {banner && (
                                 <div className="mb-6 relative">
                                     <p className="text-sm text-gray-400 mb-3">Current Banner:</p>
                                     <div className="relative inline-block w-full">
-                                        <div className="bg-gray-900 p-4 rounded-lg border-2 border-gray-600">
+                                        <div className="bg-gray-900 p-4 rounded-sm border-2 border-gray-600">
                                             <Image
                                                 src={banner}
                                                 alt="Platform Banner"
                                                 width={1200}
                                                 height={300}
-                                                className="w-full h-48 object-cover rounded"
+                                                className="w-full h-48 object-cover rounded-sm"
                                             />
                                         </div>
                                         <button

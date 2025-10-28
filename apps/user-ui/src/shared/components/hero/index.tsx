@@ -2,15 +2,45 @@
 
 import { MoveRight } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Hero = () => {
 
     const router = useRouter();
+    const [banner, setBanner] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchBanner = async () => {
+            try {
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URI}/admin/api/get-all`);
+                if (res.data.banner) {
+                    setBanner(res.data.banner);
+                }
+            } catch (error) {
+                console.error("Failed to fetch banner", error);
+            }
+        };
+        fetchBanner();
+    }, []);
 
     return (
-        <div className="bg-[#115061] h-main flex flex-col justify-center w-full">
-            <div className="md:w-[80%] w-[90%] m-auto md:flex h-full items-center">
+        <div 
+            className="h-main flex flex-col justify-center w-full relative"
+            style={{
+                backgroundImage: banner ? `url(${banner})` : 'none',
+                backgroundColor: banner ? 'transparent' : '#115061',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}
+        >
+            {/* Overlay for better text readability */}
+            {banner && (
+                <div className="absolute inset-0 bg-black/40"></div>
+            )}
+            <div className="md:w-[80%] w-[90%] m-auto md:flex h-full items-center relative z-10">
                 <div className="md:w-1/2">
                 <p className="font-Roboto  font-normal text-white pb-2 text-xl">
                     Starting from 40$
@@ -30,12 +60,13 @@ const Hero = () => {
                     Shop Now <MoveRight />
                 </button>
             </div>
-            <div className="md:w-[1/2] flex justify-center">
+            <div className="md:w-[1/2] flex justify-end pr-8 md:pr-16">
                 <Image
-                    src={"/images/hero.png"}
+                    src={"https://ik.imagekit.io/adityakashyap5047/Eshop/Customizations/watch.png?updatedAt=1761637504919"}
                     alt="Hero Image"
-                    width={500}
-                    height={500}
+                    width={300}
+                    height={300}
+                    className="mr-4 md:mr-8"
                 />
             </div>
             </div>
