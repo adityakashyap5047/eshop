@@ -1,10 +1,11 @@
 "use client";
 
 import axiosInstance from "apps/admin-ui/src/utils/axiosInstance";
-import { ChevronRightIcon } from "lucide-react";
+import { ChevronRightIcon, Upload, X, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const tabs = ['Categories', 'Logo', 'Banner'];
 
@@ -16,7 +17,55 @@ const Customization = () => {
     const [banner, setBanner] = useState<string | null>(null);
     const [newCategory, setNewCategory] = useState(""); 
     const [newSubCategory, setNewSubCategory] = useState(""); 
-    const [selectedCategory, setSelectedCategory] = useState(""); 
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [logoUploading, setLogoUploading] = useState(false);
+    const [bannerUploading, setBannerUploading] = useState(false);
+    const [logoDragActive, setLogoDragActive] = useState(false);
+    const [bannerDragActive, setBannerDragActive] = useState(false);
+
+    const handleLogoUpload = async (file: File) => {
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("File size must be less than 10MB");
+            return;
+        }
+        
+        setLogoUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        try {
+            const res = await axiosInstance.post("/admin/api/upload-logo", formData);
+            setLogo(res.data.logo);
+            toast.success("Logo uploaded successfully");
+        } catch (error) {
+            console.error("Logo upload failed", error);
+            toast.error("Failed to upload logo");
+        } finally {
+            setLogoUploading(false);
+        }
+    };
+
+    const handleBannerUpload = async (file: File) => {
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("File size must be less than 10MB");
+            return;
+        }
+        
+        setBannerUploading(true);
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        try {
+            const res = await axiosInstance.post("/admin/api/upload-banner", formData);
+            setBanner(res.data.banner);
+            toast.success("Banner uploaded successfully");
+        } catch (error) {
+            console.error("Banner upload failed", error);
+            toast.error("Failed to upload banner");
+        } finally {
+            setBannerUploading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchCustomization = async() => {
@@ -156,76 +205,202 @@ const Customization = () => {
                     </div>
                 )}
                 {activeTab === "Logo" && (
-                    <div className="space-y-4">
-                        {logo ? (
-                            <Image
-                                src={logo}
-                                alt="Platform Logo"
-                                width={160}
-                                height={160}
-                                className="w-[120px] h-uato border border-gray-600 p-2 bg-white"
-                            />
-                        ) : (
-                            <p className="text-gray-400">No Logo uploaded</p>
-                        )}
-                        <div>  
-                            <input
-                                type="file"
-                                accept="image/*" 
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if(!file) return;
-                                    const formData = new FormData();
-                                    formData.append("file", file);
-                                    try {
-                                        const res = await axiosInstance.post(
-                                            "/admin/api/upload-logo",
-                                            formData
-                                        )
-                                        setLogo(res.data.logo);
-                                    } catch (error) {
-                                        console.error("Logo upload failed", error)           
-                                    }
-                                }}
-                                className="text-sm text-white"
-                            />
+                    <div className="max-w-2xl">
+                        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <ImageIcon size={20} className="text-blue-400" />
+                                Platform Logo
+                            </h3>
+                            
+                            {/* Current Logo Preview */}
+                            {logo && (
+                                <div className="mb-6 relative">
+                                    <p className="text-sm text-gray-400 mb-3">Current Logo:</p>
+                                    <div className="relative inline-block">
+                                        <div className="bg-white p-4 rounded-lg border-2 border-gray-600">
+                                            <Image
+                                                src={logo}
+                                                alt="Platform Logo"
+                                                width={200}
+                                                height={200}
+                                                className="w-auto h-32 object-contain"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setLogo(null);
+                                                toast.success("Logo removed");
+                                            }}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 rounded-full p-1.5 transition-colors"
+                                            title="Remove logo"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Upload Area */}
+                            <div className="space-y-4">
+                                <label
+                                    htmlFor="logo-upload"
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        setLogoDragActive(true);
+                                    }}
+                                    onDragLeave={() => setLogoDragActive(false)}
+                                    onDrop={async (e) => {
+                                        e.preventDefault();
+                                        setLogoDragActive(false);
+                                        const file = e.dataTransfer.files?.[0];
+                                        if (file && file.type.startsWith('image/')) {
+                                            await handleLogoUpload(file);
+                                        } else {
+                                            toast.error("Please upload an image file");
+                                        }
+                                    }}
+                                    className={`relative block w-full border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                                        logoDragActive
+                                            ? 'border-blue-500 bg-blue-500/10'
+                                            : 'border-gray-600 hover:border-gray-500 bg-gray-900/50'
+                                    } ${logoUploading ? 'pointer-events-none opacity-60' : ''}`}
+                                >
+                                    <input
+                                        id="logo-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) await handleLogoUpload(file);
+                                        }}
+                                        className="hidden"
+                                        disabled={logoUploading}
+                                    />
+                                    <div className="space-y-3">
+                                        {logoUploading ? (
+                                            <>
+                                                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                                                <p className="text-gray-300">Uploading logo...</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={48} className="mx-auto text-gray-400" />
+                                                <div>
+                                                    <p className="text-gray-300 font-medium mb-1">
+                                                        Click to upload or drag and drop
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        PNG, JPG, GIF up to 10MB
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </label>
+                                <p className="text-xs text-gray-500 text-center">
+                                    Recommended: Square image, 512x512px or larger
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
                 {activeTab === "Banner" && (
-                    <div className="space-y-4">
-                        {banner ? (
-                            <Image
-                                src={banner}
-                                alt="Platform Banner"
-                                width={160}
-                                height={160}
-                                className="w-full max-w-[600px] h-uato border border-gray-600 rounded-md"
-                            />
-                        ) : (
-                            <p className="text-gray-400">No banner uploaded</p>
-                        )}
-                        <div>  
-                            <input
-                                type="file"
-                                accept="image/*" 
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if(!file) return;
-                                    const formData = new FormData();
-                                    formData.append("file", file);
-                                    try {
-                                        const res = await axiosInstance.post(
-                                            "/admin/api/upload-banner",
-                                            formData
-                                        )
-                                        setBanner(res.data.banner);
-                                    } catch (error) {
-                                        console.error("Banner upload failed", error)           
-                                    }
-                                }}
-                                className="text-sm text-white"
-                            />
+                    <div className="max-w-4xl">
+                        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                                <ImageIcon size={20} className="text-blue-400" />
+                                Platform Banner
+                            </h3>
+                            
+                            {/* Current Banner Preview */}
+                            {banner && (
+                                <div className="mb-6 relative">
+                                    <p className="text-sm text-gray-400 mb-3">Current Banner:</p>
+                                    <div className="relative inline-block w-full">
+                                        <div className="bg-gray-900 p-4 rounded-lg border-2 border-gray-600">
+                                            <Image
+                                                src={banner}
+                                                alt="Platform Banner"
+                                                width={1200}
+                                                height={300}
+                                                className="w-full h-48 object-cover rounded"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setBanner(null);
+                                                toast.success("Banner removed");
+                                            }}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 rounded-full p-1.5 transition-colors"
+                                            title="Remove banner"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Upload Area */}
+                            <div className="space-y-4">
+                                <label
+                                    htmlFor="banner-upload"
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        setBannerDragActive(true);
+                                    }}
+                                    onDragLeave={() => setBannerDragActive(false)}
+                                    onDrop={async (e) => {
+                                        e.preventDefault();
+                                        setBannerDragActive(false);
+                                        const file = e.dataTransfer.files?.[0];
+                                        if (file && file.type.startsWith('image/')) {
+                                            await handleBannerUpload(file);
+                                        } else {
+                                            toast.error("Please upload an image file");
+                                        }
+                                    }}
+                                    className={`relative block w-full border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                                        bannerDragActive
+                                            ? 'border-blue-500 bg-blue-500/10'
+                                            : 'border-gray-600 hover:border-gray-500 bg-gray-900/50'
+                                    } ${bannerUploading ? 'pointer-events-none opacity-60' : ''}`}
+                                >
+                                    <input
+                                        id="banner-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) await handleBannerUpload(file);
+                                        }}
+                                        className="hidden"
+                                        disabled={bannerUploading}
+                                    />
+                                    <div className="space-y-3">
+                                        {bannerUploading ? (
+                                            <>
+                                                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                                                <p className="text-gray-300">Uploading banner...</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={48} className="mx-auto text-gray-400" />
+                                                <div>
+                                                    <p className="text-gray-300 font-medium mb-1">
+                                                        Click to upload or drag and drop
+                                                    </p>
+                                                    <p className="text-sm text-gray-500">
+                                                        PNG, JPG, GIF up to 10MB
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </label>
+                                <p className="text-xs text-gray-500 text-center">
+                                    Recommended: Wide image, 1920x400px or similar aspect ratio
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
